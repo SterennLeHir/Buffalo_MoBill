@@ -10,7 +10,6 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
-import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.core.app.ActivityCompat
@@ -19,7 +18,6 @@ import android.Manifest
 import android.content.IntentFilter
 import android.location.LocationManager
 import android.provider.Settings
-import android.widget.ListView
 
 class MultiplayersConnexion : ComponentActivity() {
 
