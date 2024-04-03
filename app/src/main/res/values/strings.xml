@@ -2,4 +2,12 @@
     <string name="app_name">Buffalo_MoBill</string>
     <string name="button_solo">Single player</string>
     <string name="button_multi">Multiplayers</string>
+    <string name="gamelist">Liste des jeux</string>
+    <string name="game1">Milk Master</string>
+    <string name="game2">Wild Ride</string>
+    <string name="game3">Shady Showdown</string>
+    <string name="game4">Quick Quiz</string>
+    <string name="game5">Cow Catcher</string>
+    <string name="game6">Prickly Picking</string>
+
 </resources>

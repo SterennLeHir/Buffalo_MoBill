@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <Button
+        android:id="@+id/solo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#5D421F"
+        android:fontFamily="@font/old_standard_tt"
+        android:textColor="#E1B047"/>
+</selector>
