@@ -9,7 +9,7 @@ android {
 
     defaultConfig {
         applicationId = "esir.progmob.buffalo_mobill"
-        minSdk = 31
+        minSdk = 26
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
