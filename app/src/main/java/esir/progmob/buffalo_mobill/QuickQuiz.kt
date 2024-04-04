@@ -1,7 +1,6 @@
 package esir.progmob.buffalo_mobill
 
 import android.os.Bundle
-import android.view.View
 import android.widget.Button
 import android.widget.TextView
 import androidx.activity.ComponentActivity
@@ -10,7 +9,7 @@ import kotlin.random.Random
 class QuickQuiz : ComponentActivity() {
 
     // listes des questions
-    var questions : MutableList<String> = mutableListOf(
+    private var questions : MutableList<String> = mutableListOf(
         "Quel est le nom du cheval de Lucky Luke ?",
         "Combien il y a t'il de BD Lucky Luke ?",
         "Quel est le plus grand des frères Dalton ?",
@@ -18,7 +17,7 @@ class QuickQuiz : ComponentActivity() {
     )
 
     // listes des propositions
-    var choices :  MutableList<List<String>> = mutableListOf(
+    private var choices :  MutableList<List<String>> = mutableListOf(
         listOf(
             "Joly Jumper",
             "Jolie Jumper",
@@ -47,25 +46,25 @@ class QuickQuiz : ComponentActivity() {
     )
 
     // liste des réponses correctes
-    var answers : MutableList<String> = mutableListOf(
+    private var answers : MutableList<String> = mutableListOf(
         "Jolly Jumper",
         "85",
         "Averell",
         "Jack, Joe, William et Averell"
     )
 
-    var numberOfQuestions : Int = 1
-    var questionNumber : Int = -1
-    var score : Int = 0
+    private var numberOfQuestions : Int = 1
+    private var questionNumber : Int = -1
+    private var score : Int = 0
 
     // éléments graphiques
-    lateinit var choice1 : Button
-    lateinit var choice2 : Button
-    lateinit var choice3 : Button
-    lateinit var choice4 : Button
-    lateinit var next : Button
-    lateinit var scoreView : TextView
-    lateinit var questionView : TextView
+    private lateinit var choice1 : Button
+    private lateinit var choice2 : Button
+    private lateinit var choice3 : Button
+    private lateinit var choice4 : Button
+    private lateinit var next : Button
+    private lateinit var scoreView : TextView
+    private lateinit var questionView : TextView
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.quick_quiz)
@@ -84,19 +83,19 @@ class QuickQuiz : ComponentActivity() {
 
         // Initialisation des actions liés au clic sur les boutons
         choice1.setOnClickListener{ // on pourra changer le fond en rouge ou vert en fonction de la réponse
-            var goodAnswer = checkAnswer((choice1.text.toString()))
+            val goodAnswer = checkAnswer((choice1.text.toString()))
             updateScore(goodAnswer)
         }
         choice2.setOnClickListener { // on pourra changer le fond en rouge ou vert en fonction de la réponse
-            var goodAnswer = checkAnswer((choice2.text.toString()))
+            val goodAnswer = checkAnswer((choice2.text.toString()))
             updateScore(goodAnswer)
         }
         choice3.setOnClickListener{ // on pourra changer le fond en rouge ou vert en fonction de la réponse
-            var goodAnswer = checkAnswer((choice3.text.toString()))
+            val goodAnswer = checkAnswer((choice3.text.toString()))
             updateScore(goodAnswer)
         }
         choice4.setOnClickListener{ // on pourra changer le fond en rouge ou vert en fonction de la réponse
-            var goodAnswer = checkAnswer((choice4.text.toString()))
+            val goodAnswer = checkAnswer((choice4.text.toString()))
             updateScore(goodAnswer)
         }
         next.setOnClickListener{ // on pourra changer le fond en rouge ou vert en fonction de la réponse
@@ -112,7 +111,7 @@ class QuickQuiz : ComponentActivity() {
     /**
      * met à jour la question (textView) et les choix de réponses (button)
      */
-    fun nextQuestion() {
+    private fun nextQuestion() {
 
         if (questionNumber != -1){ // on n'est pas à la première question
             // On supprime les éléments de la question que l'on venait de poser
@@ -136,7 +135,7 @@ class QuickQuiz : ComponentActivity() {
      * @param answer, la réponse donnée par le joueur
      * renvoie true si la réponse est bonne, fausse sinon
      */
-    fun checkAnswer(answer : String) : Boolean {
+    private fun checkAnswer(answer : String) : Boolean {
         return answer.equals(answers[questionNumber])
     }
 
@@ -144,8 +143,8 @@ class QuickQuiz : ComponentActivity() {
      * @param goodAnswer, booléen indiquant si le joueur a bien répondu ou non
      * met à jour l'affichage du score sur l'écran de jeu
      */
-    fun updateScore(goodAnswer : Boolean) {
-        var newScore : Int = score + calculateScore(goodAnswer)
+    private fun updateScore(goodAnswer : Boolean) {
+        val newScore : Int = score + calculateScore(goodAnswer)
         scoreView.text = newScore.toString()
     }
 
@@ -153,7 +152,7 @@ class QuickQuiz : ComponentActivity() {
      * @param goodAnswer, booléen indiquant si le joueur a bien répondu ou non
      * calcule le score en prenant compte le temps de réponse du joueur (ajouter un compteur du temps en attribut de classe)
      */
-    fun calculateScore(goodAnswer : Boolean) : Int {
-        return 10
+    private fun calculateScore(goodAnswer : Boolean) : Int {
+        return if (goodAnswer) 10 else 0
     }
 }
