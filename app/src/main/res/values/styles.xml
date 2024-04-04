@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="bouton">
+        <item name="android:textColor">#E1B047</item>
+        <item name="android:background">#5D421F</item>
+        <item name="android:font">@font/old_standard_tt</item>
+        <item name="android:buttonCornerRadius">15dp</item>
+        <item name="android:layout_width">200dp</item>
+        <item name="android:layout_marginBottom">25dp</item>
+    </style>
+    <style name="background">
+        <item name="android:background">@drawable/background</item>
+        <item name="android:gravity">center_horizontal</item>
+    </style>
+</resources>

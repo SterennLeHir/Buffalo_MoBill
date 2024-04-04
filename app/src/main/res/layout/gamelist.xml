@@ -2,53 +2,73 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/background"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    style="@style/background">
 
     <TextView
         android:id="@+id/titleGameList"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginVertical="8dp"
+        android:layout_marginVertical="10dp"
+        android:layout_marginBottom="15dp"
         android:text="@string/gamelist"
         android:textAlignment="center"
         android:textColor="#FFFFFF"
-        android:textSize="34sp" />
+        android:textSize="30sp"/>
 
     <Button
-        android:id="@+id/button"
-        android:layout_width="match_parent"
+        android:id="@+id/milk_master"
+        style="@style/bouton"
         android:layout_height="wrap_content"
-        android:text="Button"
-        android:textAppearance="@style/Theme.Buffalo_MoBill" />
+        android:gravity="center"
+        android:text="@string/game1"
+        android:layout_marginTop="20dp"/>
 
     <Button
-        android:id="@+id/button2"
-        android:layout_width="match_parent"
+        android:id="@+id/wild_ride"
+        style="@style/bouton"
         android:layout_height="wrap_content"
-        android:text="Button" />
+        android:text="@string/game2" />
 
     <Button
-        android:id="@+id/button3"
-        android:layout_width="match_parent"
+        android:id="@+id/shady_showdown"
+        style="@style/bouton"
         android:layout_height="wrap_content"
-        android:text="Button" />
+        android:text="@string/game3" />
 
     <Button
-        android:id="@+id/button4"
-        android:layout_width="match_parent"
+        android:id="@+id/quick_quiz"
+        style="@style/bouton"
         android:layout_height="wrap_content"
-        android:text="Button" />
+        android:text="@string/game4" />
 
     <Button
-        android:id="@+id/button5"
-        android:layout_width="match_parent"
+        android:id="@+id/cow_catcher"
+        style="@style/bouton"
         android:layout_height="wrap_content"
-        android:text="Button" />
+        android:text="@string/game5"/>
 
     <Button
-        android:id="@+id/button6"
+        android:id="@+id/prickly_picking"
+        style="@style/bouton"
+        android:layout_height="wrap_content"
+        android:text="@string/game6" />
+
+    <TextView
+        android:id="@+id/surprise"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Button" />
+        android:text="@string/random_game_text"
+        android:layout_marginVertical="8dp"
+        android:textAlignment="center"
+        android:textColor="#FFFFFF"
+        android:textSize="30sp"/>
+
+    <Button
+        android:id="@+id/button7"
+        style="@style/bouton"
+        android:layout_height="wrap_content"
+        android:text="@string/random_game"
+        android:layout_marginTop="20dp"/>
+
 </LinearLayout>
