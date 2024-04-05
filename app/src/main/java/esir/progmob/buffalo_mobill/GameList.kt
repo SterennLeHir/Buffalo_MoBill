@@ -2,6 +2,7 @@ package esir.progmob.buffalo_mobill
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import androidx.activity.ComponentActivity
 
@@ -33,6 +34,7 @@ class GameList : ComponentActivity() {
         }
         buttonQuickQuiz.setOnClickListener{
             val game4 = Intent(this, QuickQuiz::class.java)
+            Log.d("GAME", "On appuie sur QuickQuiz");
             startActivity(game4)
         }
         buttonCowCatcher.setOnClickListener{

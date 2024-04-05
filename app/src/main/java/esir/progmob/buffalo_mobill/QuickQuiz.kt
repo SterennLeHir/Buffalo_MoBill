@@ -53,7 +53,7 @@ class QuickQuiz : ComponentActivity() {
         "Jack, Joe, William et Averell"
     )
 
-    private var numberOfQuestions : Int = 1
+    private var numberOfQuestions : Int = 2
     private var questionNumber : Int = -1
     private var score : Int = 0
 
@@ -105,14 +105,13 @@ class QuickQuiz : ComponentActivity() {
                 nextQuestion()
             }
         }
-
+        nextQuestion() // 1ère question
     }
 
     /**
      * met à jour la question (textView) et les choix de réponses (button)
      */
     private fun nextQuestion() {
-
         if (questionNumber != -1){ // on n'est pas à la première question
             // On supprime les éléments de la question que l'on venait de poser
             choices.removeAt(questionNumber)
@@ -129,6 +128,7 @@ class QuickQuiz : ComponentActivity() {
         choice2.text = listOfChoices[1]
         choice3.text = listOfChoices[2]
         choice4.text = listOfChoices[3]
+        return
     }
 
     /**

@@ -77,7 +77,7 @@
             android:id="@+id/next"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Button"
+            android:text="NEXT"
             style="@style/bouton"
             android:layout_marginTop="80dp"/>
 
