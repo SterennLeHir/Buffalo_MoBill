@@ -1,6 +1,7 @@
 package esir.progmob.buffalo_mobill
 
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
@@ -85,32 +86,41 @@ class QuickQuiz : ComponentActivity() {
 
         // Initialisation des actions liés au clic sur les boutons
         choice1.setOnClickListener{ // on pourra changer le fond en rouge ou vert en fonction de la réponse
-            val goodAnswer = checkAnswer((choice1.text.toString()))
-            isAnswered = true
-            updateScore(goodAnswer)
-            if (goodAnswer) Toast.makeText(this, "Réponse correcte", Toast.LENGTH_SHORT).show()
-            else Toast.makeText(this, "Réponse incorrecte", Toast.LENGTH_SHORT).show()
+            Log.d("QUICKQUIZ", isAnswered.toString())
+            if (!isAnswered) {
+                val goodAnswer = checkAnswer((choice1.text.toString()))
+                updateScore(goodAnswer)
+                if (goodAnswer) Toast.makeText(this, "Réponse correcte", Toast.LENGTH_SHORT).show()
+                else Toast.makeText(this, "Réponse incorrecte", Toast.LENGTH_SHORT).show()
+                isAnswered = true
+            }
         }
         choice2.setOnClickListener { // on pourra changer le fond en rouge ou vert en fonction de la réponse
-            val goodAnswer = checkAnswer((choice2.text.toString()))
-            isAnswered = true
-            updateScore(goodAnswer)
-            if (goodAnswer) Toast.makeText(this, "Réponse correcte", Toast.LENGTH_SHORT).show()
-            else Toast.makeText(this, "Réponse incorrecte", Toast.LENGTH_SHORT).show()
+            if (!isAnswered) {
+                val goodAnswer = checkAnswer((choice2.text.toString()))
+                updateScore(goodAnswer)
+                if (goodAnswer) Toast.makeText(this, "Réponse correcte", Toast.LENGTH_SHORT).show()
+                else Toast.makeText(this, "Réponse incorrecte", Toast.LENGTH_SHORT).show()
+                isAnswered = true
+            }
         }
         choice3.setOnClickListener{ // on pourra changer le fond en rouge ou vert en fonction de la réponse
-            val goodAnswer = checkAnswer((choice3.text.toString()))
-            isAnswered = true
-            updateScore(goodAnswer)
-            if (goodAnswer) Toast.makeText(this, "Réponse correcte", Toast.LENGTH_SHORT).show()
-            else Toast.makeText(this, "Réponse incorrecte", Toast.LENGTH_SHORT).show()
+            if (!isAnswered) {
+                val goodAnswer = checkAnswer((choice3.text.toString()))
+                updateScore(goodAnswer)
+                if (goodAnswer) Toast.makeText(this, "Réponse correcte", Toast.LENGTH_SHORT).show()
+                else Toast.makeText(this, "Réponse incorrecte", Toast.LENGTH_SHORT).show()
+                isAnswered = true
+            }
         }
         choice4.setOnClickListener{ // on pourra changer le fond en rouge ou vert en fonction de la réponse
-            val goodAnswer = checkAnswer((choice4.text.toString()))
-            isAnswered = true
-            updateScore(goodAnswer)
-            if (goodAnswer) Toast.makeText(this, "Réponse correcte", Toast.LENGTH_SHORT).show()
-            else Toast.makeText(this, "Réponse incorrecte", Toast.LENGTH_SHORT).show()
+            if (!isAnswered) {
+                val goodAnswer = checkAnswer((choice4.text.toString()))
+                updateScore(goodAnswer)
+                if (goodAnswer) Toast.makeText(this, "Réponse correcte", Toast.LENGTH_SHORT).show()
+                else Toast.makeText(this, "Réponse incorrecte", Toast.LENGTH_SHORT).show()
+                isAnswered = true
+            }
         }
         next.setOnClickListener{ // on pourra changer le fond en rouge ou vert en fonction de la réponse
             if (numberOfQuestions == 0) {
