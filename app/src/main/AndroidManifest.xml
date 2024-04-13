@@ -64,6 +64,16 @@
             android:exported="true"
             android:theme="@style/Theme.Buffalo_MoBill">
         </activity>
+        <activity
+            android:name=".BluetoothPermissions"
+            android:exported="true"
+            android:theme="@style/Theme.Buffalo_MoBill">
+        </activity>
+        <activity
+            android:name=".BluetoothConnexion"
+            android:exported="true"
+            android:theme="@style/Theme.Buffalo_MoBill">
+        </activity>
     </application>
 
 </manifest>

@@ -16,5 +16,9 @@ class Home : ComponentActivity() {
             val intent = Intent(this, GameList::class.java)
             startActivity(intent)
         }
+        buttonMulti.setOnClickListener{
+            val intent = Intent(this, BluetoothPermissions::class.java)
+            startActivity(intent)
+        }
     }
 }

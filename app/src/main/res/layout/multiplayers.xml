@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    style="@style/background">
+
+
+    <Button
+        android:id="@+id/server"
+        android:layout_height="wrap_content"
+        android:text="Créer une partie"
+        style="@style/bouton"/>
+
+    <Button
+        android:id="@+id/client"
+        android:layout_height="wrap_content"
+        android:text="Rejoindre une partie"
+        style="@style/bouton"/>
+</LinearLayout>
