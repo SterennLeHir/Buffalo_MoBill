@@ -142,9 +142,9 @@ class BluetoothPermissions : ComponentActivity() {
                 */
                 Toast.makeText(this, "Veuillez activer la localisation", Toast.LENGTH_SHORT).show()
             } else {
-                // On lance la recherche des appareils à proximité
-                val start = bluetoothAdapter.startDiscovery()
-                Log.d("BLUETOOTH", "[server] start discovery : " + start.toString())
+                val intent = Intent(this, ServerConnexion::class.java)
+                startActivity(intent)
+                finish()
             }
         }
         buttonClient.setOnClickListener {
@@ -158,7 +158,7 @@ class BluetoothPermissions : ComponentActivity() {
                 */
                 Toast.makeText(this, "Veuillez activer la localisation", Toast.LENGTH_SHORT).show()
             } else {
-                val intent = Intent(this, BluetoothConnexion::class.java)
+                val intent = Intent(this, ClientConnexion::class.java)
                 startActivity(intent)
                 finish()
             }
