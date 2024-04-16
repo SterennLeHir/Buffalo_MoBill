@@ -19,7 +19,6 @@ import androidx.core.content.ContextCompat
 class BluetoothPermissions : ComponentActivity() {
 
     private lateinit var bluetoothAdapter: BluetoothAdapter
-    //private var answer: Boolean = false // vérifie si l'utilisateur a accepté ou rejeté les permissions
     private var bluetoothAccepted = false
     private var localisationAccepted = false
     companion object {
@@ -28,19 +27,30 @@ class BluetoothPermissions : ComponentActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        Log.d("BLUETOOTH", "onCreate multi")
         super.onCreate(savedInstanceState)
+
+        //On applique le layout pour le multiplayer
         setContentView(R.layout.multiplayers)
-        Log.d("BLUETOOTH", "début de onCreate")
-        // On vérifie que l'utilisateur a le bluetooth
+
+        //On récupère le bluetooth adapter
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
+
+        // On vérifie que l'utilisateur a le bluetooth
+        verifyBluetoothSupported()
+    }
+
+    private fun verifyBluetoothSupported(){
         if (bluetoothAdapter == null) {
             Toast.makeText(this, "Bluetooth not supported", Toast.LENGTH_SHORT).show()
             finish()
         }
-
         Log.d("BLUETOOTH", "bluetooth supporté")
+
+        //Puis on vérifie les permissions Bluetooth
         checkBluetoothPermissions()
     }
+
     private fun checkBluetoothPermissions() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             if (ContextCompat.checkSelfPermission(

@@ -60,5 +60,7 @@ class ServerConnexion : ComponentActivity() {
         super.onCreate(savedInstantState)
         setContentView(R.layout.bluetooth_server)
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
+        val thread = AcceptThread()
+        thread.start()
     }
 }
