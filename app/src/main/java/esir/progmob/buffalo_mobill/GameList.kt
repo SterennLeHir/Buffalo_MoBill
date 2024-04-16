@@ -34,7 +34,6 @@ class GameList : ComponentActivity() {
         }
         buttonQuickQuiz.setOnClickListener{
             val game4 = Intent(this, QuickQuiz::class.java)
-            Log.d("GAME", "On appuie sur QuickQuiz");
             startActivity(game4)
         }
         buttonCowCatcher.setOnClickListener{
