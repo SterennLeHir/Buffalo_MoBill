@@ -5,6 +5,7 @@ import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothServerSocket
 import android.bluetooth.BluetoothSocket
+import android.content.Intent
 import android.content.IntentFilter
 import android.os.Bundle
 import android.util.Log
@@ -60,6 +61,11 @@ class ServerConnexion : ComponentActivity() {
         super.onCreate(savedInstantState)
         setContentView(R.layout.bluetooth_server)
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
+        val requestCode = 1;
+        val discoverableIntent: Intent = Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE).apply {
+            putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300)
+        }
+        startActivityForResult(discoverableIntent, requestCode)
         val thread = AcceptThread()
         thread.start()
     }
