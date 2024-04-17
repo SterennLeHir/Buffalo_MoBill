@@ -23,7 +23,7 @@ class Home : ComponentActivity() {
             startActivity(intent)
         }
         buttonMulti.setOnClickListener{
-            val intent = Intent(this, BluetoothPermissions::class.java)
+            val intent = Intent(this, Multiplayer::class.java)
             startActivity(intent)
         }
     }

@@ -16,6 +16,9 @@ import androidx.activity.ComponentActivity
 import androidx.core.app.ActivityCompat
 import android.Manifest
 import android.bluetooth.BluetoothSocket
+import android.os.Handler
+import android.os.Looper
+import android.os.Message
 import android.widget.AdapterView
 import java.io.IOException
 
@@ -75,6 +78,7 @@ class ClientConnexion : ComponentActivity() {
 
         // Closes the client socket and causes the thread to finish.
         fun cancel() {
+            Log.d("CONNEXION", "cancel connexion")
             try {
                 mmSocket?.close()
             } catch (e: IOException) {
@@ -85,6 +89,16 @@ class ClientConnexion : ComponentActivity() {
 
     private fun manageMyConnectedSocket(it: BluetoothSocket) {
         Log.d("CONNEXION", "fonction de transfert de données")
+        val handler = object : Handler(Looper.getMainLooper()) {
+            override fun handleMessage(msg: Message) {
+                // Traitez le message ici
+                Log.d("DATAEXCHANGE", "[client] Message received: " + msg.what.toString() + " " + msg.obj.toString())
+            }
+        }
+        val dataExchange = DataExchange(this, it, handler)
+        dataExchange.start()
+        dataExchange.write("Hello");
+        Log.d("DATAEXCHANGE", "DataExchange started");
     }
 
     @SuppressLint("MissingPermission")

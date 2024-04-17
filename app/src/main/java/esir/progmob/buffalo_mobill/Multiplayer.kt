@@ -16,7 +16,7 @@ import androidx.activity.ComponentActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 
-class BluetoothPermissions : ComponentActivity() {
+class Multiplayer : ComponentActivity() {
 
     private lateinit var bluetoothAdapter: BluetoothAdapter
     private var bluetoothAccepted = false
