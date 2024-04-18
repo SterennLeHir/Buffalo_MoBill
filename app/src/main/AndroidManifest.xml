@@ -69,6 +69,21 @@
             android:exported="true"
             android:theme="@style/Theme.Buffalo_MoBill">
         </activity>
+        <activity
+            android:name=".CowCatcher"
+            android:exported="true"
+            android:theme="@style/Theme.Buffalo_MoBill">
+        </activity>
+        <activity
+            android:name=".WildRide"
+            android:exported="true"
+            android:theme="@style/Theme.Buffalo_MoBill">
+        </activity>
+        <activity
+            android:name=".MilkMaster"
+            android:exported="true"
+            android:theme="@style/Theme.Buffalo_MoBill">
+        </activity>
     </application>
 
 </manifest>
