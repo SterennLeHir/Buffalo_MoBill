@@ -4,15 +4,18 @@ import android.content.Context
 import android.os.Bundle
 import android.util.DisplayMetrics
 import android.util.Log
+import android.util.TypedValue
 import android.view.GestureDetector
 import android.view.MotionEvent
+import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.view.animation.TranslateAnimation
+import android.widget.FrameLayout
 import android.widget.ImageView
-import android.widget.LinearLayout
 import androidx.activity.ComponentActivity
 import kotlin.random.Random
+
 
 private const val DEBUG_TAG = "Gestures"
 
@@ -89,17 +92,35 @@ class CowCatcher : ComponentActivity(){
         }
     }
 
-    private fun createCowView(context: Context): ImageView {
-        val cowView = ImageView(context)
-        cowView.setImageResource(R.drawable.bandit) // Remplacez "votre_image" par le nom de votre image
-        // Générez des positions aléatoires pour les images
-        cowView.x = Random.nextInt(screenWidth - cowView.width).toFloat()
-        cowView.y = Random.nextInt(screenHeight - cowView.height).toFloat()
+    // Fonction pour convertir des pixels en dp
+    fun Context.dpToPx(dp: Float): Float {
+        return TypedValue.applyDimension(
+            TypedValue.COMPLEX_UNIT_DIP,
+            dp,
+            resources.displayMetrics
+        )
+    }
 
+    private fun createCowView(context: Context): ImageView {
+        val cowView = ImageView(context) //On crée la nouvelle vue
+
+        //Set la taille de la vache
+        val dpToPxH = this.dpToPx(100f).toInt()
+        val dpToPxW = this.dpToPx(100f).toInt()
+        val dpToPxSeuil = this.dpToPx(400f).toInt()
+        val layoutParams: ViewGroup.LayoutParams = ViewGroup.LayoutParams(dpToPxH, dpToPxW)
+        cowView.setLayoutParams(layoutParams)
+
+        //Set l'image de la vache
+        cowView.setImageResource(R.drawable.bandit)
+
+        // Générez des positions aléatoires pour les images
+        cowView.x = Random.nextInt(screenWidth - dpToPxW).toFloat()
+        cowView.y = Random.nextInt(screenHeight - dpToPxH - dpToPxSeuil).toFloat() //plus haut que le lasso
         return cowView
     }
     private fun generateCows(){
-        val parentView = findViewById<LinearLayout>(R.id.cowParent)
+        val parentView = findViewById<FrameLayout>(R.id.cowParent)
         val nCows = 3 // Nombre de vaches
         cows = ArrayList<ImageView>()
 
@@ -107,7 +128,6 @@ class CowCatcher : ComponentActivity(){
             val cowView = createCowView(this) //on instancie une nouvelle vache
             cows.add(cowView) //on ajoute la vache à notre liste de vaches
             parentView.addView(cowView) //on ajoute la vache à la vue parente
-            Log.d("vache", "vache " + i + " x : " + cowView.x +" y : " + cowView.y)
         }
     }
 }
