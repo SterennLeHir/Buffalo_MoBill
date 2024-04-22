@@ -43,7 +43,7 @@
     </LinearLayout>
 
     <Button
-        android:id="@+id/button"
+        android:id="@+id/next"
         android:layout_height="wrap_content"
         android:text="@string/next"
         style="@style/bouton"/>

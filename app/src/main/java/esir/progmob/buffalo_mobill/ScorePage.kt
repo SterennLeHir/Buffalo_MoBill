@@ -31,29 +31,16 @@ class ScorePage : ComponentActivity() {
 
         // On modifie le handler du serveur
         if (isMulti && isServer) {
-            handler = object : Handler(Looper.getMainLooper()) {
-                override fun handleMessage(msg: Message) {
-                    // le message indiquera qu'on doit passer à la suite
-                    val message = msg.obj.toString()
-                    Log.d("DATAEXCHANGE", "[Server ScorePage] Message received: " + msg.what.toString() + " " + message)
-                    if (message == "ShadyShowdown") {
-                        val intent = Intent(this@ScorePage, GameList::class.java)
-                        intent.putExtra("multi", true)
-                        intent.putExtra("isServer", true)
-                        intent.putExtra("score", myScore)
-                        intent.putExtra("scoreAdversaire", theirScore)
-                    }
-                }
-            }
+            //TODO : Ajouter le code pour le serveur
         }
-        Multiplayer.Exchange.dataExchangeServer.setHandler(handler!!)
+        //Multiplayer.Exchange.dataExchangeServer.setHandler(handler!!)
         // On ajoute un listener au bouton
-        val button = findViewById<TextView>(R.id.button)
+        val button = findViewById<TextView>(R.id.next)
         button.setOnClickListener {
             if (isMulti && !isServer) {
-                Multiplayer.Exchange.dataExchangeClient.write("ShadyShowdown")
+                //Multiplayer.Exchange.dataExchangeClient.write("ShadyShowdown")
             } else if (isMulti) {
-                Toast.makeText(this, "En attente de l'autre joueur", Toast.LENGTH_SHORT).show()
+                //Toast.makeText(this, "En attente de l'autre joueur", Toast.LENGTH_SHORT).show()
             }
         }
     }
