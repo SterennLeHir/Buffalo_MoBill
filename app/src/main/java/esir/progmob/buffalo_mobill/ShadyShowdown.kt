@@ -45,7 +45,7 @@ class ShadyShowdown : ComponentActivity(), SensorEventListener {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.shady_showdown)
         // Récupération des informations
-        val isMulti = intent.getBooleanExtra("multi", false)
+        val isMulti = intent.getBooleanExtra("isMulti", false)
         val isServer = intent.getBooleanExtra("isServer", false)
         // Initialisation des capteurs
         sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
@@ -71,10 +71,11 @@ class ShadyShowdown : ComponentActivity(), SensorEventListener {
                 val intent = Intent(this@ShadyShowdown, ScorePage::class.java)
                 intent.putExtra("score", score)
                 intent.putExtra("scoreAdversaire", scoreAdversaire)
-                intent.putExtra("multi", isMulti)
+                intent.putExtra("isMulti", isMulti)
                 intent.putExtra("isServer", isServer)
                 Log.d("DATAEXCHANGE", "[Server] On lance la page de score")
-                startActivity(intent)
+                startActivityForResult(intent, 1) // test
+                finish()
             }
         }
         val handlerClient = object : Handler(Looper.getMainLooper()) { // quand on reçoit un message on lance l'activité
@@ -90,10 +91,11 @@ class ShadyShowdown : ComponentActivity(), SensorEventListener {
                 val intent = Intent(this@ShadyShowdown, ScorePage::class.java)
                 intent.putExtra("score", score)
                 intent.putExtra("scoreAdversaire", scoreAdversaire)
-                intent.putExtra("multi", isMulti)
+                intent.putExtra("isMulti", isMulti)
                 intent.putExtra("isServer", isServer)
                 Log.d("DATAEXCHANGE", "[Client] On lance la page de score")
-                startActivity(intent)
+                startActivityForResult(intent, 1) // test
+                finish()
             }
         }
         if (isServer) {
@@ -120,7 +122,6 @@ class ShadyShowdown : ComponentActivity(), SensorEventListener {
                     Multiplayer.Exchange.dataExchangeClient.write(score.toString()) // on envoie le score à l'autre joueur
                 }
                 scoreSent = true
-                //finish()
             }
         }
         // Initialisation de la taille de l'écran
@@ -132,18 +133,18 @@ class ShadyShowdown : ComponentActivity(), SensorEventListener {
     }
 
     private fun placeImage() {
-        val x = Random.nextInt(screenWidth - 50)
-        val y = Random.nextInt(screenHeight - 50)
+        val x = Random.nextInt(screenWidth - 70)
+        val y = Random.nextInt(screenHeight - 70)
         bandit.x = x.toFloat()
         bandit.y = y.toFloat()
     }
 
     override fun onSensorChanged(event: SensorEvent?) {
         if (event?.sensor?.type == Sensor.TYPE_LIGHT) {
-            val lightValue = event.values[0]
+            val lightValue = event.values[0] // lumière initiale
             if (!init) {
-                lux = Random.nextFloat()*lightValue
-                delta = 0.1F*lux
+                lux = Random.nextFloat()*lightValue + 1 // On veut une valeur entre 1 et la luminosité actuelle
+                delta = 2F // à tester
                 Log.d("SENSOR", "Valeur voulue : $lux")
                 Log.d("SENSOR", "Delta voulue : $delta")
                 init = true
@@ -155,7 +156,7 @@ class ShadyShowdown : ComponentActivity(), SensorEventListener {
         }
     }
 
-    fun updateOpacity(lightValue : Float) {
+    private fun updateOpacity(lightValue : Float) {
         if (lux - delta < lightValue && lux + delta > lightValue) {
             bandit.visibility = ImageView.VISIBLE
             discover = true
@@ -176,10 +177,16 @@ class ShadyShowdown : ComponentActivity(), SensorEventListener {
 
     override fun onDestroy() {
         super.onDestroy()
+        Log.d("DATAEXCHANGE", "ShadyShowdown finished")
         sensorManager.unregisterListener(this)
     }
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
         // do nothing
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        Log.d("DATAEXCHANGE", "[ShadyShowdown] onActivityResult")
     }
 
 }

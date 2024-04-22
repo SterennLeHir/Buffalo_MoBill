@@ -16,7 +16,7 @@ class GameList : ComponentActivity() {
     private var isServer : Boolean = false
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        isMulti = intent.getBooleanExtra("multi", false)
+        isMulti = intent.getBooleanExtra("isMulti", false)
         isServer = intent.getBooleanExtra("isServer", false)
         Log.d("DATAEXCHANGE", "isServer : $isServer")
         if (isMulti && isServer) { // Si on est en multijoueur
@@ -30,38 +30,38 @@ class GameList : ComponentActivity() {
                         when (message) {
                             "CowCatcher" -> {
                                 val intent = Intent(this@GameList, CowCatcher::class.java)
-                                intent.putExtra("multi", true)
+                                intent.putExtra("isMulti", true)
                                 intent.putExtra("isServer", true)
                                 this@GameList.startActivity(intent)
                             }
                             "QuickQuiz" -> {
                                 val intent = Intent(this@GameList, QuickQuiz::class.java)
-                                intent.putExtra("multi", true)
+                                intent.putExtra("isMulti", true)
                                 intent.putExtra("isServer", true)
                                 this@GameList.startActivity(intent)
                             }
                             "ShadyShowdown" -> {
                                 val intent = Intent(this@GameList, ShadyShowdown::class.java)
-                                intent.putExtra("multi", true)
+                                intent.putExtra("isMulti", true)
                                 intent.putExtra("isServer", true)
-                                this@GameList.startActivity(intent)
+                                this@GameList.startActivityForResult(intent, 1)
                                 Log.d("DATAEXCHANGE", "ShadyShowdown")
                             }
                             "MilkMaster" -> {
                                 val intent = Intent(this@GameList, MilkMaster::class.java)
-                                intent.putExtra("multi", true)
+                                intent.putExtra("isMulti", true)
                                 intent.putExtra("isServer", true)
                                 this@GameList.startActivity(intent)
                             }
                             "WildRide" -> {
                                 val intent = Intent(this@GameList, WildRide::class.java)
-                                intent.putExtra("multi", true)
+                                intent.putExtra("isMulti", true)
                                 intent.putExtra("isServer", true)
                                 this@GameList.startActivity(intent)
                             }
                             "PricklyPicking" -> {
                                 val intent = Intent(this@GameList, PricklyPicking::class.java)
-                                intent.putExtra("multi", true)
+                                intent.putExtra("isMulti", true)
                                 intent.putExtra("isServer", true)
                                 this@GameList.startActivity(intent)
                             }
@@ -118,7 +118,8 @@ class GameList : ComponentActivity() {
             game3.putExtra("isServer", isServer)
             game3.putExtra("isMulti", isMulti)
             if (!isServer || !isMulti) {
-                startActivity(game3)
+                startActivityForResult(game3, 1) // test
+                //finish()
             }
         }
         buttonQuickQuiz.setOnClickListener{
@@ -132,6 +133,70 @@ class GameList : ComponentActivity() {
         buttonPricklyPicking.setOnClickListener{
             val game6 = Intent(this, PricklyPicking::class.java)
             startActivity(game6)
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        Log.d("DATAEXCHANGE", "GameList finished")
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        Log.d("DATAEXCHANGE", "[GameList] onActivityResult")
+        Log.d("DATAEXCHANGE", "isServer : $isServer, isMulti : $isMulti")
+        if (isMulti && isServer) {
+            Log.d("DATAEXCHANGE", "[Serveur] On met à jour le handler")
+            val handler = object : Handler(Looper.getMainLooper()) {
+                override fun handleMessage(msg: Message) {
+                    // Traitez le message ici
+                    val message = msg.obj.toString()
+                    Log.d("DATAEXCHANGE",
+                        "[server : gamelist] Message received: " + msg.what.toString() + " " + message)
+                    // On lance le jeu correspondant au message reçu choisi par le client
+                    when (message) {
+                        "CowCatcher" -> {
+                            val intent = Intent(this@GameList, CowCatcher::class.java)
+                            intent.putExtra("isMulti", true)
+                            intent.putExtra("isServer", true)
+                            this@GameList.startActivity(intent)
+                        }
+                        "QuickQuiz" -> {
+                            val intent = Intent(this@GameList, QuickQuiz::class.java)
+                            intent.putExtra("isMulti", true)
+                            intent.putExtra("isServer", true)
+                            this@GameList.startActivity(intent)
+                        }
+                        "ShadyShowdown" -> {
+                            val intent = Intent(this@GameList, ShadyShowdown::class.java)
+                            intent.putExtra("isMulti", true)
+                            intent.putExtra("isServer", true)
+                            this@GameList.startActivity(intent)
+                            Log.d("DATAEXCHANGE", "ShadyShowdown")
+                        }
+                        "MilkMaster" -> {
+                            val intent = Intent(this@GameList, MilkMaster::class.java)
+                            intent.putExtra("isMulti", true)
+                            intent.putExtra("isServer", true)
+                            this@GameList.startActivity(intent)
+                        }
+                        "WildRide" -> {
+                            val intent = Intent(this@GameList, WildRide::class.java)
+                            intent.putExtra("isMulti", true)
+                            intent.putExtra("isServer", true)
+                            this@GameList.startActivity(intent)
+                        }
+                        "PricklyPicking" -> {
+                            val intent = Intent(this@GameList, PricklyPicking::class.java)
+                            intent.putExtra("isMulti", true)
+                            intent.putExtra("isServer", true)
+                            this@GameList.startActivity(intent)
+                        }
+                    }
+                }
+            }
+            Log.d("DATAEXCHANGE", "Serveur set handler")
+            Multiplayer.Exchange.dataExchangeServer.setHandler(handler) // On met à jour l'handler du serveur
         }
     }
 }

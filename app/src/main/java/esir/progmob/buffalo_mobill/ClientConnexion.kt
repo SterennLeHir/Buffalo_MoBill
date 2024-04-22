@@ -94,7 +94,7 @@ class ClientConnexion : ComponentActivity() {
         Log.d("CONNEXION", "fonction de transfert de données")
         Multiplayer.SocketHolder.socket = it
         val intent = Intent(this, GameList::class.java)
-        intent.putExtra("multi", true) // on indique à l'activité qu'elle est en mode multijoueurs
+        intent.putExtra("isMulti", true) // on indique à l'activité qu'elle est en mode multijoueurs
         intent.putExtra("isServer", false) // on indique à l'activité qu'elle est le client
         startActivity(intent);
         finish()
@@ -108,7 +108,7 @@ class ClientConnexion : ComponentActivity() {
 
         // On crée le listener sur la liste
         val listView = findViewById<ListView>(R.id.liste)
-        listView.setOnItemClickListener(AdapterView.OnItemClickListener { parent, view, position, id -> //on récupère la HashMap contenant les infos de notre item (titre, description, img)
+        listView.onItemClickListener = AdapterView.OnItemClickListener { parent, view, position, id -> //on récupère la HashMap contenant les infos de notre item (titre, description, img)
             val device = parent.getItemAtPosition(position) as String
             val parts = device.split(",")
             Log.d("CONNEXION", "name =" + parts[0])
@@ -121,7 +121,7 @@ class ClientConnexion : ComponentActivity() {
                 Log.d("CONNEXION", "thread de connexion lancé")
             }
             Log.d("CONNEXION", (selectedDevice == null).toString())
-        })
+        }
         // On enregistre le broadcast receiver
         val discoverDevicesIntent = IntentFilter(BluetoothDevice.ACTION_FOUND)
         registerReceiver(receiver, discoverDevicesIntent)
@@ -149,5 +149,6 @@ class ClientConnexion : ComponentActivity() {
         super.onDestroy()
         unregisterReceiver(receiver)
         bluetoothAdapter.cancelDiscovery()
+        Log.d("CONNEXION", "ClientConnexion finished")
     }
 }

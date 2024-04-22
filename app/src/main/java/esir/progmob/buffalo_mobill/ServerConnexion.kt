@@ -66,7 +66,7 @@ class ServerConnexion : ComponentActivity() {
         Log.d("CONNEXION", "fonction de transfert de données")
         Multiplayer.SocketHolder.socket = it
         val intent = Intent(context, GameList::class.java)
-        intent.putExtra("multi", true) // on indique à l'activité qu'elle est en mode multijoueurs
+        intent.putExtra("isMulti", true) // on indique à l'activité qu'elle est en mode multijoueurs
         intent.putExtra("isServer", true) // on indique à l'activité qu'elle est le serveur
         context.startActivity(intent)
         finish()
@@ -80,10 +80,15 @@ class ServerConnexion : ComponentActivity() {
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
         val requestCode = 1;
         val discoverableIntent: Intent = Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE).apply {
-            putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300)
+            putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 100)
         }
         startActivityForResult(discoverableIntent, requestCode)
         val thread = AcceptThread(this)
         thread.start()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        Log.d("CONNEXION", "ServerConnexion finished")
     }
 }
