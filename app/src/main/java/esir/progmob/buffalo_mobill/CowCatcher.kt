@@ -1,5 +1,6 @@
 package esir.progmob.buffalo_mobill
 
+import android.content.Context
 import android.os.Bundle
 import android.util.DisplayMetrics
 import android.util.Log
@@ -9,12 +10,18 @@ import android.view.ViewTreeObserver
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.view.animation.TranslateAnimation
 import android.widget.ImageView
+import android.widget.LinearLayout
 import androidx.activity.ComponentActivity
+import kotlin.random.Random
+
 private const val DEBUG_TAG = "Gestures"
 
 class CowCatcher : ComponentActivity(){
     private lateinit var lasso: ImageView
     private lateinit var gest: GestureDetector
+    private lateinit var cows: ArrayList<ImageView>
+    private var screenWidth = 0
+    private var screenHeight = 0 //PAS BEAAAAAAAAAAAAAAAAU
     override fun onCreate(savedInstanceState: Bundle?) {
         //Constructeur et récupération du layout
         super.onCreate(savedInstanceState)
@@ -23,8 +30,8 @@ class CowCatcher : ComponentActivity(){
         //Métrique de l'écran pour placer les objets graphiques
         val displayMetrics = DisplayMetrics()
         windowManager.defaultDisplay.getMetrics(displayMetrics)
-        val screenWidth = displayMetrics.widthPixels
-        val screenHeight = displayMetrics.heightPixels
+        screenWidth = displayMetrics.widthPixels
+        screenHeight = displayMetrics.heightPixels
 
         //Récupérer et placer le lasso au bon endroit
         lasso = findViewById(R.id.lassoView)
@@ -43,6 +50,7 @@ class CowCatcher : ComponentActivity(){
             // Transmettre les événements tactiles au GestureDetector
             gest.onTouchEvent(event)
         }
+        generateCows()
     }
     private inner class LassoGestureListener : GestureDetector.SimpleOnGestureListener() {
         override fun onDown(e: MotionEvent): Boolean {
@@ -81,7 +89,25 @@ class CowCatcher : ComponentActivity(){
         }
     }
 
-    fun generateCows(){
-        
+    private fun createCowView(context: Context): ImageView {
+        val cowView = ImageView(context)
+        cowView.setImageResource(R.drawable.bandit) // Remplacez "votre_image" par le nom de votre image
+        // Générez des positions aléatoires pour les images
+        cowView.x = Random.nextInt(screenWidth - cowView.width).toFloat()
+        cowView.y = Random.nextInt(screenHeight - cowView.height).toFloat()
+
+        return cowView
+    }
+    private fun generateCows(){
+        val parentView = findViewById<LinearLayout>(R.id.cowParent)
+        val nCows = 3 // Nombre de vaches
+        cows = ArrayList<ImageView>()
+
+        for (i in 0 until nCows) {
+            val cowView = createCowView(this) //on instancie une nouvelle vache
+            cows.add(cowView) //on ajoute la vache à notre liste de vaches
+            parentView.addView(cowView) //on ajoute la vache à la vue parente
+            Log.d("vache", "vache " + i + " x : " + cowView.x +" y : " + cowView.y)
+        }
     }
 }
