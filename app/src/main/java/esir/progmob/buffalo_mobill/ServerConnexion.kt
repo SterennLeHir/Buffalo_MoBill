@@ -5,6 +5,7 @@ import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothServerSocket
 import android.bluetooth.BluetoothSocket
+import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Bundle
@@ -12,6 +13,7 @@ import android.os.Handler
 import android.os.Looper
 import android.os.Message
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import java.io.IOException
 
@@ -22,7 +24,7 @@ class ServerConnexion : ComponentActivity() {
         private const val UUID = "550e8400-e29b-41d4-a716-446655440000"
     }
     @SuppressLint("MissingPermission")
-    private inner class AcceptThread : Thread() { // connexion côté serveur
+    private inner class AcceptThread(val context: Context) : Thread() { // connexion côté serveur
 
         private var shouldLoop = true
         private val mmServerSocket: BluetoothServerSocket? by lazy(LazyThreadSafetyMode.NONE) {
@@ -40,9 +42,11 @@ class ServerConnexion : ComponentActivity() {
                     null
                 }
                 socket?.also {
-                    manageMyConnectedSocket(it)
+                    manageMyConnectedSocket(it, context)
                     //mmServerSocket?.close()
                     //shouldLoop = false
+                    //Looper.prepare()
+                    //Toast.makeText(context, "Connected", Toast.LENGTH_SHORT).show()
                 }
             }
         }
@@ -58,16 +62,15 @@ class ServerConnexion : ComponentActivity() {
         }
     }
 
-    private fun manageMyConnectedSocket(it: BluetoothSocket) {
+    private fun manageMyConnectedSocket(it: BluetoothSocket, context: Context) {
         Log.d("CONNEXION", "fonction de transfert de données")
-        val handler = object : Handler(Looper.getMainLooper()) {
-            override fun handleMessage(msg: Message) {
-                // Traitez le message ici
-                Log.d("DATAEXCHANGE", "[server] Message received: " + msg.what.toString() + " " + msg.obj.toString())
-            }
-        }
-        DataExchange(this, it, handler).start()
-        Log.d("DATAEXCHANGE", "DataExchange started");
+        Multiplayer.SocketHolder.socket = it
+        val intent = Intent(context, GameList::class.java)
+        intent.putExtra("multi", true) // on indique à l'activité qu'elle est en mode multijoueurs
+        intent.putExtra("isServer", true) // on indique à l'activité qu'elle est le serveur
+        context.startActivity(intent)
+        finish()
+        Log.d("CONNEXION", "finished")
     }
 
     @SuppressLint("MissingPermission")
@@ -80,7 +83,7 @@ class ServerConnexion : ComponentActivity() {
             putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300)
         }
         startActivityForResult(discoverableIntent, requestCode)
-        val thread = AcceptThread()
+        val thread = AcceptThread(this)
         thread.start()
     }
 }

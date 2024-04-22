@@ -3,6 +3,7 @@ package esir.progmob.buffalo_mobill
 import android.Manifest
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothAdapter
+import android.bluetooth.BluetoothSocket
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -20,10 +21,17 @@ class Multiplayer : ComponentActivity() {
 
     private lateinit var bluetoothAdapter: BluetoothAdapter
     private var bluetoothAccepted = false
-    private var localisationAccepted = false
     companion object {
         private const val REQUEST_ENABLE_BT = 1
         private const val PERMISSION_REQUEST_BLUETOOTH = 1001
+    }
+    object SocketHolder {
+        var socket: BluetoothSocket? = null
+    }
+
+    object Exchange { // Objet pour échanger des données entre les activités
+        var dataExchangeServer : DataExchange = DataExchange(null)
+        var dataExchangeClient : DataExchange = DataExchange(null)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -154,6 +162,8 @@ class Multiplayer : ComponentActivity() {
             } else {
                 val intent = Intent(this, ServerConnexion::class.java)
                 startActivity(intent)
+                Log.d("DATAEXCHANGE", "DataExchange Server thread launched")
+                Exchange.dataExchangeServer.start()
                 finish()
             }
         }

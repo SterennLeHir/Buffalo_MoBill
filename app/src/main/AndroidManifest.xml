@@ -74,6 +74,11 @@
             android:exported="true"
             android:theme="@style/Theme.Buffalo_MoBill">
         </activity>
+        <activity
+            android:name=".ScorePage"
+            android:exported="true"
+            android:theme="@style/Theme.Buffalo_MoBill">
+        </activity>
     </application>
 
 </manifest>

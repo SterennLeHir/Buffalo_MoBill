@@ -20,6 +20,7 @@ import android.os.Handler
 import android.os.Looper
 import android.os.Message
 import android.widget.AdapterView
+import android.widget.Toast
 import java.io.IOException
 
 class ClientConnexion : ComponentActivity() {
@@ -49,13 +50,13 @@ class ClientConnexion : ComponentActivity() {
         }
     }
     @SuppressLint("MissingPermission")
-    private inner class ConnectThread(device: BluetoothDevice) : Thread() { // connexion côté client
+    private inner class ConnectThread(device: BluetoothDevice, val context: Context) : Thread() { // connexion côté client
 
         private val mmSocket: BluetoothSocket? by lazy(LazyThreadSafetyMode.NONE) {
             device.createRfcommSocketToServiceRecord(java.util.UUID.fromString(UUID))
         }
 
-        public override fun run() {
+        override fun run() {
             // Cancel discovery because it otherwise slows down the connection.
             bluetoothAdapter.cancelDiscovery()
 
@@ -73,6 +74,8 @@ class ClientConnexion : ComponentActivity() {
                 // The connection attempt succeeded. Perform work associated with
                 // the connection in a separate thread.
                 manageMyConnectedSocket(socket)
+                //Looper.prepare()
+                //Toast.makeText(context,"Connected", Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -89,16 +92,12 @@ class ClientConnexion : ComponentActivity() {
 
     private fun manageMyConnectedSocket(it: BluetoothSocket) {
         Log.d("CONNEXION", "fonction de transfert de données")
-        val handler = object : Handler(Looper.getMainLooper()) {
-            override fun handleMessage(msg: Message) {
-                // Traitez le message ici
-                Log.d("DATAEXCHANGE", "[client] Message received: " + msg.what.toString() + " " + msg.obj.toString())
-            }
-        }
-        val dataExchange = DataExchange(this, it, handler)
-        dataExchange.start()
-        dataExchange.write("Hello");
-        Log.d("DATAEXCHANGE", "DataExchange started");
+        Multiplayer.SocketHolder.socket = it
+        val intent = Intent(this, GameList::class.java)
+        intent.putExtra("multi", true) // on indique à l'activité qu'elle est en mode multijoueurs
+        intent.putExtra("isServer", false) // on indique à l'activité qu'elle est le client
+        startActivity(intent);
+        finish()
     }
 
     @SuppressLint("MissingPermission")
@@ -117,7 +116,7 @@ class ClientConnexion : ComponentActivity() {
             val selectedDevice = devicesList.find { it.address == parts[1] } // parts[1] c'est l'adresse du device
             Log.d("CONNEXION", device.toString())
             if (selectedDevice != null) { // pas possible que ce soit nul
-                val connectThread = ConnectThread(selectedDevice)
+                val connectThread = ConnectThread(selectedDevice, this)
                 connectThread.start()
                 Log.d("CONNEXION", "thread de connexion lancé")
             }

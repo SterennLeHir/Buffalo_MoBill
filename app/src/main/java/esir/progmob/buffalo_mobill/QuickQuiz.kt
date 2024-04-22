@@ -153,6 +153,7 @@ class QuickQuiz : ComponentActivity() {
         choice2.text = listOfChoices[1]
         choice3.text = listOfChoices[2]
         choice4.text = listOfChoices[3]
+        numberOfQuestions--
     }
 
     /**

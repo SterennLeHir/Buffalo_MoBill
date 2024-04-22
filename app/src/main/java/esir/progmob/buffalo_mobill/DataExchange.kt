@@ -5,29 +5,23 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import android.os.Handler
 
-class DataExchange(private val activity : ComponentActivity, private val socket: BluetoothSocket, private val handler : Handler) : Thread() {
+class DataExchange(private var handler : Handler?) : Thread() {
 
-    private val inputStream = socket.inputStream
-    private val outputStream = socket.outputStream
+    private val inputStream = Multiplayer.SocketHolder.socket!!.inputStream
+    private val outputStream = Multiplayer.SocketHolder.socket!!.outputStream
+    private var shouldLoop = true
 
-    override fun run() {
-        Log.d("DATAEXCHANGE","DataExchange thread launched");
-        while (true) {
-            if (activity.isFinishing) {
-                Log.d("DATAEXCHANGE", "Activity is finishing or destroyed");
-                return
-            }
+    override fun run() { // écoute et récupération des données
+        Log.d("DATAEXCHANGE","DataExchange thread running");
+        while (shouldLoop) {
             try {
                 val available = inputStream.available()
                 if (available != 0) {
-                    Log.d("DATAEXCHANGE", "Available: $available")
-                    Log.d("DATAEXCHANGE", "On continue")
                     val bytes = ByteArray(available)
-                    Log.d("DATAEXCHANGE", "Reading")
                     inputStream.read(bytes, 0, available)
                     val incomingMessage = String(bytes)
                     Log.d("DATAEXCHANGE", "InputStream: $incomingMessage")
-                    handler.obtainMessage(0, incomingMessage).sendToTarget()
+                    handler?.obtainMessage(0, incomingMessage)?.sendToTarget()
                 }
             } catch (e: Exception) {
                 Log.e("DATAEXCHANGE", "Error receiving data", e)
@@ -39,6 +33,7 @@ class DataExchange(private val activity : ComponentActivity, private val socket:
                 socket.close()
             }*/
         }
+        Log.d("DATAEXCHANGE", "DataExchange thread ended")
     }
 
     /**
@@ -53,5 +48,14 @@ class DataExchange(private val activity : ComponentActivity, private val socket:
         } catch (e: Exception) {
             Log.e("DATAEXCHANGE", "Error sending data", e)
         }
+    }
+
+    fun cancel() {
+        shouldLoop = false
+    }
+
+    fun setHandler(handler: Handler) {
+        Log.d("DATAEXCHANGE", "Handler set")
+        this.handler = handler
     }
 }
