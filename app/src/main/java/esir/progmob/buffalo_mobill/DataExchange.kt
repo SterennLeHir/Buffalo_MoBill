@@ -1,9 +1,9 @@
 package esir.progmob.buffalo_mobill
 
-import android.bluetooth.BluetoothSocket
 import android.util.Log
 import androidx.activity.ComponentActivity
 import android.os.Handler
+import android.os.Message
 
 class DataExchange(private var handler : Handler?) : Thread() {
 
@@ -40,7 +40,7 @@ class DataExchange(private var handler : Handler?) : Thread() {
      * Write to the connected OutStream.
      * @param message The bytes to write
      **/
-    fun write(message : String) {
+    fun write(message: String) {
         try {
             outputStream.write(message.toByteArray())
             outputStream.flush() // à voir l'utilité

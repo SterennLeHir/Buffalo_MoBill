@@ -71,7 +71,19 @@ class GameList : ComponentActivity() {
         }
         buttonQuickQuiz.setOnClickListener{
             val game4 = Intent(this, QuickQuiz::class.java)
-            startActivity(game4)
+            if (isMulti && !isServer) {
+                Log.d("DATAEXCHANGE", "Client envoie le jeu")
+                Multiplayer.Exchange.dataExchangeClient.write("QuickQuiz")
+            } else if (isMulti) {
+                Toast.makeText(this, "L'autre joueur choisit le jeu", Toast.LENGTH_SHORT).show()
+            }
+            game4.putExtra("isServer", isServer)
+            game4.putExtra("isMulti", isMulti)
+            if (!isServer || !isMulti) {
+                startActivityForResult(game4, 1) // test
+                Multiplayer.Exchange.dataExchangeClient.cancel()
+                //finish()
+            }
         }
         buttonCowCatcher.setOnClickListener{
             val game5 = Intent(this, CowCatcher::class.java)
@@ -106,7 +118,8 @@ class GameList : ComponentActivity() {
                             val intent = Intent(this@GameList, QuickQuiz::class.java)
                             intent.putExtra("isMulti", true)
                             intent.putExtra("isServer", true)
-                            this@GameList.startActivity(intent)
+                            this@GameList.startActivityForResult(intent, 1)
+                            Multiplayer.Exchange.dataExchangeServer.cancel()
                         }
 
                         "ShadyShowdown" -> {

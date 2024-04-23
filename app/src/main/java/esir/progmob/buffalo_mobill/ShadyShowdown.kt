@@ -101,7 +101,6 @@ class ShadyShowdown : ComponentActivity(), SensorEventListener {
         val handlerServer = object :
             Handler(Looper.getMainLooper()) { // quand on reçoit un message on lance l'activité
             override fun handleMessage(msg: Message) {
-                // Traitez le message ici
                 Log.d("DATAEXCHANGE", "[ShadyShowdown Server] Message received: " + msg.obj.toString())
                 // Quand on reçoit le score de l'adversaire on peut afficher la page de score
                 scoreAdversaire = msg.obj.toString().toInt()
@@ -115,15 +114,12 @@ class ShadyShowdown : ComponentActivity(), SensorEventListener {
                 intent.putExtra("isMulti", true)
                 intent.putExtra("isServer", isServer)
                 Log.d("DATAEXCHANGE", "[Server] On lance la page de score")
-                startActivityForResult(intent, 1) // test
-                //setResult(RESULT_OK)
-                //finish()
+                startActivityForResult(intent, 1)
             }
         }
         val handlerClient = object :
             Handler(Looper.getMainLooper()) { // quand on reçoit un message on lance l'activité
             override fun handleMessage(msg: Message) {
-                // Traitez le message ici
                 Log.d("DATAEXCHANGE", "[ShadyShowdown Client] Message received: " + msg.obj.toString())
                 // Quand on reçoit le score de l'adversaire on peut afficher la page de score
                 scoreAdversaire = msg.obj.toString().toInt()
@@ -137,8 +133,7 @@ class ShadyShowdown : ComponentActivity(), SensorEventListener {
                 intent.putExtra("isMulti", true)
                 intent.putExtra("isServer", isServer)
                 Log.d("DATAEXCHANGE", "[Client] On lance la page de score")
-                startActivityForResult(intent, 1) // test
-                //finish()
+                startActivityForResult(intent, 1)
             }
         }
         if (isServer) {
@@ -224,6 +219,5 @@ class ShadyShowdown : ComponentActivity(), SensorEventListener {
             finish()
         }
     }
-
 }
 

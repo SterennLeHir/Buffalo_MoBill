@@ -78,6 +78,10 @@ class ServerConnexion : ComponentActivity() {
         super.onCreate(savedInstantState)
         setContentView(R.layout.bluetooth_server)
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
+        askForDiscoverability()
+    }
+
+    private fun askForDiscoverability() {
         val requestCode = 1;
         val discoverableIntent: Intent = Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE).apply {
             putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 100)
