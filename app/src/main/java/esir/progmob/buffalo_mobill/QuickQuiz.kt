@@ -145,7 +145,7 @@ class QuickQuiz : ComponentActivity() {
                     }
                 }
             }
-            //Multiplayer.Exchange.dataExchangeServer.cancel()
+            Multiplayer.Exchange.dataExchangeServer.cancel()
             Multiplayer.Exchange.dataExchangeServer = DataExchange(handlerServer)
             Multiplayer.Exchange.dataExchangeServer.start()
         } else {
@@ -174,7 +174,7 @@ class QuickQuiz : ComponentActivity() {
                         if (isAnswered) { // Si le joueur a déjà répondu, on passe à la question suivante
                             if (numberOfQuestions != 0) {
                                 // On peut passer à la suite
-                                Log.d("DATAEXCHANGE", "[Client] On peut passer à la question suivante")
+                                Log.d("DATAEXCHANGE", "[Client] On peut passer à la question suivante car on a eu le retour")
                                 nextQuestion()
                             } else {
                                 Log.d("DATAEXCHANGE", "[QuickQuiz] Client envoie le score")
@@ -186,7 +186,7 @@ class QuickQuiz : ComponentActivity() {
 
                 }
             }
-            //Multiplayer.Exchange.dataExchangeClient.cancel()
+            Multiplayer.Exchange.dataExchangeClient.cancel()
             Multiplayer.Exchange.dataExchangeClient = DataExchange(handlerClient)
             Multiplayer.Exchange.dataExchangeClient.start()
         }
@@ -270,10 +270,12 @@ class QuickQuiz : ComponentActivity() {
                         nextQuestion()
                     }
                 } else { // mode multijoueurs
+                    Log.d("DATAEXCHANGE", "[QuickQuiz] isAdversaireAnswered : $isAdversaireAnswered")
                     if (isServer || !isAdversaireAnswered) {
                         Toast.makeText(this, "En attente de l'autre joueur", Toast.LENGTH_SHORT).show()
                     } else { // côté client
                         if (numberOfQuestions != 0) {
+                            Log.d("DATAEXCHANGE", "[QuickQuiz] On peut passer à la question suivante")
                             nextQuestion()
                         } else {
                             Log.d("DATAEXCHANGE", "[QuickQuiz] Client envoie le score car le serveur a répondu")
@@ -317,6 +319,10 @@ class QuickQuiz : ComponentActivity() {
             questions.removeAt(questionNumber)
         }
     }
+
+    /**
+     * Affiche la question et les réponses
+     */
     private fun setQuestion() {
         isAnswered = false
         val question = questions[questionNumber]
@@ -329,62 +335,6 @@ class QuickQuiz : ComponentActivity() {
         numberOfQuestions--
         if (isMulti && numberOfQuestions == 0) {
             Log.d("DATAEXCHANGE", "[QuickQuiz] On est à la dernière question")
-            //lastQuestion()
-        }
-    }
-
-    /**
-     * Modifie les handler des DataExchange pour échanger les scores
-     */
-    private fun lastQuestion() {
-        if (isServer) {
-            Log.d("DATAEXCHANGE", "[QuickQuiz Server] On modifie le handler")
-            val handlerServer = object : Handler(Looper.getMainLooper()) { // pour recevoir le score de l'adversaire
-                override fun handleMessage(msg: Message) {
-                    Log.d("DATAEXCHANGE", "[QuickQuiz Server] Message received: " + msg.obj.toString())
-                    // Quand on reçoit le score de l'adversaire on peut afficher la page de score
-                    scoreAdversaire = msg.obj.toString().toInt()
-                    if (!scoreSent) {
-                        Multiplayer.Exchange.dataExchangeClient.write(score.toString())
-                        scoreSent = true
-                    }
-                    val intent = Intent(this@QuickQuiz, ScorePage::class.java)
-                    intent.putExtra("score", score)
-                    intent.putExtra("scoreAdversaire", scoreAdversaire)
-                    intent.putExtra("isMulti", true)
-                    intent.putExtra("isServer", isServer)
-                    Log.d("DATAEXCHANGE", "[Server] On lance la page de score")
-                    startActivityForResult(intent, 1) // test
-                    //finish()
-                }
-            }
-            Multiplayer.Exchange.dataExchangeServer.cancel()
-            Multiplayer.Exchange.dataExchangeServer = DataExchange(handlerServer)
-            Multiplayer.Exchange.dataExchangeServer.start()
-        } else {
-            Log.d("DATAEXCHANGE", "[QuickQuiz Client] On modifie le handler")
-            val handlerClient = object : Handler(Looper.getMainLooper()) { // pour recevoir le score de l'adversaire
-                override fun handleMessage(msg: Message) {
-                    Log.d("DATAEXCHANGE", "[QuickQuiz Client] Message received: " + msg.obj.toString())
-                    // Quand on reçoit le score de l'adversaire on peut afficher la page de score
-                    scoreAdversaire = msg.obj.toString().toInt()
-                    if (!scoreSent) {
-                        Multiplayer.Exchange.dataExchangeClient.write(score.toString())
-                        scoreSent = true
-                    }
-                    val intent = Intent(this@QuickQuiz, ScorePage::class.java)
-                    intent.putExtra("score", score)
-                    intent.putExtra("scoreAdversaire", scoreAdversaire)
-                    intent.putExtra("isMulti", true)
-                    intent.putExtra("isServer", isServer)
-                    Log.d("DATAEXCHANGE", "[Client] On lance la page de score")
-                    startActivityForResult(intent, 1) // test
-                    //finish()
-                }
-            }
-            Multiplayer.Exchange.dataExchangeClient.cancel()
-            Multiplayer.Exchange.dataExchangeClient = DataExchange(handlerClient)
-            Multiplayer.Exchange.dataExchangeClient.start()
         }
     }
 

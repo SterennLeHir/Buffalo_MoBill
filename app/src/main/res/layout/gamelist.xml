@@ -65,7 +65,7 @@
         android:textSize="30sp"/>
 
     <Button
-        android:id="@+id/button7"
+        android:id="@+id/random"
         style="@style/bouton"
         android:layout_height="wrap_content"
         android:text="@string/random_game"

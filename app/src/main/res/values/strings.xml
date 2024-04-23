@@ -10,7 +10,7 @@
     <string name="game5">Cow Catcher</string>
     <string name="game6">Prickly Picking</string>
     <string name="random_game_text">Laissez-vous surprendre...</string>
-    <string name="random_game">Jeu aléatoire</string>
+    <string name="random_game">Partie aléatoire</string>
     <string name="next">Suivant</string>
     <string name="score">Score</string>
 </resources>

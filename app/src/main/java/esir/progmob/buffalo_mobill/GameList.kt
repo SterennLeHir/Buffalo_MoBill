@@ -10,6 +10,7 @@ import android.util.Log
 import android.widget.Button
 import android.widget.Toast
 import androidx.activity.ComponentActivity
+import kotlin.random.Random
 
 class GameList : ComponentActivity() {
 
@@ -18,6 +19,13 @@ class GameList : ComponentActivity() {
     private var score : Int = 0
     private var scoreAdversaire : Int = 0
     private var numberOfParties : Int = 0
+    private val NUMBEROFPARTIESMAX = 2
+
+    // Liste des jeux (pour le mode aléatoire)
+    private var gameList : MutableList<String> = mutableListOf()
+    private var isRandom : Boolean = false
+    private val games : MutableList<String> = mutableListOf()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         isMulti = intent.getBooleanExtra("isMulti", false)
@@ -26,6 +34,10 @@ class GameList : ComponentActivity() {
         if (isMulti) initMulti()
         setContentView(R.layout.gamelist)
 
+        // Initialisation de la liste des jeux
+        gameList = mutableListOf("ShadyShowdown", "QuickQuiz")//mutableListOf("MilkMaster", "WildRide", "ShadyShowdown", "QuickQuiz", "CowCatcher", "PricklyPicking")
+        Log.d("DATAEXCHANGE", "GameList created")
+
         // Liste des boutons de l'activité
         val buttonMilkMaster = findViewById<Button>(R.id.milk_master)
         val buttonWildRide = findViewById<Button>(R.id.wild_ride)
@@ -33,65 +45,141 @@ class GameList : ComponentActivity() {
         val buttonQuickQuiz = findViewById<Button>(R.id.quick_quiz)
         val buttonCowCatcher = findViewById<Button>(R.id.cow_catcher)
         val buttonPricklyPicking = findViewById<Button>(R.id.prickly_picking)
+        val randomParty = findViewById<Button>(R.id.random)
+
 
         // Change d'activité pour chaque jeu
         buttonMilkMaster.setOnClickListener{
-            val game1 = Intent(this, MilkMaster::class.java)
-            if (isMulti && !isServer) {
-                Multiplayer.Exchange.dataExchangeClient.write("MilkMaster")
-            } else if (isMulti) {
-                Toast.makeText(this, "L'autre joueur choisit le jeu", Toast.LENGTH_SHORT).show()
-            }
-            game1.putExtra("isServer", isServer)
-            game1.putExtra("isMulti", isMulti)
-            if (!isServer || !isMulti) {
-                startActivity(game1)
+            if (!isRandom) {
+                val game1 = Intent(this, MilkMaster::class.java)
+                if (isMulti && !isServer) {
+                    Multiplayer.Exchange.dataExchangeClient.write("MilkMaster")
+                } else if (isMulti) {
+                    Toast.makeText(this, "L'autre joueur choisit le jeu", Toast.LENGTH_SHORT).show()
+                }
+                game1.putExtra("isServer", isServer)
+                game1.putExtra("isMulti", isMulti)
+                if (!isServer || !isMulti) {
+                    startActivity(game1)
+                }
+            } else {
+                Toast.makeText(this, "Vous ne pouvez pas choisir le jeu", Toast.LENGTH_LONG).show()
             }
         }
 
         buttonWildRide.setOnClickListener{
-            val game2 = Intent(this, WildRide::class.java)
-            startActivity(game2)
+            if (!isRandom) {
+                val game2 = Intent(this, WildRide::class.java)
+                if (isMulti && !isServer) {
+                    Multiplayer.Exchange.dataExchangeClient.write("WildRide")
+                } else if (isMulti) {
+                    Toast.makeText(this, "L'autre joueur choisit le jeu", Toast.LENGTH_SHORT).show()
+                }
+                game2.putExtra("isServer", isServer)
+                game2.putExtra("isMulti", isMulti)
+                if (!isServer || !isMulti) {
+                    startActivityForResult(game2,1)
+                }
+            } else {
+                Toast.makeText(this, "Vous ne pouvez pas choisir le jeu", Toast.LENGTH_LONG).show()
+            }
         }
 
         buttonShadyShowdown.setOnClickListener{
-            val game3 = Intent(this, ShadyShowdown::class.java)
-            if (isMulti && !isServer) {
-                Log.d("DATAEXCHANGE", "Client envoie le jeu")
-                Multiplayer.Exchange.dataExchangeClient.write("ShadyShowdown")
-            } else if (isMulti) {
-                Toast.makeText(this, "L'autre joueur choisit le jeu", Toast.LENGTH_SHORT).show()
-            }
-            game3.putExtra("isServer", isServer)
-            game3.putExtra("isMulti", isMulti)
-            if (!isServer || !isMulti) {
-                startActivityForResult(game3, 1) // test
-                //finish()
+            if (!isRandom) {
+                val game3 = Intent(this, ShadyShowdown::class.java)
+                if (isMulti && !isServer) {
+                    Log.d("DATAEXCHANGE", "Client envoie le jeu")
+                    Multiplayer.Exchange.dataExchangeClient.write("ShadyShowdown")
+                } else if (isMulti) {
+                    Toast.makeText(this, "L'autre joueur choisit le jeu", Toast.LENGTH_SHORT).show()
+                }
+                game3.putExtra("isServer", isServer)
+                game3.putExtra("isMulti", isMulti)
+                if (!isServer || !isMulti) {
+                    startActivityForResult(game3, 1)
+                }
+            } else {
+                Toast.makeText(this, "Vous ne pouvez pas choisir le jeu", Toast.LENGTH_LONG).show()
             }
         }
+
         buttonQuickQuiz.setOnClickListener{
-            val game4 = Intent(this, QuickQuiz::class.java)
-            if (isMulti && !isServer) {
-                Log.d("DATAEXCHANGE", "Client envoie le jeu")
-                Multiplayer.Exchange.dataExchangeClient.write("QuickQuiz")
-            } else if (isMulti) {
-                Toast.makeText(this, "L'autre joueur choisit le jeu", Toast.LENGTH_SHORT).show()
-            }
-            game4.putExtra("isServer", isServer)
-            game4.putExtra("isMulti", isMulti)
-            if (!isServer || !isMulti) {
-                startActivityForResult(game4, 1) // test
-                Multiplayer.Exchange.dataExchangeClient.cancel()
-                //finish()
+            if (!isRandom) {
+                val game4 = Intent(this, QuickQuiz::class.java)
+                if (isMulti && !isServer) {
+                    Multiplayer.Exchange.dataExchangeClient.write("QuickQuiz")
+                } else if (isMulti) {
+                    Toast.makeText(this, "L'autre joueur choisit le jeu", Toast.LENGTH_SHORT).show()
+                }
+                game4.putExtra("isServer", isServer)
+                game4.putExtra("isMulti", isMulti)
+                if (!isServer || !isMulti) {
+                    startActivityForResult(game4, 1)
+                }
+            } else {
+                Toast.makeText(this, "Vous ne pouvez pas choisir le jeu", Toast.LENGTH_LONG).show()
             }
         }
+
         buttonCowCatcher.setOnClickListener{
-            val game5 = Intent(this, CowCatcher::class.java)
-            startActivity(game5)
+            if (!isRandom) {
+                val game5 = Intent(this, CowCatcher::class.java)
+                if (isMulti && !isServer) {
+                    Multiplayer.Exchange.dataExchangeClient.write("CowCatcher")
+                } else if (isMulti) {
+                    Toast.makeText(this, "L'autre joueur choisit le jeu", Toast.LENGTH_SHORT).show()
+                }
+                game5.putExtra("isServer", isServer)
+                game5.putExtra("isMulti", isMulti)
+                if (!isServer || !isMulti) {
+                    startActivityForResult(game5,1)
+                }
+            } else {
+                Toast.makeText(this, "Vous ne pouvez pas choisir le jeu", Toast.LENGTH_LONG).show()
+            }
         }
+
         buttonPricklyPicking.setOnClickListener{
-            val game6 = Intent(this, PricklyPicking::class.java)
-            startActivity(game6)
+            if (!isRandom) {
+                val game6 = Intent(this, PricklyPicking::class.java)
+                if (isMulti && !isServer) {
+                    Multiplayer.Exchange.dataExchangeClient.write("PricklyPicking")
+                } else if (isMulti) {
+                    Toast.makeText(this, "L'autre joueur choisit le jeu", Toast.LENGTH_SHORT).show()
+                }
+                game6.putExtra("isServer", isServer)
+                game6.putExtra("isMulti", isMulti)
+                if (!isServer || !isMulti) {
+                    startActivityForResult(game6,1)
+                }
+            } else {
+                Toast.makeText(this, "Vous ne pouvez pas choisir le jeu", Toast.LENGTH_LONG).show()
+            }
+        }
+
+        randomParty.setOnClickListener{
+            createRandomParty()
+        }
+    }
+
+    private fun createRandomParty() {
+        this.isRandom = true
+        if (!isServer) {
+            for (i in 0..<NUMBEROFPARTIESMAX) { // on sélectionne 2 jeux aléatoires
+                val random = Random.nextInt(gameList.size) // choisit le jeu aléatoirement
+                Log.d("DATAEXCHANGE", "Random position : $random")
+                games.add(gameList[random])
+                gameList.removeAt(random)
+            }
+            Log.d("DATAEXCHANGE", "Random games : " + games[0] + " " + games[1])
+            val randomGame = Intent(this, Class.forName("esir.progmob.buffalo_mobill." + games[numberOfParties]))
+            randomGame.putExtra("isServer", isServer)
+            randomGame.putExtra("isMulti", isMulti)
+            if (isMulti) Multiplayer.Exchange.dataExchangeClient.write(games[numberOfParties]) // On indique au serveur le jeu choisi
+            startActivityForResult(randomGame, 1)
+        } else {
+            Toast.makeText(this, "L'autre joueur choisit le jeu", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -119,7 +207,6 @@ class GameList : ComponentActivity() {
                             intent.putExtra("isMulti", true)
                             intent.putExtra("isServer", true)
                             this@GameList.startActivityForResult(intent, 1)
-                            Multiplayer.Exchange.dataExchangeServer.cancel()
                         }
 
                         "ShadyShowdown" -> {
@@ -187,7 +274,16 @@ class GameList : ComponentActivity() {
         Log.d("DATAEXCHANGE", "GameList restarted")
         Log.d("DATAEXCHANGE", "isServer : $isServer, isMulti : $isMulti")
         if (isMulti) initMulti()
-        if (numberOfParties == 3) {
+        if (isRandom && !isServer) {
+            Toast.makeText(this, "Pause", Toast.LENGTH_SHORT).show()
+            Thread.sleep(5000)
+            val randomGame = Intent(this, Class.forName("esir.progmob.buffalo_mobill." + games[numberOfParties]))
+            randomGame.putExtra("isServer", isServer)
+            randomGame.putExtra("isMulti", isMulti)
+            if (isMulti) Multiplayer.Exchange.dataExchangeClient.write(games[numberOfParties]) // On indique au serveur le jeu choisi
+            startActivityForResult(randomGame, 1)
+        }
+        if (numberOfParties == NUMBEROFPARTIESMAX) {
             val intent = Intent(this, ScorePage::class.java)
             intent.putExtra("score", score)
             intent.putExtra("scoreAdversaire", scoreAdversaire)
