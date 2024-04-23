@@ -7,6 +7,12 @@
     android:layout_height="match_parent">
 
     <ImageView
+        android:id="@+id/cowView"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:src="@drawable/bandit" />
+
+    <ImageView
         android:id="@+id/lassoView"
         android:layout_width="100dp"
         android:layout_height="100dp"

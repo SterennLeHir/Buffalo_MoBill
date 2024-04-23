@@ -10,6 +10,8 @@ import android.view.MotionEvent
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import android.view.animation.AccelerateDecelerateInterpolator
+import android.view.animation.Animation
+import android.view.animation.Animation.AnimationListener
 import android.view.animation.TranslateAnimation
 import android.widget.FrameLayout
 import android.widget.ImageView
@@ -20,9 +22,10 @@ import kotlin.random.Random
 private const val DEBUG_TAG = "Gestures"
 
 class CowCatcher : ComponentActivity(){
+    private lateinit var parentView: FrameLayout
     private lateinit var lasso: ImageView
+    private lateinit var cow: ImageView
     private lateinit var gest: GestureDetector
-    private lateinit var cows: ArrayList<ImageView>
     private var screenWidth = 0
     private var screenHeight = 0 //PAS BEAAAAAAAAAAAAAAAAU
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -36,6 +39,9 @@ class CowCatcher : ComponentActivity(){
         screenWidth = displayMetrics.widthPixels
         screenHeight = displayMetrics.heightPixels
 
+        //Récupérer le parent
+        parentView = findViewById<FrameLayout>(R.id.cowParent)
+
         //Récupérer et placer le lasso au bon endroit
         lasso = findViewById(R.id.lassoView)
         lasso.viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
@@ -47,13 +53,15 @@ class CowCatcher : ComponentActivity(){
             }
         })
 
+        cow = findViewById(R.id.cowView)
+        changeCowPosition()
+
         // Créer une instance de GestureDetector avec notre OnGestureListener
         gest = GestureDetector(this, LassoGestureListener())
         lasso.setOnTouchListener { _, event ->
             // Transmettre les événements tactiles au GestureDetector
             gest.onTouchEvent(event)
         }
-        generateCows()
     }
     private inner class LassoGestureListener : GestureDetector.SimpleOnGestureListener() {
         override fun onDown(e: MotionEvent): Boolean {
@@ -80,11 +88,35 @@ class CowCatcher : ComponentActivity(){
                 TranslateAnimation.ABSOLUTE, distanceY
             )
 
+            val targetX = lasso.x + distanceX
+            val targetY = lasso.y + distanceY
+
             // Définir la durée de l'animation
             animation.duration = 1000 // 1 seconde
 
             // Définir l'interpolateur pour une accélération/décélération
             animation.interpolator = AccelerateDecelerateInterpolator()
+
+            // Ajouter un écouteur à l'animation
+            animation.setAnimationListener(object : Animation.AnimationListener {
+                override fun onAnimationStart(animation: Animation?) {
+                    // Action à effectuer au début de l'animation
+                }
+
+                override fun onAnimationEnd(animation: Animation?) {
+                    val delta = 150
+                    Log.d("vache", "fin de l'animation")
+                    if(cow.x - delta <= targetX && targetX <= cow.x+delta
+                        && cow.y - delta <= targetY && targetY <= cow.y+delta){
+                        changeCowPosition()
+                        Log.d("vache", "on change de pos la vache")
+                    }
+                }
+
+                override fun onAnimationRepeat(animation: Animation?) {
+                    // Action à effectuer lors de la répétition de l'animation
+                }
+            })
 
             // Démarrer l'animation sur la vue
             lasso.startAnimation(animation)
@@ -101,24 +133,34 @@ class CowCatcher : ComponentActivity(){
         )
     }
 
-    private fun createCowView(context: Context): ImageView {
-        val cowView = ImageView(context) //On crée la nouvelle vue
+    private fun changeCowPosition() {
+        val dpToPxH = this.dpToPx(100f).toInt()
+        val dpToPxW = this.dpToPx(100f).toInt()
+        val dpToPxSeuil = this.dpToPx(400f).toInt()
+        cow.x = Random.nextInt(screenWidth - dpToPxW).toFloat()
+        cow.y = Random.nextInt(screenHeight - dpToPxH - dpToPxSeuil).toFloat() //plus haut que le lasso
+
+        /*
+        cow = ImageView(context) //On crée la nouvelle vue
 
         //Set la taille de la vache
         val dpToPxH = this.dpToPx(100f).toInt()
         val dpToPxW = this.dpToPx(100f).toInt()
         val dpToPxSeuil = this.dpToPx(400f).toInt()
         val layoutParams: ViewGroup.LayoutParams = ViewGroup.LayoutParams(dpToPxH, dpToPxW)
-        cowView.setLayoutParams(layoutParams)
+        cow.setLayoutParams(layoutParams)
 
         //Set l'image de la vache
-        cowView.setImageResource(R.drawable.bandit)
+        cow.setImageResource(R.drawable.bandit)
 
-        // Générez des positions aléatoires pour les images
-        cowView.x = Random.nextInt(screenWidth - dpToPxW).toFloat()
-        cowView.y = Random.nextInt(screenHeight - dpToPxH - dpToPxSeuil).toFloat() //plus haut que le lasso
-        return cowView
+        // Générez des positions aléatoires pour la vache
+        cow.x = Random.nextInt(screenWidth - dpToPxW).toFloat()
+        cow.y = Random.nextInt(screenHeight - dpToPxH - dpToPxSeuil).toFloat() //plus haut que le lasso
+        return cow
+        */
     }
+
+    /* A REUTILISER POUR PRICKLY
     private fun generateCows(){
         val parentView = findViewById<FrameLayout>(R.id.cowParent)
         val nCows = 3 // Nombre de vaches
@@ -130,4 +172,5 @@ class CowCatcher : ComponentActivity(){
             parentView.addView(cowView) //on ajoute la vache à la vue parente
         }
     }
+    */
 }
