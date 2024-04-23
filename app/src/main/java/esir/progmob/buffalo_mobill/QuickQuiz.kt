@@ -1,5 +1,6 @@
 package esir.progmob.buffalo_mobill
 
+import android.app.AlertDialog
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
@@ -58,7 +59,6 @@ class QuickQuiz : ComponentActivity() {
     private var isAnswered : Boolean = false // indique si le joueur a répondu ou non
     private var numberOfQuestions : Int = 2
     private var questionNumber : Int = -1
-    private var score : Int = 0
 
     // éléments graphiques
     private lateinit var choice1 : Button
@@ -68,12 +68,33 @@ class QuickQuiz : ComponentActivity() {
     private lateinit var next : Button
     private lateinit var scoreView : TextView
     private lateinit var questionView : TextView
+
+    // données échangées
+    private var isMulti : Boolean = false
+    private var isServer : Boolean = false
+    private var score : Int = 0
+    private var scoreAdversaire : Int = 0
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.quick_quiz)
         // Message affiché pour expliquer les règles du jeu
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("Règles du jeu")
+        builder.setMessage("Ici, vous pouvez écrire les règles de votre jeu.")
+        builder.setPositiveButton("Jouer") { dialog, which ->
+            // Le jeu se lance quand le joueur clique sur "Jouer"
+            startGame()
+        }
+        val dialog = builder.create()
+        // Afficher la boîte de dialogue lorsque l'activité est créée
+        dialog.show()
+    }
 
-        // Le jeu se lance quand le joueur clique sur "Jouer"
+    private fun startGame() {
+        // Récupération des données fournies
+        isMulti = intent.getBooleanExtra("isMulti", false)
+        isServer = intent.getBooleanExtra("isServer", false)
 
         // Initialisation des éléments graphiques
         questionView = findViewById(R.id.question)
@@ -95,6 +116,7 @@ class QuickQuiz : ComponentActivity() {
                 isAnswered = true
             }
         }
+
         choice2.setOnClickListener { // on pourra changer le fond en rouge ou vert en fonction de la réponse
             if (!isAnswered) {
                 val goodAnswer = checkAnswer((choice2.text.toString()))
@@ -104,6 +126,7 @@ class QuickQuiz : ComponentActivity() {
                 isAnswered = true
             }
         }
+
         choice3.setOnClickListener{ // on pourra changer le fond en rouge ou vert en fonction de la réponse
             if (!isAnswered) {
                 val goodAnswer = checkAnswer((choice3.text.toString()))
@@ -113,6 +136,7 @@ class QuickQuiz : ComponentActivity() {
                 isAnswered = true
             }
         }
+
         choice4.setOnClickListener{ // on pourra changer le fond en rouge ou vert en fonction de la réponse
             if (!isAnswered) {
                 val goodAnswer = checkAnswer((choice4.text.toString()))
@@ -122,13 +146,17 @@ class QuickQuiz : ComponentActivity() {
                 isAnswered = true
             }
         }
+
         next.setOnClickListener{ // on pourra changer le fond en rouge ou vert en fonction de la réponse
-            if (numberOfQuestions == 0) {
-                // TO DO on met l'activité de fin
-                finish()
-            } else if (isAnswered){
-                nextQuestion()
+            if (!isMulti) {
+                if (numberOfQuestions == 0) {
+                    // TO DO on met l'activité de fin
+                    finish()
+                } else if (isAnswered){
+                    nextQuestion()
+                }
             }
+
         }
         nextQuestion() // 1ère question
     }
