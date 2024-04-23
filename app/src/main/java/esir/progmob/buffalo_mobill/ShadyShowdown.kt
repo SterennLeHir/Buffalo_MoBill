@@ -1,5 +1,6 @@
 package esir.progmob.buffalo_mobill
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.hardware.Sensor
@@ -57,8 +58,48 @@ class ShadyShowdown : ComponentActivity(), SensorEventListener {
         bandit = findViewById<ImageView>(R.id.bandit)
         backgroundView = findViewById<LinearLayout>(R.id.background)
 
+        if (isMulti) initMulti(isServer)
+        bandit.setOnClickListener {
+            if (discover) {
+                // Victoire
+                score = 10 // Score du joueur
+                if (isMulti) victoryMulti(isServer)
+                else {
+                    val intent = Intent(this, ScorePage::class.java)
+                    intent.putExtra("score", score)
+                    intent.putExtra("isMulti", false)
+                    intent.putExtra("isServer", false)
+                    startActivityForResult(intent, 1) // test
+                    finish()
+                }
+            }
+        }
+        // Initialisation de la taille de l'écran
+        val metrics = DisplayMetrics()
+        windowManager.defaultDisplay.getMetrics(metrics)
+        screenWidth = metrics.widthPixels
+        screenHeight = metrics.heightPixels
+        placeImage()
+    }
+
+    private fun victoryMulti(isServer: Boolean) {
+        if (isServer) { // même handler donc en soit on n'a pas besoin de distinguer
+            Log.d("DATAEXCHANGE", "Serveur envoie le score")
+            Multiplayer.Exchange.dataExchangeServer.write(score.toString()) // on envoie le score à l'autre joueur
+        } else {
+            Log.d("DATAEXCHANGE", "Client envoie le score")
+            Multiplayer.Exchange.dataExchangeClient.write(score.toString()) // on envoie le score à l'autre joueur
+        }
+        scoreSent = true
+    }
+
+    /**
+     * Initialise le thread d'échange de données dans le mode multijoueurs
+     */
+    private fun initMulti(isServer: Boolean) {
         // Initialisation du nouvel handler pour le thread d'échange de données
-        val handlerServer = object : Handler(Looper.getMainLooper()) { // quand on reçoit un message on lance l'activité
+        val handlerServer = object :
+            Handler(Looper.getMainLooper()) { // quand on reçoit un message on lance l'activité
             override fun handleMessage(msg: Message) {
                 // Traitez le message ici
                 Log.d("DATAEXCHANGE", "[ShadyShowdown Server] Message received: " + msg.obj.toString())
@@ -71,14 +112,16 @@ class ShadyShowdown : ComponentActivity(), SensorEventListener {
                 val intent = Intent(this@ShadyShowdown, ScorePage::class.java)
                 intent.putExtra("score", score)
                 intent.putExtra("scoreAdversaire", scoreAdversaire)
-                intent.putExtra("isMulti", isMulti)
+                intent.putExtra("isMulti", true)
                 intent.putExtra("isServer", isServer)
                 Log.d("DATAEXCHANGE", "[Server] On lance la page de score")
                 startActivityForResult(intent, 1) // test
-                finish()
+                //setResult(RESULT_OK)
+                //finish()
             }
         }
-        val handlerClient = object : Handler(Looper.getMainLooper()) { // quand on reçoit un message on lance l'activité
+        val handlerClient = object :
+            Handler(Looper.getMainLooper()) { // quand on reçoit un message on lance l'activité
             override fun handleMessage(msg: Message) {
                 // Traitez le message ici
                 Log.d("DATAEXCHANGE", "[ShadyShowdown Client] Message received: " + msg.obj.toString())
@@ -91,11 +134,11 @@ class ShadyShowdown : ComponentActivity(), SensorEventListener {
                 val intent = Intent(this@ShadyShowdown, ScorePage::class.java)
                 intent.putExtra("score", score)
                 intent.putExtra("scoreAdversaire", scoreAdversaire)
-                intent.putExtra("isMulti", isMulti)
+                intent.putExtra("isMulti", true)
                 intent.putExtra("isServer", isServer)
                 Log.d("DATAEXCHANGE", "[Client] On lance la page de score")
                 startActivityForResult(intent, 1) // test
-                finish()
+                //finish()
             }
         }
         if (isServer) {
@@ -110,26 +153,6 @@ class ShadyShowdown : ComponentActivity(), SensorEventListener {
             Multiplayer.Exchange.dataExchangeClient = DataExchange(handlerClient)
             Multiplayer.Exchange.dataExchangeClient.start()
         } // on met à jour le handler
-        bandit.setOnClickListener {
-            if (discover) {
-                // Victoire
-                score = 10 // Score du joueur
-                if (isServer) { // même handler donc en soit ça on n'a pas besoin de distinguer
-                    Log.d("DATAEXCHANGE", "Serveur envoie le score")
-                    Multiplayer.Exchange.dataExchangeServer.write(score.toString()) // on envoie le score à l'autre joueur
-                } else {
-                    Log.d("DATAEXCHANGE", "Client envoie le score")
-                    Multiplayer.Exchange.dataExchangeClient.write(score.toString()) // on envoie le score à l'autre joueur
-                }
-                scoreSent = true
-            }
-        }
-        // Initialisation de la taille de l'écran
-        val metrics = DisplayMetrics()
-        windowManager.defaultDisplay.getMetrics(metrics)
-        screenWidth = metrics.widthPixels
-        screenHeight = metrics.heightPixels
-        placeImage()
     }
 
     private fun placeImage() {
@@ -187,6 +210,19 @@ class ShadyShowdown : ComponentActivity(), SensorEventListener {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         Log.d("DATAEXCHANGE", "[ShadyShowdown] onActivityResult")
+        Log.d("DATAEXCHANGE", "[ShadyShowdown] onActivityResult, resultCode : $resultCode")
+        if (resultCode == Activity.RESULT_OK) {
+            Log.d("DATAEXCHANGE", "score :" + data?.getIntExtra("score", 0).toString())
+            Log.d("DATAEXCHANGE", "scoreAdversaire :" + data?.getIntExtra("scoreAdversaire", 0).toString())
+            score = data?.getIntExtra("score", 0) ?: 0
+            scoreAdversaire = data?.getIntExtra("scoreAdversaire", 0) ?: 0
+            Log.d("DATAEXCHANGE", "score : $score, scoreAdversaire : $scoreAdversaire")
+            val resultIntent = Intent()
+            resultIntent.putExtra("score", score)
+            resultIntent.putExtra("scoreAdversaire", scoreAdversaire)
+            setResult(RESULT_OK, resultIntent)
+            finish()
+        }
     }
 
 }

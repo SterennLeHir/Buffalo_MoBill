@@ -27,43 +27,45 @@ class ScorePage : ComponentActivity() {
         // On met à jour l'affichage de votre score
         updateScore()
         // On modifie le handler du serveur
-        if (isMulti && isServer) {
-            //TODO : Ajouter le code pour le serveur
-            val handler = object : Handler(Looper.getMainLooper()) { // quand on reçoit un message on lance l'activité
-                override fun handleMessage(msg: Message) {
-                    // Le message reçu indique qu'on doit lancer le menu des jeux
-                    // Quand on reçoit le score de l'adversaire on peut afficher la page de score
-                    val intent = Intent(this@ScorePage, GameList::class.java)
-                    intent.putExtra("score", myScore)
-                    intent.putExtra("scoreAdversaire", theirScore)
-                    intent.putExtra("isMulti", isMulti)
-                    intent.putExtra("isServer", isServer)
-                    Log.d("DATAEXCHANGE", "[Serveur] On retourne à la page des jeux")
-                    //startActivityForResult(intent, 1) // test
-                    finish()
-                }
-            }
-            Multiplayer.Exchange.dataExchangeServer.setHandler(handler)
-        }
-
+        if (isMulti && isServer) initMulti()
         // On ajoute un listener au bouton
         val button = findViewById<TextView>(R.id.next)
         button.setOnClickListener {
             Log.d("DATAEXCHANGE", "isMulti : $isMulti, isServer : $isServer")
-            if (isMulti && !isServer) {
+            if (!isMulti) {
+                val resultIntent = Intent()
+                resultIntent.putExtra("score", myScore)
+                setResult(RESULT_OK, resultIntent)
+                finish()
+            } else if (!isServer) {
                 Log.d("DATAEXCHANGE", "Le client envoie Next")
                 Multiplayer.Exchange.dataExchangeClient.write("Next")
-                val intent = Intent(this, GameList::class.java)
-                intent.putExtra("score", myScore)
-                intent.putExtra("scoreAdversaire", theirScore)
-                intent.putExtra("isMulti", isMulti)
-                intent.putExtra("isServer", isServer)
-                //startActivityForResult(intent, 1) // test
+                val resultIntent = Intent()
+                resultIntent.putExtra("score", myScore)
+                resultIntent.putExtra("scoreAdversaire", theirScore)
+                setResult(RESULT_OK, resultIntent)
                 finish()
-            } else if (isMulti) {
+            } else {
                 Toast.makeText(this, "En attente de l'autre joueur", Toast.LENGTH_SHORT).show()
             }
         }
+    }
+
+    private fun initMulti() {
+        val handler = object : Handler(Looper.getMainLooper()) { // côté serveur
+            override fun handleMessage(msg: Message) {
+                // Le message reçu indique qu'on doit retourner au menu des jeux
+                val resultIntent = Intent()
+                Log.d("DATAEXCHANGE", "[Serveur] Message received: " + msg.obj.toString())
+                Log.d("DATAEXCHANGE", "score : $myScore, scoreAdversaire : $theirScore")
+                resultIntent.putExtra("score", myScore)
+                resultIntent.putExtra("scoreAdversaire", theirScore)
+                setResult(RESULT_OK, resultIntent)
+                Log.d("DATAEXCHANGE", "[Serveur] On retourne à la page des jeux")
+                finish()
+            }
+        }
+        Multiplayer.Exchange.dataExchangeServer.setHandler(handler)
     }
 
     private fun updateScore() {
