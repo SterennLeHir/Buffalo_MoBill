@@ -41,13 +41,17 @@ class ShadyShowdown : ComponentActivity(), SensorEventListener {
     private var scoreAdversaire = 0
     var scoreSent : Boolean = false
 
+    // pour le multijoueur
+    private var isServer : Boolean = false
+    private var isMulti : Boolean = false
+
     private var discover : Boolean = false // si le bandit est visible
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.shady_showdown)
         // Récupération des informations
-        val isMulti = intent.getBooleanExtra("isMulti", false)
-        val isServer = intent.getBooleanExtra("isServer", false)
+        isMulti = intent.getBooleanExtra("isMulti", false)
+        isServer = intent.getBooleanExtra("isServer", false)
         // Initialisation des capteurs
         sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
         light = sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT)
@@ -58,7 +62,7 @@ class ShadyShowdown : ComponentActivity(), SensorEventListener {
         bandit = findViewById<ImageView>(R.id.bandit)
         backgroundView = findViewById<LinearLayout>(R.id.background)
 
-        if (isMulti) initMulti(isServer)
+        if (isMulti) initMulti()
         bandit.setOnClickListener {
             if (discover) {
                 // Victoire
@@ -96,53 +100,59 @@ class ShadyShowdown : ComponentActivity(), SensorEventListener {
     /**
      * Initialise le thread d'échange de données dans le mode multijoueurs
      */
-    private fun initMulti(isServer: Boolean) {
-        // Initialisation du nouvel handler pour le thread d'échange de données
-        val handlerServer = object :
-            Handler(Looper.getMainLooper()) { // quand on reçoit un message on lance l'activité
-            override fun handleMessage(msg: Message) {
-                Log.d("DATAEXCHANGE", "[ShadyShowdown Server] Message received: " + msg.obj.toString())
-                // Quand on reçoit le score de l'adversaire on peut afficher la page de score
-                scoreAdversaire = msg.obj.toString().toInt()
-                if (!scoreSent) {
-                    Multiplayer.Exchange.dataExchangeServer.write(score.toString())
-                    scoreSent = true
-                }
-                val intent = Intent(this@ShadyShowdown, ScorePage::class.java)
-                intent.putExtra("score", score)
-                intent.putExtra("scoreAdversaire", scoreAdversaire)
-                intent.putExtra("isMulti", true)
-                intent.putExtra("isServer", isServer)
-                Log.d("DATAEXCHANGE", "[Server] On lance la page de score")
-                startActivityForResult(intent, 1)
-            }
-        }
-        val handlerClient = object :
-            Handler(Looper.getMainLooper()) { // quand on reçoit un message on lance l'activité
-            override fun handleMessage(msg: Message) {
-                Log.d("DATAEXCHANGE", "[ShadyShowdown Client] Message received: " + msg.obj.toString())
-                // Quand on reçoit le score de l'adversaire on peut afficher la page de score
-                scoreAdversaire = msg.obj.toString().toInt()
-                if (!scoreSent) {
-                    Multiplayer.Exchange.dataExchangeClient.write(score.toString())
-                    scoreSent = true
-                }
-                val intent = Intent(this@ShadyShowdown, ScorePage::class.java)
-                intent.putExtra("score", score)
-                intent.putExtra("scoreAdversaire", scoreAdversaire)
-                intent.putExtra("isMulti", true)
-                intent.putExtra("isServer", isServer)
-                Log.d("DATAEXCHANGE", "[Client] On lance la page de score")
-                startActivityForResult(intent, 1)
-            }
-        }
+    private fun initMulti() {
         if (isServer) {
+            // Initialisation du nouvel handler pour le thread d'échange de données
+            val handlerServer = object :
+                Handler(Looper.getMainLooper()) { // quand on reçoit un message on lance l'activité
+                override fun handleMessage(msg: Message) {
+                    val message = msg.obj.toString()
+                    Log.d("DATAEXCHANGE", "[ShadyShowdown Server] Message received: " + msg.obj.toString())
+                    if (message.contains("lux")) { // On récupère la valeur voulue de la luminosité
+                        lux = message.split(":")[1].toFloat()
+                        Log.d("SENSOR", "Valeur voulue : $lux")
+                    } else {
+                        // Quand on reçoit le score de l'adversaire on peut afficher la page de score
+                        scoreAdversaire = msg.obj.toString().toInt()
+                        if (!scoreSent) {
+                            Multiplayer.Exchange.dataExchangeServer.write(score.toString())
+                            scoreSent = true
+                        }
+                        val intent = Intent(this@ShadyShowdown, ScorePage::class.java)
+                        intent.putExtra("score", score)
+                        intent.putExtra("scoreAdversaire", scoreAdversaire)
+                        intent.putExtra("isMulti", true)
+                        intent.putExtra("isServer", isServer)
+                        Log.d("DATAEXCHANGE", "[Server] On lance la page de score")
+                        startActivityForResult(intent, 1)
+                    }
+                }
+            }
             Log.d("DATAEXCHANGE", "Thread server relaunched")
             Multiplayer.Exchange.dataExchangeServer.cancel()
             Multiplayer.Exchange.dataExchangeServer = DataExchange(handlerServer)
             Multiplayer.Exchange.dataExchangeServer.start()
         } // on met à jour le handler
         if (!isServer) {
+            val handlerClient = object :
+                Handler(Looper.getMainLooper()) { // quand on reçoit un message on lance l'activité
+                override fun handleMessage(msg: Message) {
+                    Log.d("DATAEXCHANGE", "[ShadyShowdown Client] Message received: " + msg.obj.toString())
+                    // Quand on reçoit le score de l'adversaire on peut afficher la page de score
+                    scoreAdversaire = msg.obj.toString().toInt()
+                    if (!scoreSent) {
+                        Multiplayer.Exchange.dataExchangeClient.write(score.toString())
+                        scoreSent = true
+                    }
+                    val intent = Intent(this@ShadyShowdown, ScorePage::class.java)
+                    intent.putExtra("score", score)
+                    intent.putExtra("scoreAdversaire", scoreAdversaire)
+                    intent.putExtra("isMulti", true)
+                    intent.putExtra("isServer", isServer)
+                    Log.d("DATAEXCHANGE", "[Client] On lance la page de score")
+                    startActivityForResult(intent, 1)
+                }
+            }
             Log.d("DATAEXCHANGE", "Thread client relaunched")
             Multiplayer.Exchange.dataExchangeClient.cancel()
             Multiplayer.Exchange.dataExchangeClient = DataExchange(handlerClient)
@@ -160,11 +170,13 @@ class ShadyShowdown : ComponentActivity(), SensorEventListener {
     override fun onSensorChanged(event: SensorEvent?) {
         if (event?.sensor?.type == Sensor.TYPE_LIGHT) {
             val lightValue = event.values[0] // lumière initiale
-            if (!init) {
+            if (!init && !isServer) {
                 lux = Random.nextFloat()*lightValue + 1 // On veut une valeur entre 1 et la luminosité actuelle
                 delta = 2F // à tester
                 Log.d("SENSOR", "Valeur voulue : $lux")
-                Log.d("SENSOR", "Delta voulue : $delta")
+                if (isMulti) {
+                    Multiplayer.Exchange.dataExchangeServer.write("lux:$lux") // On envoie la valeur au serveur
+                }
                 init = true
             } else {
                 updateOpacity(lightValue)

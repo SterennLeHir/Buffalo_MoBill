@@ -9,8 +9,9 @@
     <string name="game4">Quick Quiz</string>
     <string name="game5">Cow Catcher</string>
     <string name="game6">Prickly Picking</string>
-    <string name="random_game_text">Laissez-vous surprendre...</string>
+    <string name="random_game_text">Laissez-vous surprendre…</string>
     <string name="random_game">Partie aléatoire</string>
     <string name="next">Suivant</string>
     <string name="score">Score</string>
+    <string name="RulesGame4">Répondez aux trois questions sur l\'univers de Lucky Luke le plus vite possible</string>
 </resources>

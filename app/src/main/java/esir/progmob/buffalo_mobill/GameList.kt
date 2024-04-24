@@ -10,6 +10,7 @@ import android.util.Log
 import android.widget.Button
 import android.widget.Toast
 import androidx.activity.ComponentActivity
+import java.net.Socket
 import kotlin.random.Random
 
 class GameList : ComponentActivity() {
@@ -265,6 +266,17 @@ class GameList : ComponentActivity() {
             score += data?.getIntExtra("score", 0) ?: 0
             scoreAdversaire += data?.getIntExtra("scoreAdversaire", 0) ?: 0
             Log.d("DATAEXCHANGE", "score : $score, scoreAdversaire : $scoreAdversaire")
+            if (isRandom && !isServer) {
+                val randomGame = Intent(this, Class.forName("esir.progmob.buffalo_mobill." + games[numberOfParties]))
+                randomGame.putExtra("isServer", isServer)
+                randomGame.putExtra("isMulti", isMulti)
+                if (isMulti) {
+                    Toast.makeText(this, "Pause", Toast.LENGTH_SHORT).show()
+                    Thread.sleep(5000)
+                    Multiplayer.Exchange.dataExchangeClient.write(games[numberOfParties])
+                } // On indique au serveur le jeu choisi
+                startActivityForResult(randomGame, 1)
+            }
         }
     }
 
@@ -274,15 +286,6 @@ class GameList : ComponentActivity() {
         Log.d("DATAEXCHANGE", "GameList restarted")
         Log.d("DATAEXCHANGE", "isServer : $isServer, isMulti : $isMulti")
         if (isMulti) initMulti()
-        if (isRandom && !isServer) {
-            Toast.makeText(this, "Pause", Toast.LENGTH_SHORT).show()
-            Thread.sleep(5000)
-            val randomGame = Intent(this, Class.forName("esir.progmob.buffalo_mobill." + games[numberOfParties]))
-            randomGame.putExtra("isServer", isServer)
-            randomGame.putExtra("isMulti", isMulti)
-            if (isMulti) Multiplayer.Exchange.dataExchangeClient.write(games[numberOfParties]) // On indique au serveur le jeu choisi
-            startActivityForResult(randomGame, 1)
-        }
         if (numberOfParties == NUMBEROFPARTIESMAX) {
             val intent = Intent(this, ScorePage::class.java)
             intent.putExtra("score", score)
@@ -294,6 +297,7 @@ class GameList : ComponentActivity() {
 
     private fun partyFinished() {
         Log.d("DATAEXCHANGE", "Party finished")
+        // TODO on arrête le multijoueur (fermeture de socket)
         finish()
     }
 }

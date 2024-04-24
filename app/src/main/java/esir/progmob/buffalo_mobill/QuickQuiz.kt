@@ -92,16 +92,9 @@ class QuickQuiz : ComponentActivity() {
 
         // Message affiché pour expliquer les règles du jeu
         if (!isMulti) {
-            val builder = AlertDialog.Builder(this)
-            builder.setTitle("Règles du jeu")
-            builder.setMessage("Ici, vous pouvez écrire les règles de votre jeu.")
-            builder.setPositiveButton("Jouer") { dialog, which ->
-                // Le jeu se lance quand le joueur clique sur "Jouer"
-                startGame()
-            }
-            val dialog = builder.create()
-            // Afficher la boîte de dialogue lorsque l'activité est créée
-            dialog.show()
+            // Affiche la boîte de dialogue lorsque l'activité est créée
+            val customAlertDialog = AlertDialogCustom(this, "BUT DU JEU", getString(R.string.RulesGame4), "JOUER", this::startGame)
+            customAlertDialog.create()
         } else {
             // TODO : afficher les règles du jeu en multi
             Log.d("DATAEXCHANGE", "[QuickQuiz] Mode multijoueurs")
