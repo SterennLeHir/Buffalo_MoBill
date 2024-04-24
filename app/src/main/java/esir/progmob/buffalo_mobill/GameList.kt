@@ -267,15 +267,22 @@ class GameList : ComponentActivity() {
             scoreAdversaire += data?.getIntExtra("scoreAdversaire", 0) ?: 0
             Log.d("DATAEXCHANGE", "score : $score, scoreAdversaire : $scoreAdversaire")
             if (isRandom && !isServer) {
-                val randomGame = Intent(this, Class.forName("esir.progmob.buffalo_mobill." + games[numberOfParties]))
+                val game = games[numberOfParties]
+                val randomGame = Intent(this, Class.forName("esir.progmob.buffalo_mobill.$game"))
                 randomGame.putExtra("isServer", isServer)
                 randomGame.putExtra("isMulti", isMulti)
                 if (isMulti) {
-                    Toast.makeText(this, "Pause", Toast.LENGTH_SHORT).show()
-                    Thread.sleep(5000)
-                    Multiplayer.Exchange.dataExchangeClient.write(games[numberOfParties])
-                } // On indique au serveur le jeu choisi
-                startActivityForResult(randomGame, 1)
+                    val customAlertDialog = AlertDialogCustom(this, "PROCHAIN JEU", "Le prochain jeu est : $game", "PRÊT") {
+                        Multiplayer.Exchange.dataExchangeClient.write(game) // On indique au serveur le jeu choisi
+                        startActivityForResult(randomGame, 1)
+                    }
+                    customAlertDialog.create()
+                } else {
+                    val customAlertDialog = AlertDialogCustom(this, "PROCHAIN JEU", "Le prochain jeu est : $game", "PRÊT") {
+                        startActivityForResult(randomGame, 1)
+                    }
+                    customAlertDialog.create()
+                }
             }
         }
     }

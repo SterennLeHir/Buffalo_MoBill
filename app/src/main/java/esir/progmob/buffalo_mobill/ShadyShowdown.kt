@@ -44,6 +44,8 @@ class ShadyShowdown : ComponentActivity(), SensorEventListener {
     // pour le multijoueur
     private var isServer : Boolean = false
     private var isMulti : Boolean = false
+    private var isReady : Boolean = false
+    private var isAdversaireReady : Boolean = false
 
     private var discover : Boolean = false // si le bandit est visible
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -63,6 +65,7 @@ class ShadyShowdown : ComponentActivity(), SensorEventListener {
         backgroundView = findViewById<LinearLayout>(R.id.background)
 
         if (isMulti) initMulti()
+
         bandit.setOnClickListener {
             if (discover) {
                 // Victoire
@@ -73,8 +76,7 @@ class ShadyShowdown : ComponentActivity(), SensorEventListener {
                     intent.putExtra("score", score)
                     intent.putExtra("isMulti", false)
                     intent.putExtra("isServer", false)
-                    startActivityForResult(intent, 1) // test
-                    finish()
+                    startActivityForResult(intent, 1)
                 }
             }
         }

@@ -8,7 +8,7 @@ import android.widget.TextView
 
 class AlertDialogCustom(private val context : Context, private val titre : String, private val message : String, private val textButton : String, val onOkClicked : () -> Unit) {
 
-    fun create(): Unit {
+    fun create(): AlertDialog {
         val builder = AlertDialog.Builder(context)
         val view = LayoutInflater.from(context).inflate(R.layout.alert_dialog, null)
 
@@ -25,9 +25,9 @@ class AlertDialogCustom(private val context : Context, private val titre : Strin
         buttonView.setOnClickListener {
             Log.d("AlertDialogCustom", "Button clicked")
             onOkClicked()
-            dialog.dismiss()
+            //dialog.dismiss()
         }
-        dialog.show()
+        return dialog
     }
 
 }

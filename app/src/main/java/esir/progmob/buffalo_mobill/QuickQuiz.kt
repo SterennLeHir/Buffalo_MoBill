@@ -73,6 +73,7 @@ class QuickQuiz : ComponentActivity() {
     private lateinit var next : Button
     private lateinit var scoreView : TextView
     private lateinit var questionView : TextView
+    private lateinit var alertDialog: AlertDialog
 
     // données échangées
     private var isMulti : Boolean = false
@@ -81,6 +82,8 @@ class QuickQuiz : ComponentActivity() {
     private var scoreAdversaire : Int = 0
     private var isAdversaireAnswered : Boolean = false // indique si l'adversaire a répondu ou non
     private var scoreSent : Boolean = false // indique si le score a été envoyé
+    private var isReady : Boolean = false
+    private var isAdversaireReady : Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -93,14 +96,39 @@ class QuickQuiz : ComponentActivity() {
         // Message affiché pour expliquer les règles du jeu
         if (!isMulti) {
             // Affiche la boîte de dialogue lorsque l'activité est créée
-            val customAlertDialog = AlertDialogCustom(this, "BUT DU JEU", getString(R.string.RulesGame4), "JOUER", this::startGame)
-            customAlertDialog.create()
+            val customAlertDialog = AlertDialogCustom(this, "BUT DU JEU", getString(R.string.RulesGame4), "JOUER") {
+                startGame()
+                alertDialog.dismiss()
+            }
+            alertDialog = customAlertDialog.create()
+            alertDialog.show()
         } else {
-            // TODO : afficher les règles du jeu en multi
             Log.d("DATAEXCHANGE", "[QuickQuiz] Mode multijoueurs")
+            // TODO : afficher les règles du jeu en multi
             initMulti()
+            if (!isServer) {
+                val customAlertDialog = AlertDialogCustom(this, "BUT DU JEU", getString(R.string.RulesGame4), "JOUER") {
+                    isReady = true
+                    if (isAdversaireReady) {
+                        Multiplayer.Exchange.dataExchangeClient.write("Ready")
+                        alertDialog.dismiss()
+                        startGame()
+                    }
+                }
+                alertDialog = customAlertDialog.create()
+                alertDialog.show()
+            } else {
+                val customAlertDialog =
+                    AlertDialogCustom(this, "BUT DU JEU", getString(R.string.RulesGame4), "JOUER") {
+                        isReady = true
+                        Multiplayer.Exchange.dataExchangeServer.write("Ready")
+                    }
+                alertDialog = customAlertDialog.create()
+                alertDialog.show()
+            }
+
             // Le jeu se lance directement en multi
-            startGame()
+            //startGame()
         }
     }
 
@@ -128,8 +156,11 @@ class QuickQuiz : ComponentActivity() {
                         intent.putExtra("isServer", isServer)
                         Log.d("DATAEXCHANGE", "[Server] On lance la page de score")
                         startActivityForResult(intent, 1)
-                    }
-                    else {
+                    } else if (msg.obj.toString().contains("Ready")) {
+                        Log.d("DATAEXCHANGE", "[QuickQuiz] On peut lancer le jeu")
+                        alertDialog.dismiss()
+                        startGame()
+                    } else {
                         Log.d("DATAEXCHANGE", "[Server] Mise à jour de la question")
                         // On met à jour les éléments graphiques de la question
                         deleteOldQuestion()
@@ -161,6 +192,13 @@ class QuickQuiz : ComponentActivity() {
                         intent.putExtra("isServer", isServer)
                         Log.d("DATAEXCHANGE", "[Client] On lance la page de score")
                         startActivityForResult(intent, 1)
+                    } else if (msg.obj.toString().contains("Ready")) {
+                        isAdversaireReady = true
+                        if (isReady) {
+                            Multiplayer.Exchange.dataExchangeClient.write("Ready")
+                            alertDialog.dismiss()
+                            startGame()
+                        }
                     } else {
                         // On met à jour la variable isAdversaireAnswered
                         isAdversaireAnswered = true
