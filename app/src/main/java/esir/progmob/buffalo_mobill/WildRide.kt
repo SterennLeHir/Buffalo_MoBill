@@ -11,15 +11,21 @@ import android.os.CountDownTimer
 import android.view.animation.Animation
 import android.view.animation.RotateAnimation
 import android.widget.ImageView
+import android.widget.Toast
+
 class WildRide : ComponentActivity(), SensorEventListener  {
         private lateinit var sensorManager: SensorManager
         private lateinit var accelerometer: Sensor
-        private lateinit var rodeo: ImageView
         private lateinit var countDownTimer: CountDownTimer
-        private var rotationCount = 0
         private var totalPoints = 0
 
-        override fun onCreate(savedInstanceState: Bundle?) {
+        private lateinit var rodeo: ImageView
+        private var rotRight: Boolean = true //pour savoir si on tourne à droite ou gauche
+        private var selfIncline: Int = 0 //0 milieu, -1 = gauche, 1 = droite
+        private val context = this
+
+
+    override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
             setContentView(R.layout.wild_ride)
 
@@ -32,14 +38,14 @@ class WildRide : ComponentActivity(), SensorEventListener  {
         }
 
         private fun startRotationGame() {
-            countDownTimer = object : CountDownTimer(30000, 6000) { // 30 secondes, rotation toutes les 6 secondes
+            countDownTimer = object : CountDownTimer(20000, 2000) { // 20 secondes, rotation toutes les 2 secondes
                 override fun onTick(millisUntilFinished: Long) {
                     rotateImage()
                 }
 
                 override fun onFinish() {
                     // Le jeu est terminé
-                    println("Jeu terminé! Points totaux: $totalPoints")
+                    Toast.makeText(context,"Jeu terminé! Points totaux: $totalPoints",Toast.LENGTH_SHORT).show()
                 }
             }
             countDownTimer.start()
@@ -47,11 +53,23 @@ class WildRide : ComponentActivity(), SensorEventListener  {
 
         private fun rotateImage() {
             // Rotation aléatoire vers la droite ou la gauche
-            val rotation = if (Math.random() < 0.5) 45f else -45f
+            rotRight = if (Math.random() < 0.5) true else false
+            val rotation = if (rotRight) 45f else -45f
 
-            // Créer une animation de rotation de 90 degrés vers la droite
+            // Créer une animation de rotation de 45 degrés
             val rotateAnimation = RotateAnimation(0f, rotation, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f)
-            rotateAnimation.duration = 1000 // Durée de l'animation: 1 seconde
+            rotateAnimation.duration = 1500 // Durée de l'animation: 1,5 seconde
+            rotateAnimation.setAnimationListener(object : Animation.AnimationListener {
+                override fun onAnimationStart(animation: Animation?) {}
+
+                override fun onAnimationEnd(animation: Animation?) {
+                    if ((rotRight && selfIncline == 1) || (!rotRight && selfIncline == -1)){
+                        totalPoints++
+                    }
+                }
+
+                override fun onAnimationRepeat(animation: Animation?) {}
+            })
             // Démarrer l'animation sur l'image
             rodeo.startAnimation(rotateAnimation)
         }
@@ -74,11 +92,13 @@ class WildRide : ComponentActivity(), SensorEventListener  {
 
             // Si incliné vers la droite
             if (inclination > 7) {
-                println("Incliné vers la gauche! Points: $totalPoints")
+                selfIncline = -1
+                println("Incliné vers la gauche!")
             }
             // Si incliné vers la gauche
             else if (inclination < -7) {
-                println("Incliné vers la droite! Points: $totalPoints")
+                selfIncline = 1
+                println("Incliné vers la droite!")
             }
         }
     }
