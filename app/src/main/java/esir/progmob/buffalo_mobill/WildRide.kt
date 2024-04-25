@@ -34,7 +34,7 @@ class WildRide : ComponentActivity(), SensorEventListener  {
         private val context = this
 
         private var shake_counter = 0
-        private val MAX_SHAKE = 5
+        private val MAX_SHAKE = 10
 
         //vibrator
         private var vibrator: Vibrator? = null
@@ -107,7 +107,7 @@ class WildRide : ComponentActivity(), SensorEventListener  {
 
                 // Démarrer l'animation sur l'image
                 rodeo.startAnimation(rotateAnimation)
-                dureeAnim = dureeAnim - 25 //pour aller de plus en plus vite
+                dureeAnim = dureeAnim - 100 //pour aller de plus en plus vite
             }
             else{
                 // Le jeu est terminé

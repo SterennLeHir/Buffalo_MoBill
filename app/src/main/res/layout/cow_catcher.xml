@@ -7,15 +7,22 @@
     android:layout_height="match_parent">
 
     <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="1000dp"
+        android:layout_height="1000dp"
+        android:src="@drawable/herbe"
+        android:translationX="-290dp" />
+
+    <ImageView
         android:id="@+id/cowView"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
         android:src="@drawable/vache" />
 
     <ImageView
         android:id="@+id/lassoView"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
         android:src="@drawable/lasso" />
 
 </FrameLayout>

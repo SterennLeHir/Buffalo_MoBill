@@ -145,8 +145,8 @@ class CowCatcher : ComponentActivity(){
     }
 
     private fun changeCowPosition() {
-        val dpToPxH = this.dpToPx(100f).toInt()
-        val dpToPxW = this.dpToPx(100f).toInt()
+        val dpToPxH = this.dpToPx(150f).toInt()
+        val dpToPxW = this.dpToPx(150f).toInt()
         val dpToPxSeuil = this.dpToPx(400f).toInt()
         cow.x = Random.nextInt(screenWidth - dpToPxW).toFloat()
         cow.y = Random.nextInt(screenHeight - dpToPxH - dpToPxSeuil).toFloat() //plus haut que le lasso

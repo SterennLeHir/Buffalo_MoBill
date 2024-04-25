@@ -5,6 +5,16 @@
     android:layout_height="match_parent">
 
     <ImageView
+        android:id="@+id/westernView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:scaleX="5"
+        android:scaleY="5"
+        android:src="@drawable/western"
+        android:translationX="20dp"
+        android:translationY="150dp" />
+
+    <ImageView
         android:id="@+id/rodeoView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
