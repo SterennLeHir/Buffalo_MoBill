@@ -33,7 +33,7 @@ class WildRide : ComponentActivity(), SensorEventListener  {
         private val context = this
 
         private var shake_counter = 0
-        private val MAX_SHAKE = 15
+        private val MAX_SHAKE = 5
 
         //vibrator
         private var vibrator: Vibrator? = null
@@ -73,7 +73,7 @@ class WildRide : ComponentActivity(), SensorEventListener  {
         }
 
         private fun rodeoShake() {
-            if(shake_counter <= MAX_SHAKE){
+            if(shake_counter < MAX_SHAKE){
                 rodIncline = if (Math.random() < 0.5) 1 else -1 //une chance sur 2 d'aller à droite ou gauche
                 val randomRot = 45f//Random.nextInt(15, 45).toFloat() //valeur aléatoire
                 fromRotation = 0f
@@ -93,40 +93,42 @@ class WildRide : ComponentActivity(), SensorEventListener  {
                             //on vibre
                             vibrator?.vibrate(1000)
                         }
-                        // Créer une nouvelle animation de retour
-                        rodIncline = 0
-                        fromRotation = toRotation
-                        toRotation = 0f //on va dans l'autre sens
-                        val rotateAnimation = RotateAnimation(fromRotation, toRotation, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f)
-                        rotateAnimation.duration = dureeAnim.toLong()/2
-                        rotateAnimation.fillAfter = true // Garder l'image à sa position finale après l'animation
-                        rotateAnimation.setAnimationListener(object : Animation.AnimationListener {
-                            override fun onAnimationStart(animation: Animation?) {}
+                        else{
+                            // Créer une nouvelle animation de retour
+                            rodIncline = 0
+                            fromRotation = toRotation
+                            toRotation = 0f //on va dans l'autre sens
+                            val rotateAnimation = RotateAnimation(fromRotation, toRotation, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f)
+                            rotateAnimation.duration = dureeAnim.toLong()/2
+                            rotateAnimation.fillAfter = true // Garder l'image à sa position finale après l'animation
+                            rotateAnimation.setAnimationListener(object : Animation.AnimationListener {
+                                override fun onAnimationStart(animation: Animation?) {}
 
-                            override fun onAnimationEnd(animation: Animation?) {
-                                if (rodIncline != selfIncline){ //si on ne s'oriente pas bien pas assez rapidement
-                                    //countDownTimer.cancel()
-                                    Toast.makeText(context, "PERDUUUUUUU", Toast.LENGTH_SHORT)//ne s'affiche pas
-                                    //on vibre
-                                    vibrator?.vibrate(1000)
+                                override fun onAnimationEnd(animation: Animation?) {
+                                    if (rodIncline != selfIncline){ //si on ne s'oriente pas bien pas assez rapidement
+                                        //countDownTimer.cancel()
+                                        Toast.makeText(context, "PERDUUUUUUU", Toast.LENGTH_SHORT)//ne s'affiche pas
+                                        //on vibre
+                                        vibrator?.vibrate(1000)
+                                    }
+                                    else{
+                                        shake_counter++ //on a réussit à survivre au shake
+                                        rodeoShake()
+                                    }
                                 }
-                                else{
-                                    rodeoShake()
-                                }
-                            }
 
-                            override fun onAnimationRepeat(animation: Animation?) {}
-                        })
-                        // Démarrer l'animation sur l'image
-                        rodeo.startAnimation(rotateAnimation)
+                                override fun onAnimationRepeat(animation: Animation?) {}
+                            })
+                            // Démarrer l'animation sur l'image
+                            rodeo.startAnimation(rotateAnimation)
+                        }
                     }
-
                     override fun onAnimationRepeat(animation: Animation?) {}
                 })
 
                 // Démarrer l'animation sur l'image
                 rodeo.startAnimation(rotateAnimation)
-                dureeAnim = dureeAnim - 100 //pour aller de plus en plus vite
+                dureeAnim = dureeAnim - 25 //pour aller de plus en plus vite
             }
             else{
                 // Le jeu est terminé
