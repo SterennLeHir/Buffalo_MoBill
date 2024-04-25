@@ -94,7 +94,7 @@ class ShadyShowdown : ComponentActivity(), SensorEventListener {
                 alertDialog.show()
             } else {
                 val customAlertDialog =
-                    AlertDialogCustom(this, "BUT DU JEU", getString(R.string.RulesGame4), "JOUER") {
+                    AlertDialogCustom(this, "BUT DU JEU", getString(R.string.RulesGame3), "JOUER") {
                         isReady = true
                         Multiplayer.Exchange.dataExchangeServer.write("Ready")
                     }

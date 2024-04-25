@@ -47,7 +47,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:fontFamily="@font/old_standard_tt"
-            android:text="TextView"
             android:textSize="20sp" />
     </LinearLayout>
 
@@ -64,6 +63,6 @@
         android:id="@+id/next"
         android:layout_height="wrap_content"
         android:text="@string/next"
-        style="@style/bouton"/>
+        style="@style/brown_button"/>
 
 </LinearLayout>

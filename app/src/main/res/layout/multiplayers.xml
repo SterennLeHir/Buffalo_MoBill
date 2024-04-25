@@ -10,11 +10,13 @@
         android:id="@+id/server"
         android:layout_height="wrap_content"
         android:text="Créer une partie"
-        style="@style/bouton"/>
+        android:layout_marginTop="250dp"
+        android:layout_marginBottom="50dp"
+        style="@style/brown_button"/>
 
     <Button
         android:id="@+id/client"
         android:layout_height="wrap_content"
         android:text="Rejoindre une partie"
-        style="@style/bouton"/>
+        style="@style/brown_button"/>
 </LinearLayout>

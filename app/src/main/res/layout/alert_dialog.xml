@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="250dp"
     android:layout_height="250dp"
-    android:background="@color/brown"
+    android:background="@drawable/brown_button"
     android:gravity="center_horizontal"
     android:orientation="vertical">
 
@@ -33,19 +33,14 @@
         android:text=""
         android:textAlignment="center"
         android:textColor="@color/white"
-        android:textSize="16sp" />
+        android:textSize="16sp"
+        />
 
     <Button
         android:id="@+id/button"
-        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@color/orange"
-        android:fontFamily="@font/old_standard_tt"
-        android:text=""
         android:layout_marginBottom="20dp"
-        android:textAlignment="center"
-        android:textColor="@color/white"
         android:textSize="20sp"
         android:textStyle="bold"
-        tools:ignore="SpeakableTextPresentCheck" />
+        style="@style/orange_button"/>
 </LinearLayout>
