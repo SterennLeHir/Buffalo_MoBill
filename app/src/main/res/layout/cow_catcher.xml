@@ -10,7 +10,7 @@
         android:id="@+id/cowView"
         android:layout_width="100dp"
         android:layout_height="100dp"
-        android:src="@drawable/bandit" />
+        android:src="@drawable/vache" />
 
     <ImageView
         android:id="@+id/lassoView"

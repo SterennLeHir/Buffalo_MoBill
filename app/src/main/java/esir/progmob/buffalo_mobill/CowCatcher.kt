@@ -7,6 +7,7 @@ import android.util.Log
 import android.util.TypedValue
 import android.view.GestureDetector
 import android.view.MotionEvent
+import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import android.view.animation.AccelerateDecelerateInterpolator
@@ -15,6 +16,7 @@ import android.view.animation.Animation.AnimationListener
 import android.view.animation.TranslateAnimation
 import android.widget.FrameLayout
 import android.widget.ImageView
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import kotlin.random.Random
 
@@ -28,6 +30,9 @@ class CowCatcher : ComponentActivity(){
     private lateinit var gest: GestureDetector
     private var screenWidth = 0
     private var screenHeight = 0 //PAS BEAAAAAAAAAAAAAAAAU
+    private var totalPoints = 0
+    private var context = this
+
     override fun onCreate(savedInstanceState: Bundle?) {
         //Constructeur et récupération du layout
         super.onCreate(savedInstanceState)
@@ -108,8 +113,14 @@ class CowCatcher : ComponentActivity(){
                     Log.d("vache", "fin de l'animation")
                     if(cow.x - delta <= targetX && targetX <= cow.x+delta
                         && cow.y - delta <= targetY && targetY <= cow.y+delta){
-                        changeCowPosition()
-                        Log.d("vache", "on change de pos la vache")
+                        totalPoints++
+                        if(totalPoints >= 5){
+                            Toast.makeText(context, "C'est fini !", Toast.LENGTH_SHORT).show()
+                            cow.visibility = View.INVISIBLE
+                        }else{
+                            changeCowPosition()
+                            Log.d("vache", "on change de pos la vache")
+                        }
                     }
                 }
 
