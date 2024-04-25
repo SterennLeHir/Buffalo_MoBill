@@ -11,43 +11,26 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 
 class ScorePage : ComponentActivity() {
-    var myScore : Int = 0
-    var theirScore : Int = 0
+    private var myScore : Int = 0
+    private var theirScore : Int = 0
+    private var isMulti : Boolean = false
+    private var isServer : Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.score_page)
+
         // On récupère les informations fournies par l'activité précédente
-        val isMulti = intent.getBooleanExtra("isMulti", false)
-        val isServer = intent.getBooleanExtra("isServer", false)
-        Log.d("DATAEXCHANGE", "isServer : $isServer")
+        isMulti = intent.getBooleanExtra("isMulti", false)
+        isServer = intent.getBooleanExtra("isServer", false)
         myScore = intent.getIntExtra("score", 0)
         theirScore = intent.getIntExtra("scoreAdversaire", 0)
 
         // On met à jour l'affichage de votre score
-        updateScore()
-        // On modifie le handler du serveur
-        if (isMulti && isServer) initMulti()
-        // On ajoute un listener au bouton
-        val button = findViewById<TextView>(R.id.next)
-        button.setOnClickListener {
-            Log.d("DATAEXCHANGE", "isMulti : $isMulti, isServer : $isServer")
-            if (!isMulti) {
-                val resultIntent = Intent()
-                resultIntent.putExtra("score", myScore)
-                setResult(RESULT_OK, resultIntent)
-                finish()
-            } else if (!isServer) {
-                Log.d("DATAEXCHANGE", "Le client envoie Next")
-                Multiplayer.Exchange.dataExchangeClient.write("Next")
-                val resultIntent = Intent()
-                resultIntent.putExtra("score", myScore)
-                resultIntent.putExtra("scoreAdversaire", theirScore)
-                setResult(RESULT_OK, resultIntent)
-                finish()
-            } else {
-                Toast.makeText(this, "En attente de l'autre joueur", Toast.LENGTH_SHORT).show()
-            }
+        if (isMulti) {
+            if (isServer) initMulti() // On modifie le handler du serveur
+            updateScoreMulti()
+        } else {
+            updateScoreSolo()
         }
     }
 
@@ -68,7 +51,8 @@ class ScorePage : ComponentActivity() {
         Multiplayer.Exchange.dataExchangeServer.setHandler(handler)
     }
 
-    private fun updateScore() {
+    private fun updateScoreMulti() {
+        setContentView(R.layout.score_page_multi)
         val myScoreView = findViewById<TextView>(R.id.currentScore)
         myScoreView.text = myScore.toString()
         val theirScoreView = findViewById<TextView>(R.id.otherScore)
@@ -80,6 +64,36 @@ class ScorePage : ComponentActivity() {
             resultView.text = "Vous avez perdu !"
         } else {
             resultView.text = "Match nul !"
+        }
+        // On ajoute un listener au bouton
+        val button = findViewById<TextView>(R.id.next)
+        button.setOnClickListener {
+            Log.d("DATAEXCHANGE", "isMulti : $isMulti, isServer : $isServer")
+            if (!isServer) {
+                Log.d("DATAEXCHANGE", "Le client envoie Next")
+                Multiplayer.Exchange.dataExchangeClient.write("Next")
+                val resultIntent = Intent()
+                resultIntent.putExtra("score", myScore)
+                resultIntent.putExtra("scoreAdversaire", theirScore)
+                setResult(RESULT_OK, resultIntent)
+                finish()
+            } else {
+                Toast.makeText(this, "En attente de l'autre joueur", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private fun updateScoreSolo() {
+        setContentView(R.layout.score_page_solo)
+        val myScoreView = findViewById<TextView>(R.id.currentScore)
+        myScoreView.text = myScore.toString()
+        // On ajoute un listener au bouton
+        val button = findViewById<TextView>(R.id.next)
+        button.setOnClickListener {
+            val resultIntent = Intent()
+            resultIntent.putExtra("score", myScore)
+            setResult(RESULT_OK, resultIntent)
+            finish()
         }
     }
 

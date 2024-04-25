@@ -104,7 +104,6 @@ class QuickQuiz : ComponentActivity() {
             alertDialog.show()
         } else {
             Log.d("DATAEXCHANGE", "[QuickQuiz] Mode multijoueurs")
-            // TODO : afficher les règles du jeu en multi
             initMulti()
             if (!isServer) {
                 val customAlertDialog = AlertDialogCustom(this, "BUT DU JEU", getString(R.string.RulesGame4), "JOUER") {

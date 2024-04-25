@@ -36,6 +36,7 @@ class Multiplayer : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.d("BLUETOOTH", "onCreate multi")
+
         super.onCreate(savedInstanceState)
 
         //On applique le layout pour le multiplayer
@@ -163,7 +164,6 @@ class Multiplayer : ComponentActivity() {
                 val intent = Intent(this, ServerConnexion::class.java)
                 startActivity(intent)
                 Log.d("DATAEXCHANGE", "DataExchange Server thread launched")
-                Exchange.dataExchangeServer.start()
                 finish()
             }
         }

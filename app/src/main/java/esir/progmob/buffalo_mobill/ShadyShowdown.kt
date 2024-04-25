@@ -1,6 +1,7 @@
 package esir.progmob.buffalo_mobill
 
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.hardware.Sensor
@@ -21,6 +22,7 @@ import kotlin.random.Random
 
 class ShadyShowdown : ComponentActivity(), SensorEventListener {
 
+
     // éléments graphiques
     private lateinit var bandit : ImageView
     private lateinit var backgroundView : LinearLayout
@@ -28,8 +30,8 @@ class ShadyShowdown : ComponentActivity(), SensorEventListener {
     // capteurs
     private lateinit var sensorManager : SensorManager
     private var light: Sensor? = null
-    private var lux : Float = 0F // On veut une valeur entre 0 et 35000
-    private var delta : Float = 0F // tolérance entre la valeur du capteur et celle attendue
+    private var lux : Int = 0 // On veut une valeur entre 0 et 35000
+    private var delta : Int = 2 // tolérance entre la valeur du capteur et celle attendue
     private var init : Boolean = false // dit si on a déjà initialisé la valeur souhaitée
 
     // pour placer l'image
@@ -48,6 +50,9 @@ class ShadyShowdown : ComponentActivity(), SensorEventListener {
     private var isAdversaireReady : Boolean = false
 
     private var discover : Boolean = false // si le bandit est visible
+    private var gameBegan: Boolean = false // si le jeu a commencé
+    private lateinit var alertDialog : AlertDialog
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.shady_showdown)
@@ -64,8 +69,42 @@ class ShadyShowdown : ComponentActivity(), SensorEventListener {
         bandit = findViewById<ImageView>(R.id.bandit)
         backgroundView = findViewById<LinearLayout>(R.id.background)
 
-        if (isMulti) initMulti()
+        if (!isMulti) {
+            // Affiche la boîte de dialogue lorsque l'activité est créée
+            val customAlertDialog = AlertDialogCustom(this, "BUT DU JEU", getString(R.string.RulesGame3), "JOUER") {
+                startGame()
+                alertDialog.dismiss()
+                gameBegan = true
+            }
+            alertDialog = customAlertDialog.create()
+            alertDialog.show()
+        } else {
+            initMulti()
+            if (!isServer) {
+                val customAlertDialog = AlertDialogCustom(this, "BUT DU JEU", getString(R.string.RulesGame3), "JOUER") {
+                    isReady = true
+                    if (isAdversaireReady) {
+                        Multiplayer.Exchange.dataExchangeClient.write("Ready")
+                        alertDialog.dismiss()
+                        gameBegan = true
+                        startGame()
+                    }
+                }
+                alertDialog = customAlertDialog.create()
+                alertDialog.show()
+            } else {
+                val customAlertDialog =
+                    AlertDialogCustom(this, "BUT DU JEU", getString(R.string.RulesGame4), "JOUER") {
+                        isReady = true
+                        Multiplayer.Exchange.dataExchangeServer.write("Ready")
+                    }
+                alertDialog = customAlertDialog.create()
+                alertDialog.show()
+            }
+        }
+    }
 
+    private fun startGame() {
         bandit.setOnClickListener {
             if (discover) {
                 // Victoire
@@ -79,6 +118,7 @@ class ShadyShowdown : ComponentActivity(), SensorEventListener {
                     startActivityForResult(intent, 1)
                 }
             }
+            gameBegan = true
         }
         // Initialisation de la taille de l'écran
         val metrics = DisplayMetrics()
@@ -111,8 +151,13 @@ class ShadyShowdown : ComponentActivity(), SensorEventListener {
                     val message = msg.obj.toString()
                     Log.d("DATAEXCHANGE", "[ShadyShowdown Server] Message received: " + msg.obj.toString())
                     if (message.contains("lux")) { // On récupère la valeur voulue de la luminosité
-                        lux = message.split(":")[1].toFloat()
-                        Log.d("SENSOR", "Valeur voulue : $lux")
+                        lux = message.split(":")[1].toInt()
+                        Log.d("SENSOR", "[Server] Valeur voulue : $lux")
+                    } else if (msg.obj.toString().contains("Ready")) {
+                        Log.d("DATAEXCHANGE", "[ShadyShowdown] On peut lancer le jeu")
+                        alertDialog.dismiss()
+                        gameBegan = true
+                        startGame()
                     } else {
                         // Quand on reçoit le score de l'adversaire on peut afficher la page de score
                         scoreAdversaire = msg.obj.toString().toInt()
@@ -125,7 +170,7 @@ class ShadyShowdown : ComponentActivity(), SensorEventListener {
                         intent.putExtra("scoreAdversaire", scoreAdversaire)
                         intent.putExtra("isMulti", true)
                         intent.putExtra("isServer", isServer)
-                        Log.d("DATAEXCHANGE", "[Server] On lance la page de score")
+                        Log.d("DATAEXCHANGE", "[ShadyShowdown Server] On lance la page de score")
                         startActivityForResult(intent, 1)
                     }
                 }
@@ -140,19 +185,29 @@ class ShadyShowdown : ComponentActivity(), SensorEventListener {
                 Handler(Looper.getMainLooper()) { // quand on reçoit un message on lance l'activité
                 override fun handleMessage(msg: Message) {
                     Log.d("DATAEXCHANGE", "[ShadyShowdown Client] Message received: " + msg.obj.toString())
-                    // Quand on reçoit le score de l'adversaire on peut afficher la page de score
-                    scoreAdversaire = msg.obj.toString().toInt()
-                    if (!scoreSent) {
-                        Multiplayer.Exchange.dataExchangeClient.write(score.toString())
-                        scoreSent = true
+                    if (msg.obj.toString().contains("Ready")) {
+                        isAdversaireReady = true
+                        if (isReady) {
+                            Multiplayer.Exchange.dataExchangeClient.write("Ready")
+                            alertDialog.dismiss()
+                            gameBegan = true
+                            startGame()
+                        }
+                    } else {
+                        // Quand on reçoit le score de l'adversaire on peut afficher la page de score
+                        scoreAdversaire = msg.obj.toString().toInt()
+                        if (!scoreSent) {
+                            Multiplayer.Exchange.dataExchangeClient.write(score.toString())
+                            scoreSent = true
+                        }
+                        val intent = Intent(this@ShadyShowdown, ScorePage::class.java)
+                        intent.putExtra("score", score)
+                        intent.putExtra("scoreAdversaire", scoreAdversaire)
+                        intent.putExtra("isMulti", true)
+                        intent.putExtra("isServer", isServer)
+                        Log.d("DATAEXCHANGE", "[ShadyShowdown Client] On lance la page de score")
+                        startActivityForResult(intent, 1)
                     }
-                    val intent = Intent(this@ShadyShowdown, ScorePage::class.java)
-                    intent.putExtra("score", score)
-                    intent.putExtra("scoreAdversaire", scoreAdversaire)
-                    intent.putExtra("isMulti", true)
-                    intent.putExtra("isServer", isServer)
-                    Log.d("DATAEXCHANGE", "[Client] On lance la page de score")
-                    startActivityForResult(intent, 1)
                 }
             }
             Log.d("DATAEXCHANGE", "Thread client relaunched")
@@ -171,11 +226,10 @@ class ShadyShowdown : ComponentActivity(), SensorEventListener {
 
     override fun onSensorChanged(event: SensorEvent?) {
         if (event?.sensor?.type == Sensor.TYPE_LIGHT) {
-            val lightValue = event.values[0] // lumière initiale
-            if (!init && !isServer) {
-                lux = Random.nextFloat()*lightValue + 1 // On veut une valeur entre 1 et la luminosité actuelle
-                delta = 2F // à tester
-                Log.d("SENSOR", "Valeur voulue : $lux")
+            val lightValue = event.values[0].toInt() // lumière initiale
+            if (!init && !isServer && gameBegan) {
+                lux = Random.nextInt(lightValue) + 1 // On veut une valeur entre 1 et la luminosité actuelle
+                Log.d("SENSOR", "[Client] Valeur voulue : $lux")
                 if (isMulti) {
                     Multiplayer.Exchange.dataExchangeServer.write("lux:$lux") // On envoie la valeur au serveur
                 }
@@ -184,12 +238,11 @@ class ShadyShowdown : ComponentActivity(), SensorEventListener {
                 updateOpacity(lightValue)
                 if (!discover) Log.d("SENSOR", lightValue.toString())
             }
-
         }
     }
 
-    private fun updateOpacity(lightValue : Float) {
-        if (lux - delta < lightValue && lux + delta > lightValue) {
+    private fun updateOpacity(lightValue : Int) {
+        if (lux - delta < lightValue && lightValue < lux + delta) {
             bandit.visibility = ImageView.VISIBLE
             discover = true
         }
@@ -218,14 +271,13 @@ class ShadyShowdown : ComponentActivity(), SensorEventListener {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        Log.d("DATAEXCHANGE", "[ShadyShowdown] onActivityResult")
         Log.d("DATAEXCHANGE", "[ShadyShowdown] onActivityResult, resultCode : $resultCode")
         if (resultCode == Activity.RESULT_OK) {
-            Log.d("DATAEXCHANGE", "score :" + data?.getIntExtra("score", 0).toString())
-            Log.d("DATAEXCHANGE", "scoreAdversaire :" + data?.getIntExtra("scoreAdversaire", 0).toString())
+            // On récupère les scores
             score = data?.getIntExtra("score", 0) ?: 0
             scoreAdversaire = data?.getIntExtra("scoreAdversaire", 0) ?: 0
             Log.d("DATAEXCHANGE", "score : $score, scoreAdversaire : $scoreAdversaire")
+            // On transmet les scores à GameList
             val resultIntent = Intent()
             resultIntent.putExtra("score", score)
             resultIntent.putExtra("scoreAdversaire", scoreAdversaire)

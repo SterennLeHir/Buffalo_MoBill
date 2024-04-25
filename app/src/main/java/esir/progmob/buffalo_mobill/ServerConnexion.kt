@@ -65,6 +65,7 @@ class ServerConnexion : ComponentActivity() {
     private fun manageMyConnectedSocket(it: BluetoothSocket, context: Context) {
         Log.d("CONNEXION", "fonction de transfert de données")
         Multiplayer.SocketHolder.socket = it
+        Multiplayer.Exchange.dataExchangeServer = DataExchange(null)
         val intent = Intent(context, GameList::class.java)
         intent.putExtra("isMulti", true) // on indique à l'activité qu'elle est en mode multijoueurs
         intent.putExtra("isServer", true) // on indique à l'activité qu'elle est le serveur

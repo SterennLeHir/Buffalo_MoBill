@@ -93,6 +93,7 @@ class ClientConnexion : ComponentActivity() {
     private fun manageMyConnectedSocket(it: BluetoothSocket) {
         Log.d("CONNEXION", "fonction de transfert de données")
         Multiplayer.SocketHolder.socket = it
+        Multiplayer.Exchange.dataExchangeClient = DataExchange(null)
         val intent = Intent(this, GameList::class.java)
         intent.putExtra("isMulti", true) // on indique à l'activité qu'elle est en mode multijoueurs
         intent.putExtra("isServer", false) // on indique à l'activité qu'elle est le client
@@ -127,7 +128,7 @@ class ClientConnexion : ComponentActivity() {
         registerReceiver(receiver, discoverDevicesIntent)
         // On lance la recherche des appareils à proximité
         val start = bluetoothAdapter.startDiscovery()
-        Log.d("BLUETOOTH", "[client] start discovery : " + start.toString())
+        Log.d("BLUETOOTH", "[client] start discovery : $start")
     }
 
     fun updateList() {

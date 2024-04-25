@@ -4,6 +4,8 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import android.os.Handler
 import android.os.Message
+import java.io.InputStream
+import java.io.OutputStream
 
 class DataExchange(private var handler : Handler?) : Thread() {
 
@@ -20,8 +22,8 @@ class DataExchange(private var handler : Handler?) : Thread() {
                     val bytes = ByteArray(available)
                     inputStream.read(bytes, 0, available)
                     val incomingMessage = String(bytes)
-                    Log.d("DATAEXCHANGE", "InputStream: $incomingMessage")
                     handler?.obtainMessage(0, incomingMessage)?.sendToTarget()
+                    Log.d("DATAEXCHANGE", "InputStream: $incomingMessage")
                 }
             } catch (e: Exception) {
                 Log.e("DATAEXCHANGE", "Error receiving data", e)
@@ -43,8 +45,8 @@ class DataExchange(private var handler : Handler?) : Thread() {
     fun write(message: String) {
         try {
             outputStream.write(message.toByteArray())
-            outputStream.flush() // à voir l'utilité
-            Log.d("DATAEXCHANGE", "Message sent")
+            outputStream.flush()
+            Log.d("DATAEXCHANGE", "Message sent : $message")
         } catch (e: Exception) {
             Log.e("DATAEXCHANGE", "Error sending data", e)
         }
@@ -58,4 +60,13 @@ class DataExchange(private var handler : Handler?) : Thread() {
         Log.d("DATAEXCHANGE", "Handler set")
         this.handler = handler
     }
+
+    fun getInputStream() : InputStream {
+        return inputStream
+    }
+
+    fun getOutputStream() : OutputStream {
+        return outputStream
+    }
 }
+
