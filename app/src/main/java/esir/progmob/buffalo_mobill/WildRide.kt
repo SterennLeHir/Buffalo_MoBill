@@ -14,6 +14,7 @@ import android.view.animation.Animation
 import android.view.animation.RotateAnimation
 import android.widget.ImageView
 import android.widget.Toast
+import androidx.core.view.isInvisible
 import kotlin.random.Random
 
 class WildRide : ComponentActivity(), SensorEventListener  {
@@ -22,13 +23,13 @@ class WildRide : ComponentActivity(), SensorEventListener  {
         private lateinit var countDownTimer: CountDownTimer
 
         private lateinit var rodeo: ImageView
+        private lateinit var bang: ImageView
 
         //inclinaisons
         private var selfIncline: Int = 0 //0 milieu, -1 = gauche, 1 = droite
         private var rodIncline: Int = 0
         private var fromRotation: Float = 0f
         private var toRotation: Float = 0f //correspond à la valeur de rotation en degree
-        private var aller: Boolean = true
 
         private val context = this
 
@@ -49,27 +50,11 @@ class WildRide : ComponentActivity(), SensorEventListener  {
             accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)!!
 
             rodeo = findViewById(R.id.rodeoView)
+            bang = findViewById(R.id.bangView)
+
             // vibrateur
             vibrator = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
-            startRotationGame()
-        }
-
-        private fun startRotationGame() {
             rodeoShake()
-            /*
-            countDownTimer = object : CountDownTimer(30000, 2000) { // 30 secondes, rotation toutes les 2 secondes
-                override fun onTick(millisUntilFinished: Long) {
-                    rodeoShake()
-                }
-
-                override fun onFinish() {
-                    // Le jeu est terminé
-                    Toast.makeText(context,"Jeu terminé!",Toast.LENGTH_SHORT).show()
-                }
-            }
-            countDownTimer.start()
-
-             */
         }
 
         private fun rodeoShake() {
@@ -88,10 +73,7 @@ class WildRide : ComponentActivity(), SensorEventListener  {
 
                     override fun onAnimationEnd(animation: Animation?) {
                         if (rodIncline != selfIncline){ //si on ne s'oriente pas bien pas assez rapidement
-                            //countDownTimer.cancel()
-                            Toast.makeText(context, "PERDUUUUUUU", Toast.LENGTH_SHORT)//ne s'affiche pas
-                            //on vibre
-                            vibrator?.vibrate(1000)
+                            gameOver()
                         }
                         else{
                             // Créer une nouvelle animation de retour
@@ -106,10 +88,7 @@ class WildRide : ComponentActivity(), SensorEventListener  {
 
                                 override fun onAnimationEnd(animation: Animation?) {
                                     if (rodIncline != selfIncline){ //si on ne s'oriente pas bien pas assez rapidement
-                                        //countDownTimer.cancel()
-                                        Toast.makeText(context, "PERDUUUUUUU", Toast.LENGTH_SHORT)//ne s'affiche pas
-                                        //on vibre
-                                        vibrator?.vibrate(1000)
+                                        gameOver()
                                     }
                                     else{
                                         shake_counter++ //on a réussit à survivre au shake
@@ -166,5 +145,10 @@ class WildRide : ComponentActivity(), SensorEventListener  {
                 selfIncline = 0
                 Log.d("","Pas incliné!")
             }
+        }
+
+        private fun gameOver(){
+            bang.isInvisible = false
+            vibrator?.vibrate(1000)
         }
     }
