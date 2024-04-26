@@ -36,11 +36,6 @@
         android:theme="@style/Theme.Buffalo_MoBill"
         tools:targetApi="31">
         <activity
-            android:name=".MultiplayersConnexion"
-            android:exported="true"
-            android:theme="@style/Theme.Buffalo_MoBill">
-        </activity>
-        <activity
             android:name=".Home"
             android:exported="true"
             android:theme="@style/Theme.Buffalo_MoBill">
@@ -48,6 +43,26 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity
+            android:name=".Multiplayer"
+            android:exported="true"
+            android:theme="@style/Theme.Buffalo_MoBill">
+        </activity>
+        <activity
+            android:name=".ClientConnexion"
+            android:exported="true"
+            android:theme="@style/Theme.Buffalo_MoBill">
+        </activity>
+        <activity
+            android:name=".ServerConnexion"
+            android:exported="true"
+            android:theme="@style/Theme.Buffalo_MoBill">
+        </activity>
+        <activity
+            android:name=".ScorePage"
+            android:exported="true"
+            android:theme="@style/Theme.Buffalo_MoBill">
         </activity>
         <activity
             android:name=".GameList"
