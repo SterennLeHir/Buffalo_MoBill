@@ -1,12 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <style name="bouton">
-        <item name="android:textColor">#E1B047</item>
-        <item name="android:background">#5D421F</item>
+    <style name="brown_button">
+        <item name="android:textColor">@color/orange</item>
+        <item name="android:background">@drawable/brown_button</item>
         <item name="android:font">@font/old_standard_tt</item>
-        <item name="android:buttonCornerRadius" tools:targetApi="p">20dp</item>
         <item name="android:layout_width">200dp</item>
         <item name="android:layout_marginBottom">25dp</item>
+        <item name="android:fontFamily">@font/old_standard_tt</item>
+    </style>
+    <style name="orange_button">
+        <item name="android:textColor">@color/white</item>
+        <item name="android:background">@drawable/orange_button</item>
+        <item name="android:font">@font/old_standard_tt</item>
+        <item name="android:layout_width">200dp</item>
+        <item name="android:layout_marginBottom">25dp</item>
+        <item name="android:fontFamily">@font/old_standard_tt</item>
     </style>
     <style name="background">
         <item name="android:background">@drawable/background</item>

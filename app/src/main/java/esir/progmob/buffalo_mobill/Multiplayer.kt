@@ -1,68 +1,65 @@
 package esir.progmob.buffalo_mobill
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothAdapter
-import android.bluetooth.BluetoothDevice
-import android.content.BroadcastReceiver
+import android.bluetooth.BluetoothSocket
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.location.LocationManager
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.widget.Button
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import android.Manifest
-import android.content.IntentFilter
-import android.location.LocationManager
-import android.provider.Settings
 
-class MultiplayersConnexion : ComponentActivity() {
+class Multiplayer : ComponentActivity() {
 
     private lateinit var bluetoothAdapter: BluetoothAdapter
-    //private var answer: Boolean = false // vérifie si l'utilisateur a accepté ou rejeté les permissions
     private var bluetoothAccepted = false
-    private var localisationAccepted = false
     companion object {
         private const val REQUEST_ENABLE_BT = 1
         private const val PERMISSION_REQUEST_BLUETOOTH = 1001
     }
-
-    private var liste: MutableList<BluetoothDevice> = mutableListOf()
-    private val receiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context, intent: Intent) {
-            val action = intent.action
-            if (BluetoothDevice.ACTION_FOUND == action) {
-                val device: BluetoothDevice? =
-                    intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE)
-                Log.d("BLUETOOTH", "device: " + device.toString())
-                if (device != null) {
-                    if (!liste.contains(device)) {
-                        liste.add(device)
-                        // updateList()
-                    }
-                }
-            }
-        }
+    object SocketHolder {
+        var socket: BluetoothSocket? = null
     }
 
-    @SuppressLint("MissingPermission")
+    object Exchange { // Objet pour échanger des données entre les activités
+        var dataExchangeServer : DataExchange = DataExchange(null)
+        var dataExchangeClient : DataExchange = DataExchange(null)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
+        Log.d("BLUETOOTH", "onCreate multi")
+
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.home)
-        Log.d("BLUETOOTH", "début de onCreate")
-        // On vérifie que l'utilisateur a le bluetooth
+
+        //On applique le layout pour le multiplayer
+        setContentView(R.layout.multiplayers)
+
+        //On récupère le bluetooth adapter
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
+
+        // On vérifie que l'utilisateur a le bluetooth
+        verifyBluetoothSupported()
+    }
+
+    private fun verifyBluetoothSupported(){
         if (bluetoothAdapter == null) {
             Toast.makeText(this, "Bluetooth not supported", Toast.LENGTH_SHORT).show()
             finish()
         }
-
         Log.d("BLUETOOTH", "bluetooth supporté")
+
+        //Puis on vérifie les permissions Bluetooth
         checkBluetoothPermissions()
     }
+
     private fun checkBluetoothPermissions() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             if (ContextCompat.checkSelfPermission(
@@ -115,10 +112,9 @@ class MultiplayersConnexion : ComponentActivity() {
         }
     }
 
-    override fun onRequestPermissionsResult( // PAS SURE QUE CA FONCTIONNE
-        requestCode: Int,
-        permissions: Array<String>,
-        grantResults: IntArray) {
+
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         Log.d("BLUETOOTH", "réponse de l'utilisateur")
         when (requestCode) {
@@ -132,7 +128,7 @@ class MultiplayersConnexion : ComponentActivity() {
                 }
                 else{
                     Log.d("BLUETOOTH", "bluetooth pas accepté")
-                    //TODO A COMPLETER
+                    Toast.makeText(this, "Vous ne pouvez pas jouer en multijoueurs", Toast.LENGTH_SHORT).show();
                 }
             }
             // D'autres cas de requêtes de permissions peuvent être gérés ici si nécessaire
@@ -140,29 +136,8 @@ class MultiplayersConnexion : ComponentActivity() {
         return
     }
 
-
-
-    /*
-    fun updateList() {
-        val adapter = ArrayAdapter(
-            this,
-            android.R.layout.simple_list_item_1,
-            liste.map { d ->
-                if (ActivityCompat.checkSelfPermission(
-                        this,
-                        Manifest.permission.BLUETOOTH_CONNECT
-                    ) != PackageManager.PERMISSION_GRANTED
-                ) {
-                    return
-                }
-                d.name + "   " + d.address
-            })
-        val list = findViewById<ListView>(R.id.liste)
-        list.adapter = adapter
-    }
-    */
     @SuppressLint("MissingPermission")
-    fun enablingBluetooth(){
+    fun enablingBluetooth() {
         // On active le bluetooth
         if (!bluetoothAdapter.isEnabled) {
             Log.d("BLUETOOTH", "Activation du bluetooth")
@@ -170,34 +145,47 @@ class MultiplayersConnexion : ComponentActivity() {
             // here to request the missing permissions, and then overriding
             startActivityForResult(enableBluetoothIntent, REQUEST_ENABLE_BT)
         }
-        // On active la localisation
+
+        val buttonServer : Button = findViewById<Button>(R.id.server)
+        val buttonClient : Button = findViewById<Button>(R.id.client)
         val locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
-        val isLocationEnabled =
-            locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) || locationManager.isProviderEnabled(
-                LocationManager.NETWORK_PROVIDER
-            )
-        if (!isLocationEnabled) {
-            val enableLocalisationIntent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
-            startActivityForResult(enableLocalisationIntent, 1)
+        buttonServer.setOnClickListener {
+            // TODO différencier les téléphones qui ont besoin de la localisation de ceux qui n'en ont pas besoin
+            // On vérifie que la localisation est activée
+            // On active la localisation
+            val isLocationEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) || locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
+            if (!isLocationEnabled) {
+                /* intrusif et mache mal avec le retour (va dans les paramètres
+                val enableLocalisationIntent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+                startActivityForResult(enableLocalisationIntent, 1)
+                */
+                Toast.makeText(this, "Veuillez activer la localisation", Toast.LENGTH_SHORT).show()
+            } else {
+                val intent = Intent(this, ServerConnexion::class.java)
+                startActivity(intent)
+                Log.d("DATAEXCHANGE", "DataExchange Server thread launched")
+                finish()
+            }
         }
-
-        // tant que le bluetooth et la localisation ne sont pas activé, on
-        while (!bluetoothAdapter.isEnabled || !(locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) || locationManager.isProviderEnabled(
-                LocationManager.NETWORK_PROVIDER
-            ))
-        ) {Log.d("BLUETOOTH", "waiting for localisation/bluetooth activation...")}
-
-        // On enregistre le broadcast receiver
-        val discoverDevicesIntent = IntentFilter(BluetoothDevice.ACTION_FOUND)
-        registerReceiver(receiver, discoverDevicesIntent)
-
-        // On lance la recherche des appareils à proximité
-        val start = bluetoothAdapter.startDiscovery()
-        Log.d("BLUETOOTH", "start discorvery : " + start.toString())
+        buttonClient.setOnClickListener {
+            // On vérifie que la localisation est activée
+            // On active la localisation
+            val isLocationEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) || locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
+            if (!isLocationEnabled) {
+                /* intrusif et mache mal avec le retour (va dans les paramètres
+                val enableLocalisationIntent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+                startActivityForResult(enableLocalisationIntent, 1)
+                */
+                Toast.makeText(this, "Veuillez activer la localisation", Toast.LENGTH_SHORT).show()
+            } else {
+                val intent = Intent(this, ClientConnexion::class.java)
+                startActivity(intent)
+                finish()
+            }
+        }
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        if (bluetoothAccepted) unregisterReceiver(receiver)
     }
 }

@@ -4,13 +4,21 @@
     <string name="button_multi">Multiplayers</string>
     <string name="gamelist">Liste des jeux</string>
     <string name="game1">Milk Master</string>
+    <string name="RulesGame1">Trayez la vache et remplissez le seau le plus vite possible</string>
     <string name="game2">Wild Ride</string>
+    <string name="RulesGame2">Tenez le plus longtemps sur le dos de la vache ! Tournez dans le sens contraire de \'animal.</string>
     <string name="game3">Shady Showdown</string>
+    <string name="RulesGame3">Baissez la lumière reçue sur votre appareil pour découvrir le bandit. Une fois visible, attrapez-le !</string>
     <string name="game4">Quick Quiz</string>
+    <string name="RulesGame4">Répondez aux trois questions sur l\'univers de Lucky Luke le plus vite possible</string>
     <string name="game5">Cow Catcher</string>
+    <string name="RulesGame5">Lancez votre lasso et attrapez le plus vite possible les 8 vaches</string>
     <string name="game6">Prickly Picking</string>
-    <string name="random_game_text">Laissez-vous surprendre...</string>
-    <string name="random_game">Jeu aléatoire</string>
+    <string name="RulesGame6">Outch ! Enlevez le plus rapidement possible vos épines de cactus…</string>
+    <string name="Rules">BUT DU JEU</string>
+    <string name="random_game_text">Laissez-vous surprendre…</string>
+    <string name="random_game">Partie aléatoire (3 défis)</string>
     <string name="next">Suivant</string>
     <string name="score">Score</string>
+
 </resources>
