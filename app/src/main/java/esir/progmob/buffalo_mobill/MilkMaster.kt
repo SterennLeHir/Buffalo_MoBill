@@ -10,13 +10,12 @@ import android.os.Looper
 import android.os.Message
 import android.util.Log
 import android.view.View
-import android.widget.Button
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 
 class MilkMaster : ComponentActivity() {
-    private lateinit var lait: View
+
     private var compteurLait = 0
     private val MAX_LAIT = 10
     private var fini = false

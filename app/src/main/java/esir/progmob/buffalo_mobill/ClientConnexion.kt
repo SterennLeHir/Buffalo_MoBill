@@ -16,6 +16,7 @@ import androidx.activity.ComponentActivity
 import androidx.core.app.ActivityCompat
 import android.Manifest
 import android.bluetooth.BluetoothSocket
+import android.media.MediaPlayer
 import android.os.Handler
 import android.os.Looper
 import android.os.Message
@@ -28,6 +29,7 @@ class ClientConnexion : ComponentActivity() {
     // liste affichant les devices à proximité
     private var devicesList: MutableList<BluetoothDevice> = mutableListOf()
     private lateinit var bluetoothAdapter: BluetoothAdapter
+    private lateinit var mediaPlayer : MediaPlayer
 
     companion object {
         private const val UUID = "550e8400-e29b-41d4-a716-446655440000"
@@ -97,6 +99,7 @@ class ClientConnexion : ComponentActivity() {
         val intent = Intent(this, GameList::class.java)
         intent.putExtra("isMulti", true) // on indique à l'activité qu'elle est en mode multijoueurs
         intent.putExtra("isServer", false) // on indique à l'activité qu'elle est le client
+        mediaPlayer.stop()
         startActivity(intent);
         finish()
     }
@@ -106,7 +109,9 @@ class ClientConnexion : ComponentActivity() {
         super.onCreate(savedInstantState)
         setContentView(R.layout.bluetooth_client)
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
-
+        mediaPlayer = MediaPlayer.create(this, R.raw.duel)
+        mediaPlayer.isLooping = true
+        mediaPlayer.start()
         // On crée le listener sur la liste
         val listView = findViewById<ListView>(R.id.liste)
         listView.onItemClickListener = AdapterView.OnItemClickListener { parent, view, position, id -> //on récupère la HashMap contenant les infos de notre item (titre, description, img)
