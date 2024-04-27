@@ -71,18 +71,24 @@ class PricklyPicking : ComponentActivity() {
 
             MotionEvent.ACTION_MOVE -> {
                 if (!isDragging) {
-                    val distance = sqrt((abs(lastX - x) + abs(lastY - y)).pow(2))
-                    val angle = calculateAngle(lastX,lastY,x,y)
-                    val angleMinToHave = if(view.rotation  + 170 >= 360) view.rotation  + 170 - 360 else view.rotation  + 170
-                    val angleMaxToHave = if(view.rotation + 190 >= 360) view.rotation  + 170 - 360 else view.rotation + 190
+                    val distance = sqrt((abs(lastX - x) + abs(lastY - y)).pow(2)) //distance entre doigt et epine
+                    val angle = calculateAngle(lastX,lastY,x,y) //angle entre doigt et epine
+
+                    val rotation = if(view.rotation <= 0f) view.rotation + 360f else view.rotation//rotation de l'épine
+                    val angleMinToHave = if(rotation  + 170f >= 360f) rotation  + 170f - 360f else rotation  + 170f
+                    val angleMaxToHave = if(rotation + 190f >= 360f) rotation  + 190f - 360f else rotation + 190f
                     val isGoodAngle = angle in angleMinToHave..angleMaxToHave
+
+                    //Log.d("", "angle $angle rot $rotation min $angleMinToHave max $angleMaxToHave")
+
                     if(distance >= seuilDist && isGoodAngle){
                         isDragging = true
                     }
                     /*
                     Log.d("points", "$lastX $lastY $x $y ")
-                    */
                     Log.d("angle", ""+ calculateAngle(lastX,lastY,x,y))
+                    */
+
 
 
                 }
@@ -119,48 +125,6 @@ class PricklyPicking : ComponentActivity() {
         return true
     }
 
-    /*
-    private inner class PrickleGestureListener : GestureDetector.SimpleOnGestureListener() {
-        private val threshold = 200
-        private var initialX = 0f
-        private var initialY = 0f
-        private var distance = 0
-        override fun onDown(e: MotionEvent): Boolean {
-            Log.d("", "onDown")
-            initialX = currentPrickle.x
-            initialY = currentPrickle.y
-            distance = 0
-            return true
-        }
-
-        override fun onScroll(
-            e1: MotionEvent?,
-            e2: MotionEvent,
-            distanceX: Float,
-            distanceY: Float
-        ): Boolean {
-            Log.d("", "onScroll $distanceX $distanceY")
-            if(distance >= threshold){
-
-            }
-            return true
-        }
-
-        override fun onFling(
-            e1: MotionEvent?,
-            e2: MotionEvent,
-            velocityX: Float,
-            velocityY: Float
-        ): Boolean {
-
-            return true
-        }
-    }
-
-     */
-
-
-
     private fun createPrickle() {
         //On crée notre image view epine
         val prickle = ImageView(context)
@@ -169,74 +133,21 @@ class PricklyPicking : ComponentActivity() {
         prickle.setImageResource(R.drawable.epine)
 
         //On set sa taille
-        prickle.layoutParams = ViewGroup.LayoutParams(200,200)
+        prickle.layoutParams = ViewGroup.LayoutParams(200, 200)
 
         //On set sa position
-        prickle.x = Random.nextInt(screenWidth/4, 2*screenWidth/4).toFloat()
-        prickle.y = Random.nextInt(3*screenHeight/6, 4*screenHeight/6).toFloat() //plus haut que le lasso
+        prickle.x = Random.nextInt(screenWidth / 4, 2 * screenWidth / 4).toFloat()
+        prickle.y = Random.nextInt(3 * screenHeight / 6, 4 * screenHeight / 6)
+            .toFloat() //plus haut que le lasso
         parentView.addView(prickle)
 
-        prickle.setOnTouchListener{ view, event ->
+        prickle.setOnTouchListener { view, event ->
             handleTouchEvent(view, event)
         }
 
-        /*
         //Sa rotation
-        val Pmid = Point(screenWidth/2, screenHeight/2)
-        val P = Point(prickle.x.toInt(), prickle.y.toInt())
-        prickle.rotation = angleBetweenPoints(Pmid, P).toFloat() //empirique
-        Log.d("", "" + angleBetweenPoints(Pmid, P).toFloat())
-         */
-        //Son on click listener
-
-
-
-        /*
-        val onTouchListener = object : View.OnTouchListener {
-            override fun onTouch(view: View, event: MotionEvent): Boolean {
-                currentPrickle = view
-                if (event.type==ACTION_UP)
-                return gest.onTouchEvent(event)
-            }
-
-            override fun onTouchEvent(event: MotionEvent): Boolean {
-                when (event.actionMasked) {
-                    MotionEvent.ACTION_DOWN -> {
-                        // Reset the velocity tracker back to its initial state.
-                        mVelocityTracker?.clear()
-                        // If necessary, retrieve a new VelocityTracker object to watch
-                        // the velocity of a motion.
-                        mVelocityTracker = mVelocityTracker ?: VelocityTracker.obtain()
-                        // Add a user's movement to the tracker.
-                        mVelocityTracker?.addMovement(event)
-                    }
-                    MotionEvent.ACTION_MOVE -> {
-                        mVelocityTracker?.apply {
-                            val pointerId: Int = event.getPointerId(event.actionIndex)
-                            addMovement(event)
-                            // When you want to determine the velocity, call
-                            // computeCurrentVelocity(). Then, call getXVelocity() and
-                            // getYVelocity() to retrieve the velocity for each pointer
-                            // ID.
-                            computeCurrentVelocity(1000)
-                            // Log velocity of pixels per second. It's best practice to
-                            // use VelocityTrackerCompat where possible.
-                            Log.d("Velo", "X velocity: ${getXVelocity(pointerId)}")
-                            Log.d("Velo", "Y velocity: ${getYVelocity(pointerId)}")
-                        }
-                    }
-                    MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
-                        // Return a VelocityTracker object back to be re-used by others.
-                        mVelocityTracker?.recycle()
-                        mVelocityTracker = null
-                    }
-                }
-                return true
-            }
-        }
-        prickle.setOnTouchListener(onTouchListener)*/
+        prickle.rotation = calculateAngle(prickle.x, prickle.y,screenWidth / 3f, screenHeight / 2f) //empirique
     }
-
     fun calculateAngle(x1: Float, y1: Float, x2: Float, y2: Float): Float {
         // Calcul de la différence en x et en y entre les deux points
         val deltaX = x2 - x1
