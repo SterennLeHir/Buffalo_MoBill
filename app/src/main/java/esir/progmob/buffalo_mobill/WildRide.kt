@@ -6,6 +6,7 @@ import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
+import android.media.MediaPlayer
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.os.Vibrator
@@ -15,9 +16,9 @@ import android.view.animation.RotateAnimation
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.core.view.isInvisible
-import kotlin.random.Random
 
 class WildRide : ComponentActivity(), SensorEventListener  {
+        private lateinit var mediaPlayer: MediaPlayer
         private lateinit var sensorManager: SensorManager
         private lateinit var accelerometer: Sensor
         private lateinit var countDownTimer: CountDownTimer
@@ -45,7 +46,7 @@ class WildRide : ComponentActivity(), SensorEventListener  {
     override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
             setContentView(R.layout.wild_ride)
-
+            mediaPlayer = MediaPlayer.create(this, R.raw.cri)
             sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
             accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)!!
 
@@ -148,6 +149,7 @@ class WildRide : ComponentActivity(), SensorEventListener  {
         }
 
         private fun gameOver(){
+            mediaPlayer.start()
             bang.isInvisible = false
             vibrator?.vibrate(1000)
         }
