@@ -1,5 +1,6 @@
 package esir.progmob.buffalo_mobill
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.Intent
@@ -9,6 +10,7 @@ import android.os.Handler
 import android.os.Looper
 import android.os.Message
 import android.util.Log
+import android.view.MotionEvent
 import android.view.View
 import android.widget.ImageView
 import android.widget.Toast
@@ -19,7 +21,7 @@ class MilkMaster : ComponentActivity() {
     private var compteurLait = 0
     private val MAX_LAIT = 10
     private var fini = false
-
+    private var isMilking = false // indique que le joueur est en train de traire la vache
     private lateinit var alertDialog : AlertDialog
 
     // scores pour l'affichage une fois le jeu fini
@@ -143,43 +145,70 @@ class MilkMaster : ComponentActivity() {
         } // on met à jour le handler
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     private fun startGame() {
         // Son de lait qui coule
         val mediaPlayer : MediaPlayer = MediaPlayer.create(this, R.raw.lait);
         val piesView: ImageView = findViewById(R.id.pies)
         val seauView: ImageView = findViewById(R.id.seau)
         var waiting = false
-        piesView.setOnClickListener {
-            if (mediaPlayer.isPlaying) {
-                Toast.makeText(this, "Vous allez trop vite et brusquez la vache", Toast.LENGTH_SHORT).show()
-                waiting = true
-                piesView.isClickable = false
-                Handler(Looper.getMainLooper()).postDelayed({
-                    waiting = false
-                    piesView.isClickable = true
-                }, 2000) // Délai de 2 secondes
-            } else if (compteurLait < MAX_LAIT && !waiting) { // il faut attendre la fin du son pour pouvoir cliquer à nouveau mais ne marche pas
-                compteurLait++
-                mediaPlayer.start()
-            } else if (compteurLait >= MAX_LAIT && !fini){
-                Toast.makeText(this, "C'est fini !", Toast.LENGTH_SHORT).show()
-                fini = true
-                seauView.setImageDrawable(resources.getDrawable(R.drawable.seau_rempli))
-                if (isMulti) {
-                    if (isServer) {
-                        Multiplayer.Exchange.dataExchangeServer.write(compteurLait.toString())
-                        scoreSent = true
+        piesView.setOnTouchListener { v, event ->
+            when (event.action) {
+                MotionEvent.ACTION_DOWN -> {
+                    // L'utilisateur a appuyé sur l'écran
+                    Log.d("SENSOR", "ACTION_DOWN")
+                    if (mediaPlayer.isPlaying) {
+                        Toast.makeText(this, "Vous allez trop vite et brusquez la vache", Toast.LENGTH_SHORT).show()
+                        waiting = true
+                        piesView.isActivated = false
+                        Handler(Looper.getMainLooper()).postDelayed({
+                            waiting = false
+                            piesView.isClickable = true
+                        }, 2000) // Délai de 2 secondes
                     } else {
-                        Multiplayer.Exchange.dataExchangeClient.write(compteurLait.toString())
-                        scoreSent = true
+                        true
                     }
-                } else {
-                    Log.d("DATAEXCHANGE", "[MilkMaster Solo] On lance la page de score")
-                    val intent = Intent(this, ScorePage::class.java)
-                    intent.putExtra("score", compteurLait)
-                    intent.putExtra("isMulti", false)
-                    startActivityForResult(intent, 1)
+
                 }
+                MotionEvent.ACTION_MOVE -> {
+                    // L'utilisateur a déplacé son doigt sur l'écran
+                    Log.d("SENSOR", "ACTION_MOVE")
+                    if (!waiting) isMilking = true
+                    if (!mediaPlayer.isPlaying && !waiting) {
+                        mediaPlayer.start()
+                    }
+                    true
+                }
+                MotionEvent.ACTION_UP -> {
+                    // L'utilisateur a levé son doigt de l'écran
+                    Log.d("SENSOR", "ACTION_UP")
+                    if (compteurLait < MAX_LAIT && !waiting && isMilking) { // il faut attendre la fin du son pour pouvoir cliquer à nouveau mais ne marche pas
+                        compteurLait++
+                        mediaPlayer.start()
+                    } else if (compteurLait >= MAX_LAIT && !fini){
+                        Toast.makeText(this, "C'est fini !", Toast.LENGTH_SHORT).show()
+                        fini = true
+                        seauView.setImageDrawable(resources.getDrawable(R.drawable.seau_rempli))
+                        if (isMulti) {
+                            if (isServer) {
+                                Multiplayer.Exchange.dataExchangeServer.write(compteurLait.toString())
+                                scoreSent = true
+                            } else {
+                                Multiplayer.Exchange.dataExchangeClient.write(compteurLait.toString())
+                                scoreSent = true
+                            }
+                        } else {
+                            Log.d("DATAEXCHANGE", "[MilkMaster Solo] On lance la page de score")
+                            val intent = Intent(this, ScorePage::class.java)
+                            intent.putExtra("score", compteurLait)
+                            intent.putExtra("isMulti", false)
+                            startActivityForResult(intent, 1)
+                        }
+                    }
+                    isMilking = false
+                    true
+                }
+                else -> false
             }
         }
     }
