@@ -41,7 +41,7 @@ class GameList : ComponentActivity() {
         setContentView(R.layout.gamelist)
 
         // Initialisation de la liste des jeux
-        gameList = mutableListOf("ShadyShowdown", "QuickQuiz", "MilkMaster")//mutableListOf("MilkMaster", "WildRide", "ShadyShowdown", "QuickQuiz", "CowCatcher", "PricklyPicking")
+        gameList = mutableListOf("ShadyShowdown", "QuickQuiz", "MilkMaster", "WildRide", "CowCatcher")
         Log.d("DATAEXCHANGE", "GameList created")
 
         // Liste des boutons de l'activité
