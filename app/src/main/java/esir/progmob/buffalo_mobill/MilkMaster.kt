@@ -147,8 +147,8 @@ class MilkMaster : ComponentActivity() {
 
     @SuppressLint("ClickableViewAccessibility")
     private fun startGame() {
-        // Son de lait qui coule
-        val mediaPlayer : MediaPlayer = MediaPlayer.create(this, R.raw.lait);
+        val mediaPlayerMilk : MediaPlayer = MediaPlayer.create(this, R.raw.lait) // Son de lait qui coule
+        val mediaPlayerCow : MediaPlayer = MediaPlayer.create(this, R.raw.meuh) // Son de la vache énervée
         val piesView: ImageView = findViewById(R.id.pies)
         val seauView: ImageView = findViewById(R.id.seau)
         var waiting = false
@@ -157,13 +157,14 @@ class MilkMaster : ComponentActivity() {
                 MotionEvent.ACTION_DOWN -> {
                     // L'utilisateur a appuyé sur l'écran
                     Log.d("SENSOR", "ACTION_DOWN")
-                    if (mediaPlayer.isPlaying) {
+                    if (mediaPlayerMilk.isPlaying) {
+                        mediaPlayerCow.start()
                         Toast.makeText(this, "Vous allez trop vite et brusquez la vache", Toast.LENGTH_SHORT).show()
                         waiting = true
                         piesView.isActivated = false
                         Handler(Looper.getMainLooper()).postDelayed({
                             waiting = false
-                            piesView.isClickable = true
+                            mediaPlayerCow.pause()
                         }, 2000) // Délai de 2 secondes
                     } else {
                         true
@@ -174,8 +175,8 @@ class MilkMaster : ComponentActivity() {
                     // L'utilisateur a déplacé son doigt sur l'écran
                     Log.d("SENSOR", "ACTION_MOVE")
                     if (!waiting) isMilking = true
-                    if (!mediaPlayer.isPlaying && !waiting) {
-                        mediaPlayer.start()
+                    if (!mediaPlayerMilk.isPlaying && !waiting) {
+                        mediaPlayerMilk.start()
                     }
                     true
                 }
@@ -184,7 +185,7 @@ class MilkMaster : ComponentActivity() {
                     Log.d("SENSOR", "ACTION_UP")
                     if (compteurLait < MAX_LAIT && !waiting && isMilking) { // il faut attendre la fin du son pour pouvoir cliquer à nouveau mais ne marche pas
                         compteurLait++
-                        mediaPlayer.start()
+                        mediaPlayerMilk.start()
                     } else if (compteurLait >= MAX_LAIT && !fini){
                         Toast.makeText(this, "C'est fini !", Toast.LENGTH_SHORT).show()
                         fini = true
