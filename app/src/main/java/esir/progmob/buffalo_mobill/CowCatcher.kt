@@ -4,6 +4,7 @@ import android.app.Activity
 import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
+import android.media.MediaPlayer
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -38,6 +39,7 @@ class CowCatcher : ComponentActivity(){
     private var screenWidth = 0
     private var screenHeight = 0
     private var context = this
+    private lateinit var mediaPlayer : MediaPlayer
 
     // scores pour l'affichage une fois le jeu fini
     private var score = 0
@@ -55,6 +57,8 @@ class CowCatcher : ComponentActivity(){
     override fun onCreate(savedInstanceState: Bundle?) {
         //Constructeur et récupération du layout
         super.onCreate(savedInstanceState)
+        // Ajout de la musique
+        mediaPlayer = MediaPlayer.create(this, R.raw.cow_catcher)
         // Récupération des informations
         isMulti = intent.getBooleanExtra("isMulti", false)
         isServer = intent.getBooleanExtra("isServer", false)
@@ -102,6 +106,7 @@ class CowCatcher : ComponentActivity(){
         //Récupérer le parent
         parentView = findViewById<FrameLayout>(R.id.cowParent)
 
+        mediaPlayer.start() // On lance la musique
         //Récupérer et placer le lasso au bon endroit
         lasso = findViewById(R.id.lassoView)
         lasso.viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
@@ -240,6 +245,7 @@ class CowCatcher : ComponentActivity(){
                         if (score >= 8){
                             // On a gagné
                             cow.visibility = View.INVISIBLE
+                            mediaPlayer.stop()
                             if (!isMulti) {
                                 val intent = Intent(context, ScorePage::class.java)
                                 intent.putExtra("score", score)

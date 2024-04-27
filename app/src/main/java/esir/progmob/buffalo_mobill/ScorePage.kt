@@ -1,6 +1,7 @@
 package esir.progmob.buffalo_mobill
 
 import android.content.Intent
+import android.media.MediaPlayer
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -15,10 +16,17 @@ class ScorePage : ComponentActivity() {
     private var theirScore : Int = 0
     private var isMulti : Boolean = false
     private var isServer : Boolean = false
+    private lateinit var mediaPlayerFirst : MediaPlayer
+    private lateinit var mediaPlayerSecond : MediaPlayer
+    private lateinit var mediaPlayerWin : MediaPlayer
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        // On prépare la musique
+        mediaPlayerFirst = MediaPlayer.create(this, R.raw.first_shoot)
+        mediaPlayerSecond = MediaPlayer.create(this, R.raw.second_shoot)
+        mediaPlayerWin = MediaPlayer.create(this, R.raw.yeehaw)
         // On récupère les informations fournies par l'activité précédente
         isMulti = intent.getBooleanExtra("isMulti", false)
         isServer = intent.getBooleanExtra("isServer", false)
@@ -60,8 +68,14 @@ class ScorePage : ComponentActivity() {
         val resultView = findViewById<TextView>(R.id.result)
         if (myScore > theirScore) {
             resultView.text = "Vous avez gagné !"
+            mediaPlayerWin.start()
         } else if (myScore < theirScore) {
             resultView.text = "Vous avez perdu !"
+            mediaPlayerFirst.start()
+            while (mediaPlayerFirst.isPlaying) {
+            // On attend que le son se termine
+            }
+            mediaPlayerSecond.start()
         } else {
             resultView.text = "Match nul !"
         }

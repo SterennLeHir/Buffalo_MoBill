@@ -8,6 +8,8 @@ import androidx.activity.ComponentActivity
 
 
 class Home : ComponentActivity() {
+
+    private lateinit var mediaPlayer : MediaPlayer
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -15,7 +17,7 @@ class Home : ComponentActivity() {
         setContentView(R.layout.home)
 
         // On ajoute la musique
-        val mediaPlayer = MediaPlayer.create(this, R.raw.music)
+        mediaPlayer = MediaPlayer.create(this, R.raw.music)
         mediaPlayer.start()
         //On définit les boutons
         val buttonSolo = findViewById<Button>(R.id.solo)
@@ -32,5 +34,20 @@ class Home : ComponentActivity() {
             mediaPlayer.stop()
             startActivity(intent)
         }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        mediaPlayer.pause()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        mediaPlayer.start()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        mediaPlayer.stop()
     }
 }
