@@ -8,20 +8,22 @@
 
     <ImageView
         android:id="@+id/pies"
-        android:layout_width="200dp"
-        android:layout_height="300dp"
+        android:layout_width="250dp"
+        android:layout_height="350dp"
         android:layout_alignParentStart="true"
         android:layout_alignParentEnd="true"
-        android:layout_marginTop="-50dp"
-        android:scaleType="fitCenter"
+        android:layout_marginTop="-100dp"
+        android:scaleType="centerCrop"
         android:src="@drawable/pies"/>
 
     <ImageView
         android:id="@+id/seau"
-        android:layout_width="300dp"
-        android:layout_height="300dp"
+        android:layout_width="380dp"
+        android:layout_height="200dp"
         android:layout_below="@id/pies"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="60dp"
+        android:layout_marginTop="100dp"
+        android:layout_alignParentBottom="true"
+        android:scaleType="fitXY"
         android:src="@drawable/seau" />
 </RelativeLayout>

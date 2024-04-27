@@ -196,6 +196,35 @@ class CowCatcher : ComponentActivity(){
             Multiplayer.Exchange.dataExchangeClient.start()
         } // on met à jour le handler
     }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        Log.d("DATAEXCHANGE", "[CowCatcher] onActivityResult, resultCode : $resultCode")
+        if (resultCode == Activity.RESULT_OK) {
+            // On récupère les scores
+            score = data?.getIntExtra("score", 0) ?: 0
+            scoreAdversaire = data?.getIntExtra("scoreAdversaire", 0) ?: 0
+            Log.d("DATAEXCHANGE", "score : $score, scoreAdversaire : $scoreAdversaire")
+            // On transmet les scores à GameList
+            val resultIntent = Intent()
+            resultIntent.putExtra("score", score)
+            resultIntent.putExtra("scoreAdversaire", scoreAdversaire)
+            setResult(RESULT_OK, resultIntent)
+            finish()
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        mediaPlayer.pause()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        mediaPlayer.start()
+    }
+
+    // Classe interne pour gérer les gestes de l'utilisateur
     private inner class LassoGestureListener : GestureDetector.SimpleOnGestureListener() {
         override fun onDown(e: MotionEvent): Boolean {
             Log.d(DEBUG_TAG, "onDown")
@@ -297,20 +326,4 @@ class CowCatcher : ComponentActivity(){
         cow.y = Random.nextInt(screenHeight - dpToPxH - dpToPxSeuil).toFloat() //plus haut que le lasso
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        Log.d("DATAEXCHANGE", "[CowCatcher] onActivityResult, resultCode : $resultCode")
-        if (resultCode == Activity.RESULT_OK) {
-            // On récupère les scores
-            score = data?.getIntExtra("score", 0) ?: 0
-            scoreAdversaire = data?.getIntExtra("scoreAdversaire", 0) ?: 0
-            Log.d("DATAEXCHANGE", "score : $score, scoreAdversaire : $scoreAdversaire")
-            // On transmet les scores à GameList
-            val resultIntent = Intent()
-            resultIntent.putExtra("score", score)
-            resultIntent.putExtra("scoreAdversaire", scoreAdversaire)
-            setResult(RESULT_OK, resultIntent)
-            finish()
-        }
-    }
 }
