@@ -16,6 +16,7 @@ class ScorePage : ComponentActivity() {
     private var theirScore : Int = 0
     private var isMulti : Boolean = false
     private var isServer : Boolean = false
+    private var isFinished : Boolean = false
     private lateinit var mediaPlayerFirst : MediaPlayer
     private lateinit var mediaPlayerSecond : MediaPlayer
     private lateinit var mediaPlayerWin : MediaPlayer
@@ -27,18 +28,62 @@ class ScorePage : ComponentActivity() {
         mediaPlayerFirst = MediaPlayer.create(this, R.raw.first_shoot)
         mediaPlayerSecond = MediaPlayer.create(this, R.raw.second_shoot)
         mediaPlayerWin = MediaPlayer.create(this, R.raw.yeehaw)
+
         // On récupère les informations fournies par l'activité précédente
         isMulti = intent.getBooleanExtra("isMulti", false)
         isServer = intent.getBooleanExtra("isServer", false)
         myScore = intent.getIntExtra("score", 0)
         theirScore = intent.getIntExtra("scoreAdversaire", 0)
+        isFinished = intent.getBooleanExtra("isFinished", false)
 
-        // On met à jour l'affichage de votre score
+        // On met à jour l'affichage des scores
         if (isMulti) {
             if (isServer) initMulti() // On modifie le handler du serveur
-            updateScoreMulti()
+            if (!isFinished) {
+                updateScoreMulti()
+            } else {
+                partyFinished()
+            }
+
         } else {
             updateScoreSolo()
+        }
+    }
+
+    private fun partyFinished() {
+        setContentView(R.layout.score_page_multi_final)
+        val myScoreView = findViewById<TextView>(R.id.currentScore)
+        myScoreView.text = myScore.toString()
+        val theirScoreView = findViewById<TextView>(R.id.otherScore)
+        theirScoreView.text = theirScore.toString()
+        val resultView = findViewById<TextView>(R.id.result)
+        if (myScore > theirScore) {
+            resultView.text = "Vous avez gagné !"
+            mediaPlayerWin.start()
+        } else if (myScore < theirScore) {
+            resultView.text = "Vous avez perdu !"
+            mediaPlayerFirst.start()
+            while (mediaPlayerFirst.isPlaying) {
+                // On attend que le son se termine
+            }
+            mediaPlayerSecond.start()
+        } else {
+            resultView.text = "Match nul !"
+        }
+        // On ajoute un listener au bouton
+        val button = findViewById<TextView>(R.id.next)
+        button.setOnClickListener {
+            if (!isServer) {
+                Log.d("DATAEXCHANGE", "Le client envoie Next")
+                Multiplayer.Exchange.dataExchangeClient.write("Next")
+                val resultIntent = Intent()
+                resultIntent.putExtra("score", myScore)
+                resultIntent.putExtra("scoreAdversaire", theirScore)
+                setResult(RESULT_OK, resultIntent)
+                finish()
+            } else {
+                Toast.makeText(this, "En attente de l'autre joueur", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 

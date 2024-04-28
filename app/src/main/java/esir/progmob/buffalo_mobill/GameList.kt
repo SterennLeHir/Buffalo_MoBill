@@ -9,12 +9,17 @@ import android.os.Looper
 import android.os.Message
 import android.util.Log
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.core.view.isInvisible
 import java.net.Socket
 import kotlin.random.Random
 
 class GameList : ComponentActivity() {
+
+    //liste des étoiles
+    private lateinit var starsList: List<ImageView>
 
     private var isMulti : Boolean = false
     private var isServer : Boolean = false
@@ -24,6 +29,7 @@ class GameList : ComponentActivity() {
     private var scoreAdversaire : Int = 0
     private var numberOfParties : Int = 0
     private val NUMBEROFPARTIESMAX = 3
+    private var numberOfGamesWon : Int = 0
 
     // Liste des jeux (pour le mode aléatoire)
     private var gameList : MutableList<String> = mutableListOf()
@@ -43,6 +49,12 @@ class GameList : ComponentActivity() {
         // Initialisation de la liste des jeux
         gameList = mutableListOf("ShadyShowdown", "QuickQuiz", "MilkMaster", "WildRide", "CowCatcher", "PricklyPicking")
         Log.d("DATAEXCHANGE", "GameList created")
+
+        // Liste des étoiles
+        val star1 : ImageView = findViewById(R.id.star1)
+        val star2 : ImageView = findViewById(R.id.star2)
+        val star3 : ImageView = findViewById(R.id.star3)
+        starsList = listOf(star1, star2, star3)
 
         // Liste des boutons de l'activité
         val buttonMilkMaster = findViewById<Button>(R.id.milk_master)
@@ -328,16 +340,22 @@ class GameList : ComponentActivity() {
         if(requestCode == 2) { // La page de score finale s'est terminée
             partyFinished()
         } else if (resultCode == Activity.RESULT_OK) {
-            score += data?.getIntExtra("score", 0) ?: 0
-            scoreAdversaire += data?.getIntExtra("scoreAdversaire", 0) ?: 0
+            score = data?.getIntExtra("score", 0) ?: 0
+            scoreAdversaire = data?.getIntExtra("scoreAdversaire", 0) ?: 0
             Log.d("DATAEXCHANGE", "score : $score, scoreAdversaire : $scoreAdversaire")
             Log.d("DATAEXCHANGE", "numberOfParties : $numberOfParties")
-            if (numberOfParties == NUMBEROFPARTIESMAX) {
+            if (score >= scoreAdversaire) {
+                numberOfGamesWon++
+                Log.d("DATAEXCHANGE", "numberOfGamesWon : $numberOfGamesWon")
+                starsList[numberOfGamesWon - 1].isInvisible = false // On affiche une nouvelle étoile
+            }
+            if (numberOfParties == NUMBEROFPARTIESMAX) { // On lance la page de score finale
                 val intent = Intent(this, ScorePage::class.java)
-                intent.putExtra("score", score)
-                intent.putExtra("scoreAdversaire", scoreAdversaire)
+                intent.putExtra("score", numberOfGamesWon)
+                intent.putExtra("scoreAdversaire", NUMBEROFPARTIESMAX - numberOfGamesWon)
                 intent.putExtra("isMulti", isMulti)
                 intent.putExtra("isServer", isServer)
+                intent.putExtra("isFinished", true)
                 startActivityForResult(intent, 2)
             } else if (isRandom && !isServer) {
                 Log.d("DATAEXCHANGE", "Chosing next random game")
@@ -377,7 +395,6 @@ class GameList : ComponentActivity() {
 
     private fun partyFinished() {
         Log.d("DATAEXCHANGE", "Party finished")
-        // TODO on arrête le multijoueur (fermeture de socket)
         if (isServer) {
             Multiplayer.Exchange.dataExchangeServer.cancel()
             Multiplayer.Exchange.dataExchangeServer.getInputStream().close()
