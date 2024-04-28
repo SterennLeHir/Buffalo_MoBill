@@ -39,10 +39,6 @@ class ServerConnexion : ComponentActivity() {
                 }
                 socket?.also {
                     manageMyConnectedSocket(it, context)
-                    //mmServerSocket?.close()
-                    //shouldLoop = false
-                    //Looper.prepare()
-                    //Toast.makeText(context, "Connected", Toast.LENGTH_SHORT).show()
                 }
             }
         }

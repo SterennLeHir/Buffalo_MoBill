@@ -38,7 +38,8 @@
         <activity
             android:name=".Home"
             android:exported="true"
-            android:theme="@style/Theme.Buffalo_MoBill">
+            android:theme="@style/Theme.Buffalo_MoBill"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -47,57 +48,68 @@
         <activity
             android:name=".Multiplayer"
             android:exported="true"
-            android:theme="@style/Theme.Buffalo_MoBill">
+            android:theme="@style/Theme.Buffalo_MoBill"
+            android:screenOrientation="portrait">
         </activity>
         <activity
             android:name=".ClientConnexion"
             android:exported="true"
-            android:theme="@style/Theme.Buffalo_MoBill">
+            android:theme="@style/Theme.Buffalo_MoBill"
+            android:screenOrientation="portrait">
         </activity>
         <activity
             android:name=".ServerConnexion"
             android:exported="true"
-            android:theme="@style/Theme.Buffalo_MoBill">
+            android:theme="@style/Theme.Buffalo_MoBill"
+            android:screenOrientation="portrait">
         </activity>
         <activity
             android:name=".ScorePage"
             android:exported="true"
-            android:theme="@style/Theme.Buffalo_MoBill">
+            android:theme="@style/Theme.Buffalo_MoBill"
+            android:screenOrientation="portrait">
         </activity>
         <activity
             android:name=".GameList"
             android:exported="true"
-            android:theme="@style/Theme.Buffalo_MoBill">
+            android:theme="@style/Theme.Buffalo_MoBill"
+            android:screenOrientation="portrait">
         </activity>
         <activity
             android:name=".QuickQuiz"
             android:exported="true"
-            android:theme="@style/Theme.Buffalo_MoBill">
+            android:theme="@style/Theme.Buffalo_MoBill"
+            android:screenOrientation="portrait">
         </activity>
         <activity
             android:name=".ShadyShowdown"
             android:exported="true"
-            android:theme="@style/Theme.Buffalo_MoBill">
+            android:theme="@style/Theme.Buffalo_MoBill"
+            android:screenOrientation="portrait">
         </activity>
         <activity
             android:name=".PricklyPicking"
             android:exported="true"
-            android:theme="@style/Theme.Buffalo_MoBill">
+            android:theme="@style/Theme.Buffalo_MoBill"
+            android:screenOrientation="portrait">
         </activity>
         <activity
             android:name=".CowCatcher"
             android:exported="true"
-            android:theme="@style/Theme.Buffalo_MoBill">
+            android:theme="@style/Theme.Buffalo_MoBill"
+            android:screenOrientation="portrait">
         </activity>
         <activity
             android:name=".WildRide"
             android:exported="true"
-            android:theme="@style/Theme.Buffalo_MoBill">
+            android:theme="@style/Theme.Buffalo_MoBill"
+            android:screenOrientation="portrait">
         </activity>
         <activity
             android:name=".MilkMaster"
             android:exported="true"
-            android:theme="@style/Theme.Buffalo_MoBill">
+            android:theme="@style/Theme.Buffalo_MoBill"
+            android:screenOrientation="portrait">
         </activity>
     </application>
 
