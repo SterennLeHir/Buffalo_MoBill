@@ -1,39 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    style="@style/background">
+    android:orientation="vertical"
+    android:background="@drawable/background">
 
 
-    <LinearLayout
-        android:layout_width="match_parent"
+    <TextView
+        android:id="@+id/currentPlayer"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:layout_marginTop="68dp"
+        android:fontFamily="@font/old_standard_tt"
+        android:text="Votre score : "
+        android:textSize="24sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
-        <TextView
-            android:id="@+id/currentPlayer"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/old_standard_tt"
-            android:text="Votre score : "
-            android:textSize="24sp" />
-
-        <TextView
-            android:id="@+id/currentScore"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/old_standard_tt"
-            android:text=""
-            android:textSize="24sp" />
-
-    </LinearLayout>
+    <TextView
+        android:id="@+id/currentScore"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="68dp"
+        android:fontFamily="@font/old_standard_tt"
+        android:text="Text"
+        android:textSize="24sp"
+        app:layout_constraintStart_toEndOf="@+id/currentPlayer"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <Button
         android:id="@+id/next"
-        style="@style/brown_button"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:text="@string/next" />
+        android:layout_marginTop="92dp"
+        android:text="@string/next"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/currentPlayer"
+        style="@style/brown_button"/>
 
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
