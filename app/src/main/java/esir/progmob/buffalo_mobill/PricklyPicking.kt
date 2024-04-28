@@ -1,8 +1,14 @@
 package esir.progmob.buffalo_mobill
 
 import android.animation.ObjectAnimator
+import android.app.Activity
+import android.app.AlertDialog
+import android.content.Intent
 import android.graphics.Point
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.os.Message
 import android.util.DisplayMetrics
 import android.util.Log
 import android.view.MotionEvent
@@ -31,15 +37,63 @@ class PricklyPicking : ComponentActivity() {
 
 
     private val MAX_PRICKLES = 10
-    private var score = 0
 
     private var screenWidth = 0
     private var screenHeight = 0
     private lateinit var parentView : RelativeLayout
 
+    // scores pour l'affichage une fois le jeu fini
+    private var score = 0
+    private var scoreAdversaire = 0
+    var scoreSent : Boolean = false
+
+    // pour le multijoueur
+    private var isServer : Boolean = false
+    private var isMulti : Boolean = false
+    private var isReady : Boolean = false
+    private var isAdversaireReady : Boolean = false
+
+    private lateinit var alertDialog : AlertDialog
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // Récupération des informations
+        isMulti = intent.getBooleanExtra("isMulti", false)
+        isServer = intent.getBooleanExtra("isServer", false)
+        if (!isMulti) {
+            // Affiche la boîte de dialogue lorsque l'activité est créée
+            val customAlertDialog = AlertDialogCustom(this, "BUT DU JEU", getString(R.string.RulesGame2), "JOUER") {
+                startGame()
+                alertDialog.dismiss()
+            }
+            alertDialog = customAlertDialog.create()
+            alertDialog.show()
+        } else {
+            initMulti()
+            if (!isServer) {
+                val customAlertDialog = AlertDialogCustom(this, "BUT DU JEU", getString(R.string.RulesGame2), "JOUER") {
+                    isReady = true
+                    if (isAdversaireReady) {
+                        Multiplayer.Exchange.dataExchangeClient.write("Ready")
+                        alertDialog.dismiss()
+                        startGame()
+                    }
+                }
+                alertDialog = customAlertDialog.create()
+                alertDialog.show()
+            } else {
+                val customAlertDialog =
+                    AlertDialogCustom(this, "BUT DU JEU", getString(R.string.RulesGame2), "JOUER") {
+                        isReady = true
+                        Multiplayer.Exchange.dataExchangeServer.write("Ready")
+                    }
+                alertDialog = customAlertDialog.create()
+                alertDialog.show()
+            }
+        }
+    }
+
+    private fun startGame() {
         setContentView(R.layout.prickly_picking)
         // Initialisation de la taille de l'écran
         val metrics = DisplayMetrics()
@@ -57,6 +111,7 @@ class PricklyPicking : ComponentActivity() {
             createPrickle()
         }
     }
+
     private fun handleTouchEvent(view: View, event: MotionEvent): Boolean {
         val x = event.rawX
         val y = event.rawY
@@ -89,8 +144,6 @@ class PricklyPicking : ComponentActivity() {
                     Log.d("angle", ""+ calculateAngle(lastX,lastY,x,y))
                     */
 
-
-
                 }
                 else{ //on déplace la vue
                     // Lorsque l'utilisateur déplace le doigt, calculez le décalage et déplacez la vue
@@ -116,13 +169,94 @@ class PricklyPicking : ComponentActivity() {
                     isDragging = false
                     score++
                     if(score >= MAX_PRICKLES){
-                        Log.d("", "Jeu terminé")
-                        Toast.makeText(context, "Jeu terminé!", Toast.LENGTH_SHORT)//s'affiche pas
+                        if (!isMulti) {
+                            val intent = Intent(this, ScorePage::class.java)
+                            intent.putExtra("score", score)
+                            intent.putExtra("isMulti", false)
+                            startActivityForResult(intent, 1)
+                        } else {
+                            scoreSent = if (isServer) {
+                                Multiplayer.Exchange.dataExchangeServer.write(score.toString())
+                                true
+                            } else {
+                                Multiplayer.Exchange.dataExchangeClient.write(score.toString())
+                                true
+                            }
+                        }
                     }
                 }
             }
         }
         return true
+    }
+
+    private fun initMulti() {
+        if (isServer) {
+            // Initialisation du nouvel handler pour le thread d'échange de données
+            val handlerServer = object :
+                Handler(Looper.getMainLooper()) { // quand on reçoit un message on lance l'activité
+                override fun handleMessage(msg: Message) {
+                    val message = msg.obj.toString()
+                    Log.d("DATAEXCHANGE", "[WildRide Server] Message received: " + msg.obj.toString())
+                    if (msg.obj.toString().contains("Ready")) {
+                        Log.d("DATAEXCHANGE", "[WildRide] On peut lancer le jeu")
+                        alertDialog.dismiss()
+                        startGame()
+                    } else {
+                        // Quand on reçoit le score de l'adversaire on peut afficher la page de score
+                        scoreAdversaire = msg.obj.toString().toInt()
+                        if (!scoreSent) {
+                            Multiplayer.Exchange.dataExchangeServer.write(score.toString()) // On envoie 10 car c'est le score quand on gagne
+                            scoreSent = true
+                        }
+                        val intent = Intent(this@PricklyPicking, ScorePage::class.java)
+                        intent.putExtra("score", score)
+                        intent.putExtra("scoreAdversaire", scoreAdversaire)
+                        intent.putExtra("isMulti", true)
+                        intent.putExtra("isServer", isServer)
+                        Log.d("DATAEXCHANGE", "[WildRide Server] On lance la page de score")
+                        startActivityForResult(intent, 1)
+                    }
+                }
+            }
+            Log.d("DATAEXCHANGE", "Thread server relaunched")
+            Multiplayer.Exchange.dataExchangeServer.cancel()
+            Multiplayer.Exchange.dataExchangeServer = DataExchange(handlerServer)
+            Multiplayer.Exchange.dataExchangeServer.start()
+        } else {
+            val handlerClient = object :
+                Handler(Looper.getMainLooper()) { // quand on reçoit un message on lance l'activité
+                override fun handleMessage(msg: Message) {
+                    Log.d("DATAEXCHANGE", "[WildRide Client] Message received: " + msg.obj.toString())
+                    if (msg.obj.toString().contains("Ready")) {
+                        isAdversaireReady = true
+                        if (isReady) {
+                            Multiplayer.Exchange.dataExchangeClient.write("Ready")
+                            alertDialog.dismiss()
+                            startGame()
+                        }
+                    } else {
+                        // Quand on reçoit le score de l'adversaire on peut afficher la page de score
+                        scoreAdversaire = msg.obj.toString().toInt()
+                        if (!scoreSent) {
+                            Multiplayer.Exchange.dataExchangeClient.write(score.toString())
+                            scoreSent = true
+                        }
+                        val intent = Intent(this@PricklyPicking, ScorePage::class.java)
+                        intent.putExtra("score", score)
+                        intent.putExtra("scoreAdversaire", scoreAdversaire)
+                        intent.putExtra("isMulti", true)
+                        intent.putExtra("isServer", isServer)
+                        Log.d("DATAEXCHANGE", "[WildRide Client] On lance la page de score")
+                        startActivityForResult(intent, 1)
+                    }
+                }
+            }
+            Log.d("DATAEXCHANGE", "Thread client relaunched")
+            Multiplayer.Exchange.dataExchangeClient.cancel()
+            Multiplayer.Exchange.dataExchangeClient = DataExchange(handlerClient)
+            Multiplayer.Exchange.dataExchangeClient.start()
+        } // on met à jour le handler
     }
 
     private fun createPrickle() {
@@ -165,5 +299,22 @@ class PricklyPicking : ComponentActivity() {
         }
 
         return angleDegrees
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        Log.d("DATAEXCHANGE", "[PricklyPicking] onActivityResult, resultCode : $resultCode")
+        if (resultCode == Activity.RESULT_OK) {
+            // On récupère les scores
+            score = data?.getIntExtra("score", 0) ?: 0
+            scoreAdversaire = data?.getIntExtra("scoreAdversaire", 0) ?: 0
+            Log.d("DATAEXCHANGE", "score : $score, scoreAdversaire : $scoreAdversaire")
+            // On transmet les scores à GameList
+            val resultIntent = Intent()
+            resultIntent.putExtra("score", score)
+            resultIntent.putExtra("scoreAdversaire", scoreAdversaire)
+            setResult(RESULT_OK, resultIntent)
+            finish()
+        }
     }
 }

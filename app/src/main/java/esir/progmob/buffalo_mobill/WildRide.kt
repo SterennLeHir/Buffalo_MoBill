@@ -24,10 +24,10 @@ import android.widget.Toast
 import androidx.core.view.isInvisible
 
 class WildRide : ComponentActivity(), SensorEventListener  {
+
     private lateinit var mediaPlayer: MediaPlayer
     private lateinit var sensorManager: SensorManager
     private lateinit var accelerometer: Sensor
-    private lateinit var countDownTimer: CountDownTimer
 
     private lateinit var rodeo: ImageView
     private lateinit var bang: ImageView
@@ -37,8 +37,6 @@ class WildRide : ComponentActivity(), SensorEventListener  {
     private var rodIncline: Int = 0
     private var fromRotation: Float = 0f
     private var toRotation: Float = 0f //correspond à la valeur de rotation en degree
-
-    private val context = this
 
     private var shake_counter = 0
     private val MAX_SHAKE = 10
