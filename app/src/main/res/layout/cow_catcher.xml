@@ -8,10 +8,10 @@
 
     <ImageView
         android:id="@+id/imageView"
-        android:layout_width="1000dp"
-        android:layout_height="1000dp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:src="@drawable/herbe"
-        android:translationX="-290dp" />
+        android:scaleType="centerCrop"/>
 
     <ImageView
         android:id="@+id/cowView"
