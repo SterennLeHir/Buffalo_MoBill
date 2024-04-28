@@ -10,8 +10,8 @@
     <ImageView
         android:id="@+id/pies"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:scaleType="fitStart"
+        android:layout_height="250dp"
+        android:scaleType="fitXY"
         android:src="@drawable/pies"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

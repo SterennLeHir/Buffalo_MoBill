@@ -36,6 +36,11 @@
         android:textSize="16sp"
         />
 
+    <Spinner
+        android:id="@+id/spinner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
     <Button
         android:id="@+id/button"
         android:layout_height="wrap_content"
@@ -43,4 +48,5 @@
         android:textSize="20sp"
         android:textStyle="bold"
         style="@style/orange_button"/>
+
 </LinearLayout>

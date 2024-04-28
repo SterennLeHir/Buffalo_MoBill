@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -16,7 +17,7 @@
             android:layout_height="60dp"
             android:src="@drawable/star"
             android:visibility="invisible"
-            app:layout_constraintEnd_toStartOf="@+id/star2"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <ImageView
@@ -25,7 +26,7 @@
             android:layout_height="60dp"
             android:src="@drawable/star"
             android:visibility="invisible"
-            app:layout_constraintEnd_toStartOf="@+id/star3"
+            app:layout_constraintStart_toEndOf="@+id/star1"
             app:layout_constraintTop_toTopOf="parent" />
 
         <ImageView
@@ -34,7 +35,34 @@
             android:layout_height="60dp"
             android:src="@drawable/star"
             android:visibility="invisible"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/star2"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/star4"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:src="@drawable/star"
+            android:visibility="invisible"
+            app:layout_constraintStart_toEndOf="@+id/star3"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/star5"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:src="@drawable/star"
+            android:visibility="invisible"
+            app:layout_constraintStart_toEndOf="@+id/star4"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/star6"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:src="@drawable/star"
+            android:visibility="invisible"
+            app:layout_constraintStart_toEndOf="@+id/star5"
             app:layout_constraintTop_toTopOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
@@ -103,6 +131,13 @@
         style="@style/brown_button"
         android:layout_height="wrap_content"
         android:text="@string/random_game"
+        android:layout_marginTop="20dp"/>
+
+    <Button
+        android:id="@+id/parameters"
+        style="@style/brown_button"
+        android:layout_height="wrap_content"
+        android:text="Parameters"
         android:layout_marginTop="20dp"/>
 
 

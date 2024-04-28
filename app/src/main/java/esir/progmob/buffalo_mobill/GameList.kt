@@ -2,19 +2,22 @@ package esir.progmob.buffalo_mobill
 
 import android.app.Activity
 import android.app.AlertDialog
+import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.os.Message
 import android.util.Log
+import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.ImageView
+import android.widget.Spinner
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.core.view.isInvisible
-import java.net.Socket
 import kotlin.random.Random
+
 
 class GameList : ComponentActivity() {
 
@@ -28,7 +31,7 @@ class GameList : ComponentActivity() {
     private var score : Int = 0
     private var scoreAdversaire : Int = 0
     private var numberOfParties : Int = 0
-    private val NUMBEROFPARTIESMAX = 3
+    private var NUMBEROFPARTIESMAX = 3
     private var numberOfGamesWon : Int = 0
 
     // Liste des jeux (pour le mode aléatoire)
@@ -38,6 +41,7 @@ class GameList : ComponentActivity() {
     private lateinit var nextGame : String
 
     private lateinit var alertDialog : AlertDialog
+    private lateinit var alertDialogParam : AlertDialog
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         isMulti = intent.getBooleanExtra("isMulti", false)
@@ -54,7 +58,10 @@ class GameList : ComponentActivity() {
         val star1 : ImageView = findViewById(R.id.star1)
         val star2 : ImageView = findViewById(R.id.star2)
         val star3 : ImageView = findViewById(R.id.star3)
-        starsList = listOf(star1, star2, star3)
+        val star4 : ImageView = findViewById(R.id.star4)
+        val star5 : ImageView = findViewById(R.id.star5)
+        val star6 : ImageView = findViewById(R.id.star6)
+        starsList = listOf(star1, star2, star3, star4, star5, star6)
 
         // Liste des boutons de l'activité
         val buttonMilkMaster = findViewById<Button>(R.id.milk_master)
@@ -64,7 +71,7 @@ class GameList : ComponentActivity() {
         val buttonCowCatcher = findViewById<Button>(R.id.cow_catcher)
         val buttonPricklyPicking = findViewById<Button>(R.id.prickly_picking)
         val randomParty = findViewById<Button>(R.id.random)
-
+        val param = findViewById<Button>(R.id.parameters)
 
         // Change d'activité pour chaque jeu
         buttonMilkMaster.setOnClickListener{
@@ -185,18 +192,32 @@ class GameList : ComponentActivity() {
                 Toast.makeText(this, "L'autre joueur choisit le jeu", Toast.LENGTH_SHORT).show()
             }
         }
+
+        param.setOnClickListener{
+            // On construit la popups des paramètres
+            val numbers = arrayOf("1", "2", "3", "4", "5", "6")
+            val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, numbers)
+            // Création de l'AlertDialog
+            val customAlertDialog = AlertDialogCustom(this, "PARAMETRES", "Choississez le nombre de défis dans une partie", "VALIDER", adapter) {selectedNumber ->
+                alertDialogParam.dismiss()
+                NUMBEROFPARTIESMAX = selectedNumber
+                Log.d("DATAEXCHANGE", "Nombre de parties : $NUMBEROFPARTIESMAX")
+            }
+            alertDialogParam = customAlertDialog.create()
+            alertDialogParam.show()
+        }
     }
 
     private fun createRandomParty() {
         this.isRandom = true
         if (!isServer) {
+            Log.d("DATAEXCHANGE", "Création de la partie aléatoire : $NUMBEROFPARTIESMAX défis")
             for (i in 0..<NUMBEROFPARTIESMAX) { // on sélectionne 2 jeux aléatoires
                 val random = Random.nextInt(gameList.size) // choisit le jeu aléatoirement
                 Log.d("DATAEXCHANGE", "Random position : $random")
                 games.add(gameList[random])
                 gameList.removeAt(random)
             }
-            Log.d("DATAEXCHANGE", "Random games : " + games[0] + " " + games[1] + " " + games[2])
             nextGame = games[numberOfParties]
             val randomGame = Intent(this, Class.forName("esir.progmob.buffalo_mobill.$nextGame"))
             randomGame.putExtra("isServer", isServer)
