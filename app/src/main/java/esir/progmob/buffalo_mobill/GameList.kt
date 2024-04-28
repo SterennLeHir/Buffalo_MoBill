@@ -23,7 +23,7 @@ class GameList : ComponentActivity() {
     private var score : Int = 0
     private var scoreAdversaire : Int = 0
     private var numberOfParties : Int = 0
-    private val NUMBEROFPARTIESMAX = 2
+    private val NUMBEROFPARTIESMAX = 3
 
     // Liste des jeux (pour le mode aléatoire)
     private var gameList : MutableList<String> = mutableListOf()
@@ -41,7 +41,7 @@ class GameList : ComponentActivity() {
         setContentView(R.layout.gamelist)
 
         // Initialisation de la liste des jeux
-        gameList = mutableListOf("ShadyShowdown", "QuickQuiz")//mutableListOf("MilkMaster", "WildRide", "ShadyShowdown", "QuickQuiz", "CowCatcher", "PricklyPicking")
+        gameList = mutableListOf("ShadyShowdown", "QuickQuiz", "MilkMaster", "WildRide", "CowCatcher")
         Log.d("DATAEXCHANGE", "GameList created")
 
         // Liste des boutons de l'activité
@@ -66,7 +66,7 @@ class GameList : ComponentActivity() {
                 game1.putExtra("isServer", isServer)
                 game1.putExtra("isMulti", isMulti)
                 if (!isServer || !isMulti) {
-                    startActivity(game1)
+                    startActivityForResult(game1, 1)
                 }
             } else {
                 Toast.makeText(this, "Vous ne pouvez pas choisir le jeu", Toast.LENGTH_LONG).show()
@@ -184,7 +184,7 @@ class GameList : ComponentActivity() {
                 games.add(gameList[random])
                 gameList.removeAt(random)
             }
-            Log.d("DATAEXCHANGE", "Random games : " + games[0] + " " + games[1])
+            Log.d("DATAEXCHANGE", "Random games : " + games[0] + " " + games[1] + " " + games[2])
             nextGame = games[numberOfParties]
             val randomGame = Intent(this, Class.forName("esir.progmob.buffalo_mobill.$nextGame"))
             randomGame.putExtra("isServer", isServer)
@@ -210,7 +210,6 @@ class GameList : ComponentActivity() {
                 alertDialog = customAlertDialog.create()
                 alertDialog.show()
             }
-            if (!isMulti) startActivityForResult(randomGame, 1)
         } else { // dans le cas du serveur
             val customAlertDialog = AlertDialogCustom(this, "PROCHAIN JEU", "Le jeu va commencer", "PRÊT") {
                 isReady = true
@@ -243,7 +242,7 @@ class GameList : ComponentActivity() {
                             val intent = Intent(this@GameList, CowCatcher::class.java)
                             intent.putExtra("isMulti", true)
                             intent.putExtra("isServer", true)
-                            this@GameList.startActivity(intent)
+                            this@GameList.startActivityForResult(intent, 1)
                         }
 
                         "QuickQuiz" -> {
@@ -265,21 +264,21 @@ class GameList : ComponentActivity() {
                             val intent = Intent(this@GameList, MilkMaster::class.java)
                             intent.putExtra("isMulti", true)
                             intent.putExtra("isServer", true)
-                            this@GameList.startActivity(intent)
+                            this@GameList.startActivityForResult(intent, 1)
                         }
 
                         "WildRide" -> {
                             val intent = Intent(this@GameList, WildRide::class.java)
                             intent.putExtra("isMulti", true)
                             intent.putExtra("isServer", true)
-                            this@GameList.startActivity(intent)
+                            this@GameList.startActivityForResult(intent, 1)
                         }
 
                         "PricklyPicking" -> {
                             val intent = Intent(this@GameList, PricklyPicking::class.java)
                             intent.putExtra("isMulti", true)
                             intent.putExtra("isServer", true)
-                            this@GameList.startActivity(intent)
+                            this@GameList.startActivityForResult(intent, 1)
                         }
                     }
                 }

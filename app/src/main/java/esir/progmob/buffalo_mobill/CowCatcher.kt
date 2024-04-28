@@ -1,7 +1,14 @@
 package esir.progmob.buffalo_mobill
 
+import android.app.Activity
+import android.app.AlertDialog
 import android.content.Context
+import android.content.Intent
+import android.media.MediaPlayer
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.os.Message
 import android.util.DisplayMetrics
 import android.util.Log
 import android.util.TypedValue
@@ -24,20 +31,72 @@ import kotlin.random.Random
 private const val DEBUG_TAG = "Gestures"
 
 class CowCatcher : ComponentActivity(){
+
     private lateinit var parentView: FrameLayout
     private lateinit var lasso: ImageView
     private lateinit var cow: ImageView
     private lateinit var gest: GestureDetector
     private var screenWidth = 0
-    private var screenHeight = 0 //PAS BEAAAAAAAAAAAAAAAAU
-    private var totalPoints = 0
+    private var screenHeight = 0
     private var context = this
+    private lateinit var mediaPlayer : MediaPlayer
+
+    // scores pour l'affichage une fois le jeu fini
+    private var score = 0
+    private var scoreAdversaire = 0
+    var scoreSent : Boolean = false
+
+    // pour le multijoueur
+    private var isServer : Boolean = false
+    private var isMulti : Boolean = false
+    private var isReady : Boolean = false
+    private var isAdversaireReady : Boolean = false
+
+    private lateinit var alertDialog : AlertDialog
 
     override fun onCreate(savedInstanceState: Bundle?) {
         //Constructeur et récupération du layout
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.cow_catcher)
+        // Ajout de la musique
+        mediaPlayer = MediaPlayer.create(this, R.raw.cow_catcher)
+        // Récupération des informations
+        isMulti = intent.getBooleanExtra("isMulti", false)
+        isServer = intent.getBooleanExtra("isServer", false)
+        if (!isMulti) {
+            // Affiche la boîte de dialogue lorsque l'activité est créée
+            val customAlertDialog = AlertDialogCustom(this, "BUT DU JEU", getString(R.string.RulesGame5), "JOUER") {
+                startGame()
+                alertDialog.dismiss()
+            }
+            alertDialog = customAlertDialog.create()
+            alertDialog.show()
+        } else {
+            initMulti()
+            if (!isServer) {
+                val customAlertDialog = AlertDialogCustom(this, "BUT DU JEU", getString(R.string.RulesGame5), "JOUER") {
+                    isReady = true
+                    if (isAdversaireReady) {
+                        Multiplayer.Exchange.dataExchangeClient.write("Ready")
+                        alertDialog.dismiss()
+                        startGame()
+                    }
+                }
+                alertDialog = customAlertDialog.create()
+                alertDialog.show()
+            } else {
+                val customAlertDialog =
+                    AlertDialogCustom(this, "BUT DU JEU", getString(R.string.RulesGame5), "JOUER") {
+                        isReady = true
+                        Multiplayer.Exchange.dataExchangeServer.write("Ready")
+                    }
+                alertDialog = customAlertDialog.create()
+                alertDialog.show()
+            }
+        }
+    }
 
+    private fun startGame() {
+        setContentView(R.layout.cow_catcher)
         //Métrique de l'écran pour placer les objets graphiques
         val displayMetrics = DisplayMetrics()
         windowManager.defaultDisplay.getMetrics(displayMetrics)
@@ -47,6 +106,7 @@ class CowCatcher : ComponentActivity(){
         //Récupérer le parent
         parentView = findViewById<FrameLayout>(R.id.cowParent)
 
+        mediaPlayer.start() // On lance la musique
         //Récupérer et placer le lasso au bon endroit
         lasso = findViewById(R.id.lassoView)
         lasso.viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
@@ -68,6 +128,103 @@ class CowCatcher : ComponentActivity(){
             gest.onTouchEvent(event)
         }
     }
+    private fun initMulti() {
+        if (isServer) {
+            // Initialisation du nouvel handler pour le thread d'échange de données
+            val handlerServer = object :
+                Handler(Looper.getMainLooper()) { // quand on reçoit un message on lance l'activité
+                override fun handleMessage(msg: Message) {
+                    val message = msg.obj.toString()
+                    Log.d("DATAEXCHANGE", "[CowCatcher Server] Message received: " + msg.obj.toString())
+                    if (msg.obj.toString().contains("Ready")) {
+                        Log.d("DATAEXCHANGE", "[CowCatcher] On peut lancer le jeu")
+                        alertDialog.dismiss()
+                        startGame()
+                    } else {
+                        // Quand on reçoit le score de l'adversaire on peut afficher la page de score
+                        scoreAdversaire = msg.obj.toString().toInt()
+                        if (!scoreSent) {
+                            Multiplayer.Exchange.dataExchangeServer.write(score.toString()) // On envoie 10 car c'est le score quand on gagne
+                            scoreSent = true
+                        }
+                        val intent = Intent(this@CowCatcher, ScorePage::class.java)
+                        intent.putExtra("score", score)
+                        intent.putExtra("scoreAdversaire", scoreAdversaire)
+                        intent.putExtra("isMulti", true)
+                        intent.putExtra("isServer", isServer)
+                        Log.d("DATAEXCHANGE", "[CowCatcher Server] On lance la page de score")
+                        startActivityForResult(intent, 1)
+                    }
+                }
+            }
+            Log.d("DATAEXCHANGE", "Thread server relaunched")
+            Multiplayer.Exchange.dataExchangeServer.cancel()
+            Multiplayer.Exchange.dataExchangeServer = DataExchange(handlerServer)
+            Multiplayer.Exchange.dataExchangeServer.start()
+        } else {
+            val handlerClient = object :
+                Handler(Looper.getMainLooper()) { // quand on reçoit un message on lance l'activité
+                override fun handleMessage(msg: Message) {
+                    Log.d("DATAEXCHANGE", "[CowCatcher Client] Message received: " + msg.obj.toString())
+                    if (msg.obj.toString().contains("Ready")) {
+                        isAdversaireReady = true
+                        if (isReady) {
+                            Multiplayer.Exchange.dataExchangeClient.write("Ready")
+                            alertDialog.dismiss()
+                            startGame()
+                        }
+                    } else {
+                        // Quand on reçoit le score de l'adversaire on peut afficher la page de score
+                        scoreAdversaire = msg.obj.toString().toInt()
+                        if (!scoreSent) {
+                            Multiplayer.Exchange.dataExchangeClient.write(score.toString())
+                            scoreSent = true
+                        }
+                        val intent = Intent(this@CowCatcher, ScorePage::class.java)
+                        intent.putExtra("score", score)
+                        intent.putExtra("scoreAdversaire", scoreAdversaire)
+                        intent.putExtra("isMulti", true)
+                        intent.putExtra("isServer", isServer)
+                        Log.d("DATAEXCHANGE", "[CowCatcher Client] On lance la page de score")
+                        startActivityForResult(intent, 1)
+                    }
+                }
+            }
+            Log.d("DATAEXCHANGE", "Thread client relaunched")
+            Multiplayer.Exchange.dataExchangeClient.cancel()
+            Multiplayer.Exchange.dataExchangeClient = DataExchange(handlerClient)
+            Multiplayer.Exchange.dataExchangeClient.start()
+        } // on met à jour le handler
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        Log.d("DATAEXCHANGE", "[CowCatcher] onActivityResult, resultCode : $resultCode")
+        if (resultCode == Activity.RESULT_OK) {
+            // On récupère les scores
+            score = data?.getIntExtra("score", 0) ?: 0
+            scoreAdversaire = data?.getIntExtra("scoreAdversaire", 0) ?: 0
+            Log.d("DATAEXCHANGE", "score : $score, scoreAdversaire : $scoreAdversaire")
+            // On transmet les scores à GameList
+            val resultIntent = Intent()
+            resultIntent.putExtra("score", score)
+            resultIntent.putExtra("scoreAdversaire", scoreAdversaire)
+            setResult(RESULT_OK, resultIntent)
+            finish()
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        mediaPlayer.pause()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        mediaPlayer.start()
+    }
+
+    // Classe interne pour gérer les gestes de l'utilisateur
     private inner class LassoGestureListener : GestureDetector.SimpleOnGestureListener() {
         override fun onDown(e: MotionEvent): Boolean {
             Log.d(DEBUG_TAG, "onDown")
@@ -113,13 +270,30 @@ class CowCatcher : ComponentActivity(){
                     Log.d("vache", "fin de l'animation")
                     if(cow.x - delta <= targetX && targetX <= cow.x+delta
                         && cow.y - delta <= targetY && targetY <= cow.y+delta){
-                        totalPoints++
-                        if(totalPoints >= 5){
-                            Toast.makeText(context, "C'est fini !", Toast.LENGTH_SHORT).show()
+                        score++
+                        if (score >= 8){
+                            // On a gagné
                             cow.visibility = View.INVISIBLE
-                        }else{
+                            mediaPlayer.stop()
+                            if (!isMulti) {
+                                val intent = Intent(context, ScorePage::class.java)
+                                intent.putExtra("score", score)
+                                intent.putExtra("scoreAdversaire", 0)
+                                intent.putExtra("isMulti", false)
+                                intent.putExtra("isServer", false)
+                                startActivityForResult(intent, 1)
+                            } else {
+                                scoreSent = if (isServer) {
+                                    Multiplayer.Exchange.dataExchangeServer.write(score.toString())
+                                    true
+                                } else {
+                                    Multiplayer.Exchange.dataExchangeClient.write(score.toString())
+                                    true
+                                }
+                            }
+                        } else{
                             changeCowPosition()
-                            Log.d("vache", "on change de pos la vache")
+                            Log.d("CowCatcher", "on change de pos la vache")
                         }
                     }
                 }
@@ -150,38 +324,6 @@ class CowCatcher : ComponentActivity(){
         val dpToPxSeuil = this.dpToPx(400f).toInt()
         cow.x = Random.nextInt(screenWidth - dpToPxW).toFloat()
         cow.y = Random.nextInt(screenHeight - dpToPxH - dpToPxSeuil).toFloat() //plus haut que le lasso
-
-        /*
-        cow = ImageView(context) //On crée la nouvelle vue
-
-        //Set la taille de la vache
-        val dpToPxH = this.dpToPx(100f).toInt()
-        val dpToPxW = this.dpToPx(100f).toInt()
-        val dpToPxSeuil = this.dpToPx(400f).toInt()
-        val layoutParams: ViewGroup.LayoutParams = ViewGroup.LayoutParams(dpToPxH, dpToPxW)
-        cow.setLayoutParams(layoutParams)
-
-        //Set l'image de la vache
-        cow.setImageResource(R.drawable.bandit)
-
-        // Générez des positions aléatoires pour la vache
-        cow.x = Random.nextInt(screenWidth - dpToPxW).toFloat()
-        cow.y = Random.nextInt(screenHeight - dpToPxH - dpToPxSeuil).toFloat() //plus haut que le lasso
-        return cow
-        */
     }
 
-    /* A REUTILISER POUR PRICKLY
-    private fun generateCows(){
-        val parentView = findViewById<FrameLayout>(R.id.cowParent)
-        val nCows = 3 // Nombre de vaches
-        cows = ArrayList<ImageView>()
-
-        for (i in 0 until nCows) {
-            val cowView = createCowView(this) //on instancie une nouvelle vache
-            cows.add(cowView) //on ajoute la vache à notre liste de vaches
-            parentView.addView(cowView) //on ajoute la vache à la vue parente
-        }
-    }
-    */
 }

@@ -6,7 +6,7 @@
     <string name="game1">Milk Master</string>
     <string name="RulesGame1">Trayez la vache et remplissez le seau le plus vite possible</string>
     <string name="game2">Wild Ride</string>
-    <string name="RulesGame2">Tenez le plus longtemps sur le dos de la vache ! Tournez dans le sens contraire de \'animal.</string>
+    <string name="RulesGame2">Tenez le plus longtemps sur le dos de la vache ! Tournez dans le sens contraire de l\'animal.</string>
     <string name="game3">Shady Showdown</string>
     <string name="RulesGame3">Baissez la lumière reçue sur votre appareil pour découvrir le bandit. Une fois visible, attrapez-le !</string>
     <string name="game4">Quick Quiz</string>
