@@ -195,16 +195,19 @@ class GameList : ComponentActivity() {
 
         param.setOnClickListener{
             // On construit la popups des paramètres
-            val numbers = arrayOf("1", "2", "3", "4", "5", "6")
-            val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, numbers)
-            // Création de l'AlertDialog
-            val customAlertDialog = AlertDialogCustom(this, "PARAMETRES", "Choississez le nombre de défis dans une partie", "VALIDER", adapter) {selectedNumber ->
-                alertDialogParam.dismiss()
-                NUMBEROFPARTIESMAX = selectedNumber
-                Log.d("DATAEXCHANGE", "Nombre de parties : $NUMBEROFPARTIESMAX")
+            if (!isServer) {
+                val numbers = arrayOf("1", "2", "3", "4", "5", "6")
+                val adapter = ArrayAdapter(this, R.layout.spinner, numbers)
+                // Création de l'AlertDialog
+                val customAlertDialog = AlertDialogCustom(this, "PARAMETRES", "Choississez le nombre de défis dans une partie", "VALIDER", adapter) {selectedNumber ->
+                    alertDialogParam.dismiss()
+                    NUMBEROFPARTIESMAX = selectedNumber
+                    if (isMulti) Multiplayer.Exchange.dataExchangeClient.write(NUMBEROFPARTIESMAX.toString())
+                    Log.d("DATAEXCHANGE", "Nombre de parties : $NUMBEROFPARTIESMAX")
+                }
+                alertDialogParam = customAlertDialog.create()
+                alertDialogParam.show()
             }
-            alertDialogParam = customAlertDialog.create()
-            alertDialogParam.show()
         }
     }
 
@@ -259,7 +262,7 @@ class GameList : ComponentActivity() {
                 override fun handleMessage(msg: Message) {
                     // Traitez le message ici
                     val message = msg.obj.toString()
-                    Log.d("DATAEXCHANGE", "[GameList Server] Message received: " + msg.what.toString() + " " + message)
+                    Log.d("DATAEXCHANGE", "[GameList Server] Message received: $message")
                     when (message) {
                         "Random" -> {
                             numberOfParties = 0
@@ -312,6 +315,10 @@ class GameList : ComponentActivity() {
                             intent.putExtra("isMulti", true)
                             intent.putExtra("isServer", true)
                             this@GameList.startActivityForResult(intent, 1)
+                        }
+
+                        else -> { // On envoie le nombre de parties
+                            NUMBEROFPARTIESMAX = message.toInt()
                         }
                     }
                 }
