@@ -174,9 +174,9 @@ class MilkMaster : ComponentActivity() {
                 MotionEvent.ACTION_MOVE -> {
                     // L'utilisateur a déplacé son doigt sur l'écran
                     Log.d("SENSOR", "ACTION_MOVE")
-                    if (!waiting) isMilking = true
-                    if (!mediaPlayerMilk.isPlaying && !waiting) {
+                    if (!mediaPlayerMilk.isPlaying && !waiting && !isMilking) {
                         mediaPlayerMilk.start()
+                        isMilking = true
                     }
                     true
                 }
