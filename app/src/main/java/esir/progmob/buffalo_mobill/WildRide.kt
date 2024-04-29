@@ -56,6 +56,7 @@ class WildRide : ComponentActivity(), SensorEventListener  {
     private var isMulti : Boolean = false
     private var isReady : Boolean = false
     private var isAdversaireReady : Boolean = false
+    private var isFinished = false
 
     private lateinit var alertDialog : AlertDialog
 
@@ -113,6 +114,7 @@ class WildRide : ComponentActivity(), SensorEventListener  {
                         startGame()
                     } else {
                         // Quand on reçoit le score de l'adversaire on peut afficher la page de score
+                        isFinished = true
                         scoreAdversaire = msg.obj.toString().toInt()
                         if (!scoreSent) {
                             score = 10 // score quand on gagne
@@ -149,6 +151,7 @@ class WildRide : ComponentActivity(), SensorEventListener  {
                         // Quand on reçoit le score de l'adversaire on peut afficher la page de score
                         scoreAdversaire = msg.obj.toString().toInt()
                         if (!scoreSent) {
+                            isFinished = true
                             score = 10 // score quand on gagne
                             Multiplayer.Exchange.dataExchangeClient.write(score.toString())
                             scoreSent = true
@@ -199,6 +202,7 @@ class WildRide : ComponentActivity(), SensorEventListener  {
                 override fun onAnimationEnd(animation: Animation?) {
                     if (rodIncline != selfIncline){ // si on ne s'oriente pas bien pas assez rapidement
                         gameOver()
+                        return
                     }
                     else{
                         // Créer une nouvelle animation de retour
@@ -214,6 +218,7 @@ class WildRide : ComponentActivity(), SensorEventListener  {
                             override fun onAnimationEnd(animation: Animation?) {
                                 if (rodIncline != selfIncline){ //si on ne s'oriente pas bien pas assez rapidement
                                     gameOver()
+                                    return
                                 }
                                 else{
                                     shake_counter++ //on a réussit à survivre au shake
@@ -287,22 +292,24 @@ class WildRide : ComponentActivity(), SensorEventListener  {
     }
 
     private fun gameOver(){
-        mediaPlayer.start()
-        vibrator?.vibrate(1000)
-        bang.isInvisible = false
-        if (isMulti) {
-            scoreSent = if (isServer) {
-                Multiplayer.Exchange.dataExchangeServer.write(score.toString())
-                true
+        if (!isFinished) {
+            mediaPlayer.start()
+            vibrator?.vibrate(1000)
+            bang.isInvisible = false
+            if (isMulti) {
+                scoreSent = if (isServer) {
+                    Multiplayer.Exchange.dataExchangeServer.write(score.toString())
+                    true
+                } else {
+                    Multiplayer.Exchange.dataExchangeClient.write(score.toString())
+                    true
+                }
             } else {
-                Multiplayer.Exchange.dataExchangeClient.write(score.toString())
-                true
+                val intent = Intent(this, ScorePage::class.java)
+                intent.putExtra("score", score)
+                intent.putExtra("isMulti", false)
+                startActivityForResult(intent, 1)
             }
-        } else {
-            val intent = Intent(this, ScorePage::class.java)
-            intent.putExtra("score", score)
-            intent.putExtra("isMulti", false)
-            startActivityForResult(intent, 1)
         }
     }
 

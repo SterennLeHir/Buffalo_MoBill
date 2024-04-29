@@ -155,6 +155,11 @@ class ClientConnexion : ComponentActivity() {
         super.onDestroy()
         unregisterReceiver(receiver)
         bluetoothAdapter.cancelDiscovery()
+        mediaPlayer.stop()
         Log.d("CONNEXION", "ClientConnexion finished")
+    }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
     }
 }

@@ -50,4 +50,14 @@ class Home : ComponentActivity() {
         super.onDestroy()
         mediaPlayer.stop()
     }
+
+    override fun onRestart() {
+        super.onRestart()
+        mediaPlayer.start()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        mediaPlayer.stop()
+    }
 }

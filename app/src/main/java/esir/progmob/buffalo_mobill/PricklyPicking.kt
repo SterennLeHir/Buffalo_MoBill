@@ -62,7 +62,7 @@ class PricklyPicking : ComponentActivity() {
         isServer = intent.getBooleanExtra("isServer", false)
         if (!isMulti) {
             // Affiche la boîte de dialogue lorsque l'activité est créée
-            val customAlertDialog = AlertDialogCustom(this, "BUT DU JEU", getString(R.string.RulesGame2), "JOUER") {
+            val customAlertDialog = AlertDialogCustom(this, "BUT DU JEU", getString(R.string.RulesGame6), "JOUER") {
                 startGame()
                 alertDialog.dismiss()
             }
@@ -71,7 +71,7 @@ class PricklyPicking : ComponentActivity() {
         } else {
             initMulti()
             if (!isServer) {
-                val customAlertDialog = AlertDialogCustom(this, "BUT DU JEU", getString(R.string.RulesGame2), "JOUER") {
+                val customAlertDialog = AlertDialogCustom(this, "BUT DU JEU", getString(R.string.RulesGame6), "JOUER") {
                     isReady = true
                     if (isAdversaireReady) {
                         Multiplayer.Exchange.dataExchangeClient.write("Ready")
@@ -83,7 +83,7 @@ class PricklyPicking : ComponentActivity() {
                 alertDialog.show()
             } else {
                 val customAlertDialog =
-                    AlertDialogCustom(this, "BUT DU JEU", getString(R.string.RulesGame2), "JOUER") {
+                    AlertDialogCustom(this, "BUT DU JEU", getString(R.string.RulesGame6), "JOUER") {
                         isReady = true
                         Multiplayer.Exchange.dataExchangeServer.write("Ready")
                     }

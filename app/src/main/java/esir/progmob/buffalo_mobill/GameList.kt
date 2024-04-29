@@ -213,6 +213,12 @@ class GameList : ComponentActivity() {
 
     private fun createRandomParty() {
         this.isRandom = true
+        this.numberOfParties = 0
+        this.numberOfGamesWon = 0
+        // On rend à nouveau invisible les étoiles
+        for (star in starsList) {
+            star.isInvisible = true
+        }
         if (!isServer) {
             Log.d("DATAEXCHANGE", "Création de la partie aléatoire : $NUMBEROFPARTIESMAX défis")
             for (i in 0..<NUMBEROFPARTIESMAX) { // on sélectionne 2 jeux aléatoires
@@ -433,5 +439,10 @@ class GameList : ComponentActivity() {
             Multiplayer.Exchange.dataExchangeClient.cancel()
         }
         finish()
+    }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
+        // do nothing
     }
 }

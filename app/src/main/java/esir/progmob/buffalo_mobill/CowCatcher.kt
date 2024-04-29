@@ -57,8 +57,6 @@ class CowCatcher : ComponentActivity(){
     override fun onCreate(savedInstanceState: Bundle?) {
         //Constructeur et récupération du layout
         super.onCreate(savedInstanceState)
-        // Ajout de la musique
-        mediaPlayer = MediaPlayer.create(this, R.raw.cow_catcher)
         // Récupération des informations
         isMulti = intent.getBooleanExtra("isMulti", false)
         isServer = intent.getBooleanExtra("isServer", false)
@@ -105,8 +103,9 @@ class CowCatcher : ComponentActivity(){
 
         //Récupérer le parent
         parentView = findViewById<FrameLayout>(R.id.cowParent)
-
-        mediaPlayer.start() // On lance la musique
+        // Ajout de la musique
+        mediaPlayer = MediaPlayer.create(this, R.raw.cow_catcher)
+        mediaPlayer.start()
         //Récupérer et placer le lasso au bon endroit
         lasso = findViewById(R.id.lassoView)
         lasso.viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
