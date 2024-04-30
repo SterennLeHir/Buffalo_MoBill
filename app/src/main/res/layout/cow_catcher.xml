@@ -25,4 +25,12 @@
         android:layout_height="150dp"
         android:src="@drawable/lasso" />
 
+    <TextView
+        android:id="@+id/timerView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAlignment="center"
+        android:textColor="@color/brown"
+        android:textFontWeight="30"/>
+
 </FrameLayout>

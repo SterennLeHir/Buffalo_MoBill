@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.media.MediaPlayer
 import android.os.Bundle
+import android.os.CountDownTimer
 import android.os.Handler
 import android.os.Looper
 import android.os.Message
@@ -23,6 +24,7 @@ import android.view.animation.Animation.AnimationListener
 import android.view.animation.TranslateAnimation
 import android.widget.FrameLayout
 import android.widget.ImageView
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import kotlin.random.Random
@@ -52,6 +54,10 @@ class CowCatcher : ComponentActivity(){
     private var isAdversaireReady : Boolean = false
 
     private lateinit var alertDialog : AlertDialog
+
+    //timer
+    private lateinit var countDownTimer: CountDownTimer
+    private lateinit var timer : TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         //Constructeur et récupération du layout
@@ -125,6 +131,44 @@ class CowCatcher : ComponentActivity(){
             // Transmettre les événements tactiles au GestureDetector
             gest.onTouchEvent(event)
         }
+
+        //Timer
+        // Définition du temps en millisecondes (30 secondes)
+        var timer = findViewById<TextView>(R.id.timerView)
+        val timeInMillis: Long = 30 * 1000
+
+        // Initialisation du CountDownTimer
+        countDownTimer = object : CountDownTimer(timeInMillis, 1000) {
+            override fun onTick(millisUntilFinished: Long) {
+                // Mise à jour de l'affichage du timer chaque seconde
+                val seconds = millisUntilFinished / 1000
+                timer.text = "Temps restant : $seconds secondes"
+            }
+
+            override fun onFinish() {
+                // Action à effectuer lorsque le timer arrive à 0
+                cow.visibility = View.INVISIBLE
+                Home.Music.mediaPlayer?.stop()
+                if (!isMulti) {
+                    val intent = Intent(context, ScorePage::class.java)
+                    intent.putExtra("score", score)
+                    intent.putExtra("game", "CowCatcher")
+                    startActivityForResult(intent, 1)
+                } else {
+                    scoreSent = if (isServer) {
+                        Multiplayer.Exchange.dataExchangeServer.write(score.toString())
+                        true
+                    } else {
+                        Multiplayer.Exchange.dataExchangeClient.write(score.toString())
+                        true
+                    }
+                }
+                timer.text = "Temps écoulé!"
+            }
+        }
+
+        // Démarrage du CountDownTimer
+        countDownTimer.start()
     }
     private fun initMulti() {
         if (isServer) {
@@ -259,28 +303,8 @@ class CowCatcher : ComponentActivity(){
                     if(cow.x - delta <= targetX && targetX <= cow.x+delta
                         && cow.y - delta <= targetY && targetY <= cow.y+delta){
                         score++
-                        if (score >= 8){
-                            // On a gagné
-                            cow.visibility = View.INVISIBLE
-                            Home.Music.mediaPlayer?.stop()
-                            if (!isMulti) {
-                                val intent = Intent(context, ScorePage::class.java)
-                                intent.putExtra("score", score)
-                                intent.putExtra("game", "CowCatcher")
-                                startActivityForResult(intent, 1)
-                            } else {
-                                scoreSent = if (isServer) {
-                                    Multiplayer.Exchange.dataExchangeServer.write(score.toString())
-                                    true
-                                } else {
-                                    Multiplayer.Exchange.dataExchangeClient.write(score.toString())
-                                    true
-                                }
-                            }
-                        } else{
-                            changeCowPosition()
-                            Log.d("CowCatcher", "on change de pos la vache")
-                        }
+                        changeCowPosition()
+                        Log.d("CowCatcher", "on change de pos la vache")
                     }
                 }
 
@@ -312,4 +336,9 @@ class CowCatcher : ComponentActivity(){
         cow.y = Random.nextInt(screenHeight - dpToPxH - dpToPxSeuil).toFloat() //plus haut que le lasso
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        // Arrêt du CountDownTimer pour éviter les fuites de mémoire
+        countDownTimer.cancel()
+    }
 }
