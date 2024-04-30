@@ -9,36 +9,72 @@
 
 
     <TextView
+        android:id="@+id/game"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:fontFamily="@font/old_standard_tt"
+        android:text="@string/game1"
+        android:textSize="24sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
         android:id="@+id/currentPlayer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="68dp"
+        android:layout_marginTop="28dp"
         android:fontFamily="@font/old_standard_tt"
-        android:text="Votre score : "
+        android:text="@string/votre_score"
         android:textSize="24sp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/game" />
 
     <TextView
         android:id="@+id/currentScore"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="68dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="28dp"
         android:fontFamily="@font/old_standard_tt"
         android:text="Text"
         android:textSize="24sp"
         app:layout_constraintStart_toEndOf="@+id/currentPlayer"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/game" />
+
+    <TextView
+        android:id="@+id/bestScore"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="28dp"
+        android:fontFamily="@font/old_standard_tt"
+        android:text="Text"
+        android:textSize="24sp"
+        app:layout_constraintStart_toEndOf="@+id/bestScoreText"
+        app:layout_constraintTop_toBottomOf="@+id/currentScore" />
+
+    <TextView
+        android:id="@+id/bestScoreText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="28dp"
+        android:fontFamily="@font/old_standard_tt"
+        android:text="@string/best_score"
+        android:textSize="24sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/currentPlayer" />
 
     <Button
         android:id="@+id/next"
+        style="@style/brown_button"
         android:layout_height="wrap_content"
-        android:layout_marginTop="92dp"
+        android:layout_marginTop="40dp"
         android:text="@string/next"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/currentPlayer"
-        style="@style/brown_button"/>
+        app:layout_constraintTop_toBottomOf="@+id/bestScoreText" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

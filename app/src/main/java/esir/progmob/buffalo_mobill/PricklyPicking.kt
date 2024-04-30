@@ -172,7 +172,7 @@ class PricklyPicking : ComponentActivity() {
                         if (!isMulti) {
                             val intent = Intent(this, ScorePage::class.java)
                             intent.putExtra("score", score)
-                            intent.putExtra("isMulti", false)
+                            intent.putExtra("game", "PricklyPicking")
                             startActivityForResult(intent, 1)
                         } else {
                             scoreSent = if (isServer) {

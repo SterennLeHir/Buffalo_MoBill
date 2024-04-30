@@ -307,7 +307,7 @@ class WildRide : ComponentActivity(), SensorEventListener  {
             } else {
                 val intent = Intent(this, ScorePage::class.java)
                 intent.putExtra("score", score)
-                intent.putExtra("isMulti", false)
+                intent.putExtra("game", "WildRide")
                 startActivityForResult(intent, 1)
             }
         }

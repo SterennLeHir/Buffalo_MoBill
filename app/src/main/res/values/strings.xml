@@ -23,5 +23,7 @@ Attention, plus vous résisterez, plus elle sera fâchée…</string>
     <string name="random_game">Partie aléatoire</string>
     <string name="next">Suivant</string>
     <string name="score">Score</string>
+    <string name="best_score">Meilleur score :</string>
+    <string name="votre_score">Votre score :</string>
 
 </resources>

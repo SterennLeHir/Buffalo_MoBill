@@ -1,6 +1,7 @@
 package esir.progmob.buffalo_mobill
 
 import android.content.Intent
+import android.content.SharedPreferences
 import android.media.MediaPlayer
 import android.os.Bundle
 import android.os.Handler
@@ -12,18 +13,26 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 
 class ScorePage : ComponentActivity() {
+
+    // données récupérées
     private var myScore : Int = 0
     private var theirScore : Int = 0
     private var isMulti : Boolean = false
     private var isServer : Boolean = false
     private var isFinished : Boolean = false
+    private var game : String? = null
+
     private lateinit var mediaPlayerFirst : MediaPlayer
     private lateinit var mediaPlayerSecond : MediaPlayer
     private lateinit var mediaPlayerWin : MediaPlayer
+    // fichier pour conserver les scores d'entraînement
+    private val FILENAME = "Scores"
+    private lateinit var preferences : SharedPreferences
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
+        preferences = getSharedPreferences(FILENAME, MODE_PRIVATE)
         // On prépare la musique
         mediaPlayerFirst = MediaPlayer.create(this, R.raw.first_shoot)
         mediaPlayerSecond = MediaPlayer.create(this, R.raw.second_shoot)
@@ -35,6 +44,7 @@ class ScorePage : ComponentActivity() {
         myScore = intent.getIntExtra("score", 0)
         theirScore = intent.getIntExtra("scoreAdversaire", 0)
         isFinished = intent.getBooleanExtra("isFinished", false)
+        game = intent.getStringExtra("game")
 
         // On met à jour l'affichage des scores
         if (isMulti) {
@@ -143,9 +153,27 @@ class ScorePage : ComponentActivity() {
     }
 
     private fun updateScoreSolo() {
+
+        // Affichage des éléments graphiques
         setContentView(R.layout.score_page_solo)
         val myScoreView = findViewById<TextView>(R.id.currentScore)
         myScoreView.text = myScore.toString()
+        if (game !=null) {
+            val gameView = findViewById<TextView>(R.id.game)
+            gameView.text = game
+            // On montre le meilleur score
+            val bestScore = preferences.getInt(game, 0)
+            val bestScoreView = findViewById<TextView>(R.id.bestScore)
+            if (myScore > bestScore) { // si on a dépassé le meilleur score
+                val editor = preferences.edit()
+                editor.putInt(game, myScore)
+                editor.apply()
+                bestScoreView.text = myScore.toString()
+            } else {
+                bestScoreView.text = bestScore.toString()
+            }
+        }
+
         // On ajoute un listener au bouton
         val button = findViewById<TextView>(R.id.next)
         button.setOnClickListener {

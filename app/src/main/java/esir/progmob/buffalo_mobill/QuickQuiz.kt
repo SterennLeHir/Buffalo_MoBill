@@ -12,6 +12,7 @@ import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.core.view.isInvisible
 import kotlin.random.Random
 
 class QuickQuiz : ComponentActivity() {
@@ -87,7 +88,6 @@ class QuickQuiz : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.quick_quiz)
 
         // Récupération des données fournies
         isMulti = intent.getBooleanExtra("isMulti", false)
@@ -224,103 +224,67 @@ class QuickQuiz : ComponentActivity() {
 
     private fun startGame() {
         // Initialisation des éléments graphiques
+        setContentView(R.layout.quick_quiz)
         questionView = findViewById(R.id.question)
         scoreView = findViewById(R.id.score)
         choice1 = findViewById(R.id.choice1)
         choice2 = findViewById(R.id.choice2)
         choice3 = findViewById(R.id.choice3)
         choice4 = findViewById(R.id.choice4)
-        next = findViewById(R.id.next)
 
         // Initialisation des actions liées au clic sur les boutons
-
-        choice1.setOnClickListener{ // on pourra changer le fond en rouge ou vert en fonction de la réponse
-            if (!isAnswered) {
-                val goodAnswer = checkAnswer((choice1.text.toString()))
-                updateScore(goodAnswer)
-                if (goodAnswer) Toast.makeText(this, "Réponse correcte", Toast.LENGTH_SHORT).show()
-                else Toast.makeText(this, "Réponse incorrecte", Toast.LENGTH_SHORT).show()
-                isAnswered = true
-            }
-            if (isMulti && isServer) { // On indique au client qu'on a répondu
-                Multiplayer.Exchange.dataExchangeServer.write("Answered")
-            }
+        choice1.setOnClickListener{
+            buttonOnClickListener()
         }
 
-        choice2.setOnClickListener { // on pourra changer le fond en rouge ou vert en fonction de la réponse
-            if (!isAnswered) {
-                val goodAnswer = checkAnswer((choice2.text.toString()))
-                updateScore(goodAnswer)
-                if (goodAnswer) Toast.makeText(this, "Réponse correcte", Toast.LENGTH_SHORT).show()
-                else Toast.makeText(this, "Réponse incorrecte", Toast.LENGTH_SHORT).show()
-                isAnswered = true
-            }
-            if (isMulti && isServer) {
-                if (numberOfQuestions != 0) {
-                    Multiplayer.Exchange.dataExchangeServer.write("Answered")
-                }
-            }
+        choice2.setOnClickListener {
+            buttonOnClickListener()
         }
 
-        choice3.setOnClickListener{ // on pourra changer le fond en rouge ou vert en fonction de la réponse
-            if (!isAnswered) {
-                val goodAnswer = checkAnswer((choice3.text.toString()))
-                updateScore(goodAnswer)
-                if (goodAnswer) Toast.makeText(this, "Réponse correcte", Toast.LENGTH_SHORT).show()
-                else Toast.makeText(this, "Réponse incorrecte", Toast.LENGTH_SHORT).show()
-                isAnswered = true
-            }
-            if (isMulti && isServer) {
-                Multiplayer.Exchange.dataExchangeServer.write("Answered")
-            }
+        choice3.setOnClickListener{
+            buttonOnClickListener()
         }
 
-        choice4.setOnClickListener{ // on pourra changer le fond en rouge ou vert en fonction de la réponse
-            if (!isAnswered) {
-                val goodAnswer = checkAnswer((choice4.text.toString()))
-                updateScore(goodAnswer)
-                if (goodAnswer) Toast.makeText(this, "Réponse correcte", Toast.LENGTH_SHORT).show()
-                else Toast.makeText(this, "Réponse incorrecte", Toast.LENGTH_SHORT).show()
-                isAnswered = true
-            }
-            if (isMulti && isServer) {
-                Multiplayer.Exchange.dataExchangeServer.write("Answered")
-            }
+        choice4.setOnClickListener{
+            buttonOnClickListener()
         }
 
-        next.setOnClickListener{ // on pourra changer le fond en rouge ou vert en fonction de la réponse
-            if (!isAnswered) {
-                Toast.makeText(this, "Vous devez répondre à la question", Toast.LENGTH_SHORT).show()
-            } else {
-                if (!isMulti) { // mode solo
-                    if (numberOfQuestions == 0) {
-                        // TO DO on met l'activité de fin
-                        startActivityForResult(Intent(this, ScorePage::class.java).putExtra("score", score), 1)
-                    } else {
-                        nextQuestion()
-                    }
-                } else { // mode multijoueurs
-                    Log.d("DATAEXCHANGE", "[QuickQuiz] isAdversaireAnswered : $isAdversaireAnswered")
-                    if (isServer || !isAdversaireAnswered) {
-                        Toast.makeText(this, "En attente de l'autre joueur", Toast.LENGTH_SHORT).show()
-                    } else { // côté client
-                        if (numberOfQuestions != 0) {
-                            Log.d("DATAEXCHANGE", "[QuickQuiz] On peut passer à la question suivante")
-                            nextQuestion()
-                        } else {
-                            Log.d("DATAEXCHANGE", "[QuickQuiz] Client envoie le score car le serveur a répondu")
-                            Multiplayer.Exchange.dataExchangeClient.write("score:$score")
-                            scoreSent = true
-                        }
-                    }
-                }
-            }
-
-
-        }
         if (!isServer) { // 1ère question
             if (isMulti) Thread.sleep(500) // On attend que le thread d'échange soit bien lancé chez le serveur
             nextQuestion()
+        }
+    }
+
+    private fun buttonOnClickListener() {
+        if (!isAnswered) {
+            val goodAnswer = checkAnswer((choice4.text.toString()))
+            updateScore(goodAnswer)
+            if (goodAnswer) Toast.makeText(this, "Réponse correcte", Toast.LENGTH_SHORT).show()
+            else Toast.makeText(this, "Réponse incorrecte", Toast.LENGTH_SHORT).show()
+            isAnswered = true
+            if (isMulti && !isServer) {
+                if (isAdversaireAnswered) {
+                    if (numberOfQuestions != 0) {
+                        Log.d("DATAEXCHANGE", "[QuickQuiz] On peut passer à la question suivante")
+                        nextQuestion()
+                    } else {
+                        Log.d("DATAEXCHANGE", "[QuickQuiz] Client envoie le score car le serveur a répondu")
+                        Multiplayer.Exchange.dataExchangeClient.write("score:$score")
+                        scoreSent = true
+                    }
+                }
+            } else if (!isMulti) {
+                if (numberOfQuestions == 0) {
+                    val intent = Intent(this, ScorePage::class.java)
+                    intent.putExtra("score", score)
+                    intent.putExtra("game", "QuickQuiz")
+                    startActivityForResult(intent, 1)
+                } else {
+                    nextQuestion()
+                }
+            } else {
+                Multiplayer.Exchange.dataExchangeServer.write("Answered")
+            }
         }
     }
 

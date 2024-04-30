@@ -150,15 +150,10 @@ class Multiplayer : ComponentActivity() {
         val buttonClient : Button = findViewById<Button>(R.id.client)
         val locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
         buttonServer.setOnClickListener {
-            // TODO différencier les téléphones qui ont besoin de la localisation de ceux qui n'en ont pas besoin
-            // On vérifie que la localisation est activée
-            // On active la localisation
+
+            // On vérifie que la localisation est activée si l'API est >= 31
             val isLocationEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) || locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
-            if (!isLocationEnabled) {
-                /* intrusif et mache mal avec le retour (va dans les paramètres
-                val enableLocalisationIntent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
-                startActivityForResult(enableLocalisationIntent, 1)
-                */
+            if (!isLocationEnabled && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 Toast.makeText(this, "Veuillez activer la localisation", Toast.LENGTH_SHORT).show()
             } else {
                 val intent = Intent(this, ServerConnexion::class.java)

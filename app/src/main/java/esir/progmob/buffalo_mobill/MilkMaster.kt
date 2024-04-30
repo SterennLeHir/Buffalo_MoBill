@@ -202,7 +202,7 @@ class MilkMaster : ComponentActivity() {
                             Log.d("DATAEXCHANGE", "[MilkMaster Solo] On lance la page de score")
                             val intent = Intent(this, ScorePage::class.java)
                             intent.putExtra("score", compteurLait)
-                            intent.putExtra("isMulti", false)
+                            intent.putExtra("game", "MilkMaster")
                             startActivityForResult(intent, 1)
                         }
                     }

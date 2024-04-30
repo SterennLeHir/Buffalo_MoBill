@@ -213,16 +213,6 @@ class CowCatcher : ComponentActivity(){
         }
     }
 
-    override fun onPause() {
-        super.onPause()
-        mediaPlayer.pause()
-    }
-
-    override fun onResume() {
-        super.onResume()
-        mediaPlayer.start()
-    }
-
     // Classe interne pour gérer les gestes de l'utilisateur
     private inner class LassoGestureListener : GestureDetector.SimpleOnGestureListener() {
         override fun onDown(e: MotionEvent): Boolean {
@@ -277,9 +267,7 @@ class CowCatcher : ComponentActivity(){
                             if (!isMulti) {
                                 val intent = Intent(context, ScorePage::class.java)
                                 intent.putExtra("score", score)
-                                intent.putExtra("scoreAdversaire", 0)
-                                intent.putExtra("isMulti", false)
-                                intent.putExtra("isServer", false)
+                                intent.putExtra("game", "CowCatcher")
                                 startActivityForResult(intent, 1)
                             } else {
                                 scoreSent = if (isServer) {

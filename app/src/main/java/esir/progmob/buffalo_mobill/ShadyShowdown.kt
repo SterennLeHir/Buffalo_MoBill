@@ -113,8 +113,7 @@ class ShadyShowdown : ComponentActivity(), SensorEventListener {
                 else {
                     val intent = Intent(this, ScorePage::class.java)
                     intent.putExtra("score", score)
-                    intent.putExtra("isMulti", false)
-                    intent.putExtra("isServer", false)
+                    intent.putExtra("game", "ShadyShowdown")
                     startActivityForResult(intent, 1)
                 }
             }
