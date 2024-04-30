@@ -1,5 +1,6 @@
 package esir.progmob.buffalo_mobill
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.Intent
@@ -440,8 +441,9 @@ class GameList : ComponentActivity() {
         finish()
     }
 
+
     override fun onBackPressed() {
-        super.onBackPressed()
-        // do nothing
+        if (!isMulti) super.onBackPressed()
+        // do nothing in multijoueurs
     }
 }

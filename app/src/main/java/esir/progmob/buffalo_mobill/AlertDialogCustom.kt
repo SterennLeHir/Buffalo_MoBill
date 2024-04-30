@@ -42,6 +42,7 @@ class AlertDialogCustom(private val context : Context, private val titre : Strin
                 onOkClicked(0) // On n'a pas de spinner
             }
         }
+        dialog.setCancelable(false)
         return dialog
     }
 
