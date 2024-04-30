@@ -22,9 +22,6 @@ class ScorePage : ComponentActivity() {
     private var isFinished : Boolean = false
     private var game : String? = null
 
-    private lateinit var mediaPlayerFirst : MediaPlayer
-    private lateinit var mediaPlayerSecond : MediaPlayer
-    private lateinit var mediaPlayerWin : MediaPlayer
     // fichier pour conserver les scores d'entraînement
     private val FILENAME = "Scores"
     private lateinit var preferences : SharedPreferences
@@ -33,10 +30,6 @@ class ScorePage : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         preferences = getSharedPreferences(FILENAME, MODE_PRIVATE)
-        // On prépare la musique
-        mediaPlayerFirst = MediaPlayer.create(this, R.raw.first_shoot)
-        mediaPlayerSecond = MediaPlayer.create(this, R.raw.second_shoot)
-        mediaPlayerWin = MediaPlayer.create(this, R.raw.yeehaw)
 
         // On récupère les informations fournies par l'activité précédente
         isMulti = intent.getBooleanExtra("isMulti", false)
@@ -44,6 +37,7 @@ class ScorePage : ComponentActivity() {
         myScore = intent.getIntExtra("score", 0)
         theirScore = intent.getIntExtra("scoreAdversaire", 0)
         isFinished = intent.getBooleanExtra("isFinished", false)
+        Log.d("DATAEXCHANGE", "isMulti : $isMulti, isServer : $isServer, myScore : $myScore, theirScore : $theirScore, isFinished : $isFinished")
         game = intent.getStringExtra("game")
 
         // On met à jour l'affichage des scores
@@ -52,15 +46,35 @@ class ScorePage : ComponentActivity() {
             if (!isFinished) {
                 updateScoreMulti()
             } else {
-                partyFinished()
+                partyFinishedMulti()
             }
-
         } else {
-            updateScoreSolo()
+            if (!isFinished) {
+                updateScoreSolo()
+            } else {
+                partyFinishedSolo()
+            }
         }
     }
 
-    private fun partyFinished() {
+    private fun partyFinishedSolo() {
+        // Affichage des éléments graphiques
+        setContentView(R.layout.score_page_solo_final)
+        Home.Music.mediaPlayer = MediaPlayer.create(this, R.raw.yeehaw)
+        Home.Music.mediaPlayer?.start()
+        val myScoreView = findViewById<TextView>(R.id.currentScore)
+        myScoreView.text = myScore.toString()
+        // On ajoute un listener au bouton
+        val button = findViewById<TextView>(R.id.next)
+        button.setOnClickListener {
+            val resultIntent = Intent()
+            resultIntent.putExtra("score", myScore)
+            setResult(RESULT_OK, resultIntent)
+            finish()
+        }
+    }
+
+    private fun partyFinishedMulti() {
         setContentView(R.layout.score_page_multi_final)
         val myScoreView = findViewById<TextView>(R.id.currentScore)
         myScoreView.text = myScore.toString()
@@ -69,14 +83,17 @@ class ScorePage : ComponentActivity() {
         val resultView = findViewById<TextView>(R.id.result)
         if (myScore > theirScore) {
             resultView.text = "Vous avez gagné !"
-            mediaPlayerWin.start()
+            Home.Music.mediaPlayer = MediaPlayer.create(this, R.raw.yeehaw)
+            Home.Music.mediaPlayer?.start()
         } else if (myScore < theirScore) {
             resultView.text = "Vous avez perdu !"
-            mediaPlayerFirst.start()
-            while (mediaPlayerFirst.isPlaying) {
+            Home.Music.mediaPlayer = MediaPlayer.create(this, R.raw.first_shoot)
+            Home.Music.mediaPlayer?.start()
+            while (Home.Music.mediaPlayer?.isPlaying == true) {
                 // On attend que le son se termine
             }
-            mediaPlayerSecond.start()
+            Home.Music.mediaPlayer = MediaPlayer.create(this, R.raw.second_shoot)
+            Home.Music.mediaPlayer?.start()
         } else {
             resultView.text = "Match nul !"
         }
@@ -123,14 +140,17 @@ class ScorePage : ComponentActivity() {
         val resultView = findViewById<TextView>(R.id.result)
         if (myScore > theirScore) {
             resultView.text = "Vous avez gagné !"
-            mediaPlayerWin.start()
+            Home.Music.mediaPlayer = MediaPlayer.create(this, R.raw.yeehaw)
+            Home.Music.mediaPlayer?.start()
         } else if (myScore < theirScore) {
             resultView.text = "Vous avez perdu !"
-            mediaPlayerFirst.start()
-            while (mediaPlayerFirst.isPlaying) {
+            Home.Music.mediaPlayer = MediaPlayer.create(this, R.raw.first_shoot)
+            Home.Music.mediaPlayer?.start()
+            while (Home.Music.mediaPlayer?.isPlaying == true) {
             // On attend que le son se termine
             }
-            mediaPlayerSecond.start()
+            Home.Music.mediaPlayer = MediaPlayer.create(this, R.raw.second_shoot)
+            Home.Music.mediaPlayer?.start()
         } else {
             resultView.text = "Match nul !"
         }

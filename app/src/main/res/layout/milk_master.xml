@@ -4,13 +4,15 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/constraintLayout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:layout_marginTop="-10dp"
+    android:background="@drawable/background">
 
 
     <ImageView
         android:id="@+id/pies"
         android:layout_width="match_parent"
-        android:layout_height="250dp"
+        android:layout_height="230dp"
         android:scaleType="fitXY"
         android:src="@drawable/pies"
         app:layout_constraintEnd_toEndOf="parent"

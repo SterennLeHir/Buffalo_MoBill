@@ -25,5 +25,7 @@ Attention, plus vous résisterez, plus elle sera fâchée…</string>
     <string name="score">Score</string>
     <string name="best_score">Meilleur score :</string>
     <string name="votre_score">Votre score :</string>
+    <string name="party_finished">PARTIE TERMINÉE</string>
+    <string name="back_to_gameList">Retour au menu</string>
 
 </resources>

@@ -1,5 +1,6 @@
 package esir.progmob.buffalo_mobill
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.Intent
@@ -50,7 +51,8 @@ abstract class Game : ComponentActivity() {
         }
     }
 
+    @SuppressLint("MissingSuperCall")
     override fun onBackPressed() {
-        if (!isMulti) super.onBackPressed()
+        // do nothing
     }
 }

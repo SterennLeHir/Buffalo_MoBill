@@ -39,7 +39,6 @@ class CowCatcher : ComponentActivity(){
     private var screenWidth = 0
     private var screenHeight = 0
     private var context = this
-    private lateinit var mediaPlayer : MediaPlayer
 
     // scores pour l'affichage une fois le jeu fini
     private var score = 0
@@ -104,8 +103,8 @@ class CowCatcher : ComponentActivity(){
         //Récupérer le parent
         parentView = findViewById<FrameLayout>(R.id.cowParent)
         // Ajout de la musique
-        mediaPlayer = MediaPlayer.create(this, R.raw.cow_catcher)
-        mediaPlayer.start()
+        Home.Music.mediaPlayer = MediaPlayer.create(this, R.raw.cow_catcher)
+        Home.Music.mediaPlayer?.start()
         //Récupérer et placer le lasso au bon endroit
         lasso = findViewById(R.id.lassoView)
         lasso.viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
@@ -263,7 +262,7 @@ class CowCatcher : ComponentActivity(){
                         if (score >= 8){
                             // On a gagné
                             cow.visibility = View.INVISIBLE
-                            mediaPlayer.stop()
+                            Home.Music.mediaPlayer?.stop()
                             if (!isMulti) {
                                 val intent = Intent(context, ScorePage::class.java)
                                 intent.putExtra("score", score)

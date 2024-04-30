@@ -1,5 +1,6 @@
 package esir.progmob.buffalo_mobill
 
+
 import android.content.Intent
 import android.media.MediaPlayer
 import android.os.Bundle
@@ -9,7 +10,10 @@ import androidx.activity.ComponentActivity
 
 class Home : ComponentActivity() {
 
-    private lateinit var mediaPlayer : MediaPlayer
+    object Music {
+        var mediaPlayer: MediaPlayer? = null
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -17,8 +21,8 @@ class Home : ComponentActivity() {
         setContentView(R.layout.home)
 
         // On ajoute la musique
-        mediaPlayer = MediaPlayer.create(this, R.raw.music)
-        mediaPlayer.start()
+        Music.mediaPlayer = MediaPlayer.create(this, R.raw.music)
+        Music.mediaPlayer?.start()
         //On définit les boutons
         val buttonSolo = findViewById<Button>(R.id.solo)
         val buttonMulti = findViewById<Button>(R.id.multi)
@@ -26,38 +30,30 @@ class Home : ComponentActivity() {
         //On définit leurs listeners
         buttonSolo.setOnClickListener{
             val intent = Intent(this, GameList::class.java)
-            mediaPlayer.stop()
+            Music.mediaPlayer?.stop()
             startActivity(intent)
         }
         buttonMulti.setOnClickListener{
             val intent = Intent(this, Multiplayer::class.java)
-            mediaPlayer.stop()
+            Music.mediaPlayer?.stop()
             startActivity(intent)
+            finish()
         }
     }
 
     override fun onPause() {
         super.onPause()
-        mediaPlayer.pause()
+        Music.mediaPlayer?.pause()
     }
 
     override fun onResume() {
         super.onResume()
-        mediaPlayer.start()
+        Music.mediaPlayer?.start()
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        mediaPlayer.stop()
+        Music.mediaPlayer?.stop()
     }
 
-    override fun onRestart() {
-        super.onRestart()
-        mediaPlayer.start()
-    }
-
-    override fun onStop() {
-        super.onStop()
-        mediaPlayer.stop()
-    }
 }

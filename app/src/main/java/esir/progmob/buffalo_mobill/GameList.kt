@@ -438,6 +438,8 @@ class GameList : ComponentActivity() {
         } else {
             Multiplayer.Exchange.dataExchangeClient.cancel()
         }
+        val intent = Intent(this, Home::class.java)
+        startActivity(intent)
         finish()
     }
 
