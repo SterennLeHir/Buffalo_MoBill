@@ -9,26 +9,29 @@ import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.os.Bundle
-import android.os.CountDownTimer
 import android.os.Handler
 import android.os.Looper
 import android.os.Message
 import android.os.SystemClock
 import android.util.DisplayMetrics
 import android.util.Log
+import android.view.View
 import android.widget.Chronometer
 import android.widget.ImageView
-import android.widget.LinearLayout
+import android.widget.RelativeLayout
 import androidx.activity.ComponentActivity
 import kotlin.random.Random
 
 
 class ShadyShowdown : ComponentActivity(), SensorEventListener {
 
+    private var maxLightValue: Int = 0
 
     // éléments graphiques
     private lateinit var bandit : ImageView
-    private lateinit var backgroundView : LinearLayout
+    private lateinit var backgroundView : RelativeLayout
+    private lateinit var white: View
+    private lateinit var black: View
 
     // capteurs
     private lateinit var sensorManager : SensorManager
@@ -75,7 +78,9 @@ class ShadyShowdown : ComponentActivity(), SensorEventListener {
 
         // Initialisation des éléments graphiques
         bandit = findViewById<ImageView>(R.id.bandit)
-        backgroundView = findViewById<LinearLayout>(R.id.background)
+        backgroundView = findViewById<RelativeLayout>(R.id.background)
+        white = findViewById(R.id.whiteView)
+        black = findViewById(R.id.blackView)
 
         //init du chrono (meme si il sert pas dans les deux modes de jeu)
         chronometer = Chronometer(this)
@@ -263,7 +268,9 @@ class ShadyShowdown : ComponentActivity(), SensorEventListener {
         if (event?.sensor?.type == Sensor.TYPE_LIGHT) {
             val lightValue = event.values[0].toInt() // lumière initiale
             if (!init && !isServer && gameBegan) {
-                lux = Random.nextInt(lightValue) + 1 // On veut une valeur entre 1 et la luminosité actuelle
+                maxLightValue = lightValue
+                lux = Random.nextInt(maxLightValue) + 10 // On veut une valeur entre 10 et la luminosité actuelle
+                //lux = 15
                 Log.d("SENSOR", "[Client] Valeur voulue : $lux")
                 if (isMulti) {
                     Multiplayer.Exchange.dataExchangeServer.write("lux:$lux") // On envoie la valeur au serveur
@@ -277,10 +284,45 @@ class ShadyShowdown : ComponentActivity(), SensorEventListener {
     }
 
     private fun updateOpacity(lightValue : Int) {
+        //precision
+        val delta = (lux * 10)/100
+        if(!discover){
+            if(lightValue > lux + delta){ //trop éclairé
+                black.visibility = View.INVISIBLE
+
+                val opacity = 1f - lux.toFloat()/lightValue.toFloat()
+                white.visibility = View.VISIBLE
+                white.alpha = opacity
+                Log.d("", "trop éclairé")
+            }
+            else if(lightValue < lux - delta){ //trop sombre
+                white.visibility = View.INVISIBLE
+
+                val opacity = 1f - lightValue.toFloat()/lux.toFloat()
+                black.visibility = View.VISIBLE
+                black.alpha = opacity
+                Log.d("", "trop sombre")
+            }
+            else{ //juste bien
+                discover = true
+                white.visibility = View.INVISIBLE
+                black.visibility = View.INVISIBLE
+                Log.d("", "juste bien")
+            }
+        }
+
+
+
+
+        // Cacher la vue blanche si l'opacité est très basse
+
+
+
+        /*
         if (lux - delta < lightValue && lightValue < lux + delta) {
-            bandit.visibility = ImageView.VISIBLE
             discover = true
         }
+        */
     }
 
     override fun onResume() {
