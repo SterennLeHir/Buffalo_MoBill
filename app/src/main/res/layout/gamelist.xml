@@ -133,12 +133,11 @@
         android:text="@string/random_game"
         android:layout_marginTop="20dp"/>
 
-    <Button
+    <ImageView
         android:id="@+id/parameters"
-        style="@style/brown_button"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Parameters"
-        android:layout_marginTop="20dp"/>
+        android:src="@drawable/engrenage" />
 
 
 </LinearLayout>

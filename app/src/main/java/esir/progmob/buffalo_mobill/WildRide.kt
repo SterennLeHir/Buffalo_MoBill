@@ -278,20 +278,21 @@ class WildRide : ComponentActivity(), SensorEventListener  {
         // Si incliné vers la droite
         if (inclination > 7) {
             selfIncline = -1
-            Log.d("","Incliné vers la gauche!")
+            Log.d("SENSOR","Incliné vers la gauche!")
         }
         // Si incliné vers la gauche
         else if (inclination < -7) {
             selfIncline = 1
-            Log.d("","Incliné vers la droite!")
+            Log.d("SENSOR","Incliné vers la droite!")
         }
         else{
             selfIncline = 0
-            Log.d("","Pas incliné!")
+            Log.d("SENSOR","Pas incliné!")
         }
     }
 
     private fun gameOver(){
+        score = shake_counter
         if (!isFinished) {
             mediaPlayer.start()
             vibrator?.vibrate(1000)
