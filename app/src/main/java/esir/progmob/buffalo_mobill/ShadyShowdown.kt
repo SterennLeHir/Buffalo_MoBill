@@ -9,11 +9,14 @@ import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.os.Bundle
+import android.os.CountDownTimer
 import android.os.Handler
 import android.os.Looper
 import android.os.Message
+import android.os.SystemClock
 import android.util.DisplayMetrics
 import android.util.Log
+import android.widget.Chronometer
 import android.widget.ImageView
 import android.widget.LinearLayout
 import androidx.activity.ComponentActivity
@@ -53,6 +56,11 @@ class ShadyShowdown : ComponentActivity(), SensorEventListener {
     private var gameBegan: Boolean = false // si le jeu a commencé
     private lateinit var alertDialog : AlertDialog
 
+    //chronometre
+    private lateinit var chronometer: Chronometer
+    private var startTime: Long = 0
+    private var time: Float = 0f
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.shady_showdown)
@@ -68,6 +76,9 @@ class ShadyShowdown : ComponentActivity(), SensorEventListener {
         // Initialisation des éléments graphiques
         bandit = findViewById<ImageView>(R.id.bandit)
         backgroundView = findViewById<LinearLayout>(R.id.background)
+
+        //init du chrono (meme si il sert pas dans les deux modes de jeu)
+        chronometer = Chronometer(this)
 
         if (!isMulti) {
             // Affiche la boîte de dialogue lorsque l'activité est créée
@@ -104,16 +115,41 @@ class ShadyShowdown : ComponentActivity(), SensorEventListener {
         }
     }
 
+    private fun startChronometer() {
+        // Démarrer le chronomètre
+        startTime = SystemClock.elapsedRealtime()
+        chronometer.base = startTime
+        chronometer.start()
+    }
+
+    private fun stopChronometer(): Float {
+        // Arrêter le chronomètre et récupérer le temps écoulé
+        chronometer.stop()
+        val stopTime = (SystemClock.elapsedRealtime() - startTime) /1000.0f
+        Log.d("time", "" + stopTime)
+        return stopTime
+    }
+
     private fun startGame() {
+        if(!isMulti){//chrono en solo
+            startChronometer()
+        }
+
         bandit.setOnClickListener {
             if (discover) {
                 // Victoire
                 score = 10 // Score du joueur
-                if (isMulti) victoryMulti(isServer)
-                else {
+
+                if (isMulti){
+                    victoryMulti(isServer)
+                }
+                else { // en solo
+                    time = stopChronometer()
                     val intent = Intent(this, ScorePage::class.java)
                     intent.putExtra("score", score)
+                    intent.putExtra("time", time)
                     intent.putExtra("game", "ShadyShowdown")
+
                     startActivityForResult(intent, 1)
                 }
             }

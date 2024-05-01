@@ -9,11 +9,13 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.os.Message
+import android.os.SystemClock
 import android.util.DisplayMetrics
 import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Chronometer
 import android.widget.ImageView
 import android.widget.RelativeLayout
 import android.widget.Toast
@@ -55,8 +57,17 @@ class PricklyPicking : ComponentActivity() {
 
     private lateinit var alertDialog : AlertDialog
 
+    //chronometre
+    private lateinit var chronometer: Chronometer
+    private var startTime: Long = 0
+    private var time: Float = 0f
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        //init du chrono (meme si il sert pas dans les deux modes de jeu)
+        chronometer = Chronometer(this)
+
         // Récupération des informations
         isMulti = intent.getBooleanExtra("isMulti", false)
         isServer = intent.getBooleanExtra("isServer", false)
@@ -93,6 +104,21 @@ class PricklyPicking : ComponentActivity() {
         }
     }
 
+    private fun startChronometer() {
+        // Démarrer le chronomètre
+        startTime = SystemClock.elapsedRealtime()
+        chronometer.base = startTime
+        chronometer.start()
+    }
+
+    private fun stopChronometer(): Float {
+        // Arrêter le chronomètre et récupérer le temps écoulé
+        chronometer.stop()
+        val stopTime = (SystemClock.elapsedRealtime() - startTime) /1000.0f
+        Log.d("time", "" + stopTime)
+        return stopTime
+    }
+
     private fun startGame() {
         setContentView(R.layout.prickly_picking)
         // Initialisation de la taille de l'écran
@@ -103,8 +129,8 @@ class PricklyPicking : ComponentActivity() {
 
         parentView = findViewById<RelativeLayout>(R.id.cowboyParentView)
 
-        //Listener gesture
-        //gest = GestureDetector(this, PrickleGestureListener())
+        //si en solo
+        if(!isMulti) startChronometer()
 
         //On instancie nos épines
         for (i in 0 until MAX_PRICKLES) {
@@ -169,9 +195,11 @@ class PricklyPicking : ComponentActivity() {
                     isDragging = false
                     score++
                     if(score >= MAX_PRICKLES){
-                        if (!isMulti) {
+                        if (!isMulti) { //en solo
+                            time = stopChronometer()
                             val intent = Intent(this, ScorePage::class.java)
                             intent.putExtra("score", score)
+                            intent.putExtra("time", time)
                             intent.putExtra("game", "PricklyPicking")
                             startActivityForResult(intent, 1)
                         } else {

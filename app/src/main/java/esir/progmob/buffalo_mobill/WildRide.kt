@@ -292,6 +292,7 @@ class WildRide : ComponentActivity(), SensorEventListener  {
     }
 
     private fun gameOver(){
+        score = shake_counter
         if (!isFinished) {
             mediaPlayer.start()
             vibrator?.vibrate(1000)

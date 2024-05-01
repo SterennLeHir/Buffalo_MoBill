@@ -9,9 +9,11 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.os.Message
+import android.os.SystemClock
 import android.util.Log
 import android.view.MotionEvent
 import android.view.View
+import android.widget.Chronometer
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -35,12 +37,20 @@ class MilkMaster : ComponentActivity() {
     private var isReady : Boolean = false
     private var isAdversaireReady : Boolean = false
 
+    //chronometre
+    private lateinit var chronometer: Chronometer
+    private var startTime: Long = 0
+    private var time: Float = 0f
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.milk_master)
         // Récupération des informations
         isMulti = intent.getBooleanExtra("isMulti", false)
         isServer = intent.getBooleanExtra("isServer", false)
+
+        //init du chrono (meme si il sert pas dans les deux modes de jeu)
+        chronometer = Chronometer(this)
 
         if (!isMulti) {
             // Affiche la boîte de dialogue lorsque l'activité est créée
@@ -73,6 +83,21 @@ class MilkMaster : ComponentActivity() {
                 alertDialog.show()
             }
         }
+    }
+
+    private fun startChronometer() {
+        // Démarrer le chronomètre
+        startTime = SystemClock.elapsedRealtime()
+        chronometer.base = startTime
+        chronometer.start()
+    }
+
+    private fun stopChronometer(): Float {
+        // Arrêter le chronomètre et récupérer le temps écoulé
+        chronometer.stop()
+        val stopTime = (SystemClock.elapsedRealtime() - startTime) /1000.0f
+        Log.d("time", "" + stopTime)
+        return stopTime
     }
 
     private fun initMulti() {
@@ -152,6 +177,9 @@ class MilkMaster : ComponentActivity() {
         val piesView: ImageView = findViewById(R.id.pies)
         val seauView: ImageView = findViewById(R.id.seau)
         var waiting = false
+
+        if(!isMulti)startChronometer()
+
         piesView.setOnTouchListener { v, event ->
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
@@ -199,9 +227,11 @@ class MilkMaster : ComponentActivity() {
                                 scoreSent = true
                             }
                         } else {
+                            time = stopChronometer()
                             Log.d("DATAEXCHANGE", "[MilkMaster Solo] On lance la page de score")
                             val intent = Intent(this, ScorePage::class.java)
                             intent.putExtra("score", compteurLait)
+                            intent.putExtra("time", time)
                             intent.putExtra("game", "MilkMaster")
                             startActivityForResult(intent, 1)
                         }
