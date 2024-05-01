@@ -258,8 +258,8 @@ class ShadyShowdown : ComponentActivity(), SensorEventListener {
     }
 
     private fun placeImage() {
-        val x = Random.nextInt(screenWidth - 70)
-        val y = Random.nextInt(screenHeight - 70)
+        val x = Random.nextInt(screenWidth - 100)
+        val y = Random.nextInt(screenHeight - 100)
         bandit.x = x.toFloat()
         bandit.y = y.toFloat()
     }
@@ -269,6 +269,9 @@ class ShadyShowdown : ComponentActivity(), SensorEventListener {
             val lightValue = event.values[0].toInt() // lumière initiale
             if (!init && !isServer && gameBegan) {
                 maxLightValue = lightValue
+                if (maxLightValue <= 0){ //Attention /!\
+                    maxLightValue = 1
+                }
                 lux = Random.nextInt(maxLightValue) + 10 // On veut une valeur entre 10 et la luminosité actuelle
                 //lux = 15
                 Log.d("SENSOR", "[Client] Valeur voulue : $lux")
