@@ -332,6 +332,7 @@ class GameList : ComponentActivity() {
 
                         else -> { // On envoie le nombre de parties
                             NUMBEROFPARTIESMAX = message.toInt()
+                            cleanStars()
                         }
                     }
                 }
@@ -378,6 +379,10 @@ class GameList : ComponentActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         Log.d("DATAEXCHANGE", "[GameList] onActivityResult, resultCode : $resultCode")
+        isReady = false
+        isAdversaireReady = false
+        numberOfParties++
+        if (isMulti) initMulti()
         if(requestCode == 2) { // La page de score finale s'est terminée
             partyFinished()
         } else if (resultCode == Activity.RESULT_OK) {
@@ -437,15 +442,6 @@ class GameList : ComponentActivity() {
                 }
             }
         }
-    }
-
-    override fun onRestart() { // appelée après la fin de la page de score
-        isReady = false
-        isAdversaireReady = false
-        super.onRestart()
-        numberOfParties++
-        Log.d("DATAEXCHANGE", "GameList restarted")
-        if (isMulti) initMulti()
     }
 
     private fun partyFinished() {

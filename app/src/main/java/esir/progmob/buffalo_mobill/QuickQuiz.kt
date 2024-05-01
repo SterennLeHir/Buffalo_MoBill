@@ -3,16 +3,17 @@ package esir.progmob.buffalo_mobill
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.os.Message
 import android.util.Log
+import android.view.View
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.ComponentActivity
-import androidx.core.view.isInvisible
 import kotlin.random.Random
 
 class QuickQuiz : ComponentActivity() {
@@ -162,7 +163,7 @@ class QuickQuiz : ComponentActivity() {
                     } else {
                         Log.d("DATAEXCHANGE", "[Server] Mise à jour de la question")
                         // On met à jour les éléments graphiques de la question
-                        deleteOldQuestion()
+                        cleanOldQuestion()
                         questionNumber = msg.obj.toString().toInt()
                         setQuestion()
                     }
@@ -234,19 +235,19 @@ class QuickQuiz : ComponentActivity() {
 
         // Initialisation des actions liées au clic sur les boutons
         choice1.setOnClickListener{
-            buttonOnClickListener()
+            buttonOnClickListener(it as Button)
         }
 
         choice2.setOnClickListener {
-            buttonOnClickListener()
+            buttonOnClickListener(it as Button)
         }
 
         choice3.setOnClickListener{
-            buttonOnClickListener()
+            buttonOnClickListener(it as Button)
         }
 
         choice4.setOnClickListener{
-            buttonOnClickListener()
+            buttonOnClickListener(it as Button)
         }
 
         if (!isServer) { // 1ère question
@@ -255,18 +256,26 @@ class QuickQuiz : ComponentActivity() {
         }
     }
 
-    private fun buttonOnClickListener() {
+    private fun buttonOnClickListener(button: Button) {
         if (!isAnswered) {
-            val goodAnswer = checkAnswer((choice4.text.toString()))
+            val goodAnswer = checkAnswer((button.text.toString()))
             updateScore(goodAnswer)
-            if (goodAnswer) Toast.makeText(this, "Réponse correcte", Toast.LENGTH_SHORT).show()
-            else Toast.makeText(this, "Réponse incorrecte", Toast.LENGTH_SHORT).show()
+            if (goodAnswer) {
+                Toast.makeText(this, "Réponse correcte", Toast.LENGTH_SHORT).show()
+                button.setBackgroundResource(R.drawable.green_button)
+            }
+            else {
+                Toast.makeText(this, "Réponse incorrecte", Toast.LENGTH_SHORT).show()
+                button.setBackgroundResource(R.drawable.red_button)
+            }
             isAnswered = true
             if (isMulti && !isServer) {
                 if (isAdversaireAnswered) {
                     if (numberOfQuestions != 0) {
                         Log.d("DATAEXCHANGE", "[QuickQuiz] On peut passer à la question suivante")
-                        nextQuestion()
+                        Handler(Looper.getMainLooper()).postDelayed({
+                            nextQuestion()
+                        }, 2000)
                     } else {
                         Log.d("DATAEXCHANGE", "[QuickQuiz] Client envoie le score car le serveur a répondu")
                         Multiplayer.Exchange.dataExchangeClient.write("score:$score")
@@ -285,6 +294,7 @@ class QuickQuiz : ComponentActivity() {
             } else {
                 Multiplayer.Exchange.dataExchangeServer.write("Answered")
             }
+
         }
     }
 
@@ -292,7 +302,7 @@ class QuickQuiz : ComponentActivity() {
      * met à jour la question (textView) et les choix de réponses (button)
      */
     private fun nextQuestion() {
-        deleteOldQuestion()
+        cleanOldQuestion()
         isAdversaireAnswered = false
         questionNumber = Random.nextInt(questions.size)// génère un nombre aléatoire entre 0 et le dernier indice de la liste
         if (isMulti) { // on envoie le numéro question à l'autre joueur
@@ -303,14 +313,18 @@ class QuickQuiz : ComponentActivity() {
     }
 
     /**
-     * On enlève la question précédente de la liste des questions
+     * On enlève la question précédente de la liste des questions et on remet les boutons dans leur état initial
      */
-    private fun deleteOldQuestion() {
+    private fun cleanOldQuestion() {
         if (questionNumber != -1){ // on n'est pas à la première question
             // On supprime les éléments de la question que l'on venait de poser
             choices.removeAt(questionNumber)
             answers.removeAt(questionNumber)
             questions.removeAt(questionNumber)
+            choice1.setBackgroundResource(R.drawable.brown_button)
+            choice2.setBackgroundResource(R.drawable.brown_button)
+            choice3.setBackgroundResource(R.drawable.brown_button)
+            choice4.setBackgroundResource(R.drawable.brown_button)
         }
     }
 
