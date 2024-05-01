@@ -229,6 +229,7 @@ class GameList : ComponentActivity() {
         if (!isServer) {
             Log.d("DATAEXCHANGE", "Création de la partie aléatoire : $NUMBEROFPARTIESMAX défis")
             for (i in 0..<NUMBEROFPARTIESMAX) { // on sélectionne 2 jeux aléatoires
+                Log.d("DATAEXCHANGE", "gameList : $gameList")
                 val random = Random.nextInt(gameList.size) // choisit le jeu aléatoirement
                 Log.d("DATAEXCHANGE", "Random position : $random")
                 games.add(gameList[random])
@@ -452,8 +453,9 @@ class GameList : ComponentActivity() {
             Multiplayer.Exchange.dataExchangeServer.getOutputStream().close()
             Multiplayer.SocketHolder.socket?.close()
             Multiplayer.SocketHolder.socket = null
-        } else {
+        } else if (isMulti) {
             Multiplayer.Exchange.dataExchangeClient.cancel()
+            Multiplayer.SocketHolder.socket = null
         }
         val intent = Intent(this, Home::class.java)
         startActivity(intent)

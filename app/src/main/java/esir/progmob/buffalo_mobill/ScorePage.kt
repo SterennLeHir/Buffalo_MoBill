@@ -25,7 +25,7 @@ class ScorePage : ComponentActivity() {
     // fichier pour conserver les scores d'entraînement
     private val FILENAME = "Scores"
     private lateinit var preferences : SharedPreferences
-
+    private lateinit var mediaPlayer: MediaPlayer
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -81,22 +81,7 @@ class ScorePage : ComponentActivity() {
         val theirScoreView = findViewById<TextView>(R.id.otherScore)
         theirScoreView.text = theirScore.toString()
         val resultView = findViewById<TextView>(R.id.result)
-        if (myScore > theirScore) {
-            resultView.text = "Vous avez gagné !"
-            Home.Music.mediaPlayer = MediaPlayer.create(this, R.raw.yeehaw)
-            Home.Music.mediaPlayer?.start()
-        } else if (myScore < theirScore) {
-            resultView.text = "Vous avez perdu !"
-            Home.Music.mediaPlayer = MediaPlayer.create(this, R.raw.first_shoot)
-            Home.Music.mediaPlayer?.start()
-            while (Home.Music.mediaPlayer?.isPlaying == true) {
-                // On attend que le son se termine
-            }
-            Home.Music.mediaPlayer = MediaPlayer.create(this, R.raw.second_shoot)
-            Home.Music.mediaPlayer?.start()
-        } else {
-            resultView.text = "Match nul !"
-        }
+        compareResult(resultView) // On compare les scores
         // On ajoute un listener au bouton
         val button = findViewById<TextView>(R.id.next)
         button.setOnClickListener {
@@ -138,22 +123,7 @@ class ScorePage : ComponentActivity() {
         val theirScoreView = findViewById<TextView>(R.id.otherScore)
         theirScoreView.text = theirScore.toString()
         val resultView = findViewById<TextView>(R.id.result)
-        if (myScore > theirScore) {
-            resultView.text = "Vous avez gagné !"
-            Home.Music.mediaPlayer = MediaPlayer.create(this, R.raw.yeehaw)
-            Home.Music.mediaPlayer?.start()
-        } else if (myScore < theirScore) {
-            resultView.text = "Vous avez perdu !"
-            Home.Music.mediaPlayer = MediaPlayer.create(this, R.raw.first_shoot)
-            Home.Music.mediaPlayer?.start()
-            while (Home.Music.mediaPlayer?.isPlaying == true) {
-            // On attend que le son se termine
-            }
-            Home.Music.mediaPlayer = MediaPlayer.create(this, R.raw.second_shoot)
-            Home.Music.mediaPlayer?.start()
-        } else {
-            resultView.text = "Match nul !"
-        }
+        compareResult(resultView)
         // On ajoute un listener au bouton
         val button = findViewById<TextView>(R.id.next)
         button.setOnClickListener {
@@ -172,8 +142,27 @@ class ScorePage : ComponentActivity() {
         }
     }
 
-    private fun updateScoreSolo() {
+    private fun compareResult(resultView: TextView) {
+        mediaPlayer = MediaPlayer.create(this, R.raw.first_shoot)
+        if (myScore > theirScore) {
+            resultView.text = "Vous avez gagné !"
+            Home.Music.mediaPlayer = MediaPlayer.create(this, R.raw.yeehaw)
+            Home.Music.mediaPlayer?.start()
+        } else if (myScore < theirScore) {
+            resultView.text = "Vous avez perdu !"
+            //Home.Music.mediaPlayer = MediaPlayer.create(this, R.raw.first_shoot)
+            mediaPlayer.start()
+            while (mediaPlayer.isPlaying) {
+                // On attend que le son se termine
+            }
+            Home.Music.mediaPlayer = MediaPlayer.create(this, R.raw.second_shoot)
+            Home.Music.mediaPlayer?.start()
+        } else {
+            resultView.text = "Match nul !"
+        }
+    }
 
+    private fun updateScoreSolo() {
         // Affichage des éléments graphiques
         setContentView(R.layout.score_page_solo)
         val myScoreView = findViewById<TextView>(R.id.currentScore)

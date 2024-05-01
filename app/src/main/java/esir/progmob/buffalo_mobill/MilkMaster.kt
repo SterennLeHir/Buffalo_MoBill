@@ -185,7 +185,6 @@ class MilkMaster : ComponentActivity() {
                     Log.d("SENSOR", "ACTION_UP")
                     if (compteurLait < MAX_LAIT && !waiting && isMilking) { // il faut attendre la fin du son pour pouvoir cliquer à nouveau mais ne marche pas
                         compteurLait++
-                        mediaPlayerMilk.start()
                     } else if (compteurLait >= MAX_LAIT && !fini){
                         Toast.makeText(this, "C'est fini !", Toast.LENGTH_SHORT).show()
                         fini = true
