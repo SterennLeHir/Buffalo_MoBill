@@ -313,7 +313,7 @@ class QuickQuiz : ComponentActivity() {
         }
 
         //On set le timer pour la question
-        val timeInMillis: Long = 5 * 1000 // 5s par question
+        val timeInMillis: Long = 11 * 1000 // 5s par question
 
         // Initialisation du CountDownTimer
         countDownTimer = object : CountDownTimer(timeInMillis, 1000) {
