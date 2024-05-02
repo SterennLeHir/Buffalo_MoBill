@@ -91,7 +91,7 @@ class QuickQuiz : ComponentActivity() {
     private lateinit var countDownTimer: CountDownTimer
     private lateinit var timer : TextView
     private var seconds: Long = 0
-
+    private val time : Int = 11
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -264,25 +264,25 @@ class QuickQuiz : ComponentActivity() {
 
     private fun buttonOnClickListener() {
         if (!isAnswered) { //si on a pas répondu
-
             //tuer le timer
             countDownTimer.cancel()
-
             val goodAnswer = checkAnswer((choice4.text.toString()))
             updateScore(goodAnswer)
             if (goodAnswer) Toast.makeText(this, "Réponse correcte", Toast.LENGTH_SHORT).show()
             else Toast.makeText(this, "Réponse incorrecte", Toast.LENGTH_SHORT).show()
-            isAnswered = true
             gestionSynch()
         }
     }
 
     private fun gestionSynch(){
+        isAnswered = true
         if (isMulti && !isServer) {
             if (isAdversaireAnswered) {
                 if (numberOfQuestions != 0) {
                     Log.d("DATAEXCHANGE", "[QuickQuiz] On peut passer à la question suivante")
-                    nextQuestion()
+                    Handler(Looper.getMainLooper()).postDelayed({
+                        nextQuestion()
+                    }, 2000)
                 } else {
                     Log.d("DATAEXCHANGE", "[QuickQuiz] Client envoie le score car le serveur a répondu")
                     Multiplayer.Exchange.dataExchangeClient.write("score:$score")
@@ -294,12 +294,19 @@ class QuickQuiz : ComponentActivity() {
                 val intent = Intent(this, ScorePage::class.java)
                 intent.putExtra("score", score)
                 intent.putExtra("game", "QuickQuiz")
-                startActivityForResult(intent, 1)
+                Handler(Looper.getMainLooper()).postDelayed({
+                    startActivityForResult(intent, 1)
+                }, 2000)
             } else {
-                nextQuestion()
+                Handler(Looper.getMainLooper()).postDelayed({
+                    nextQuestion()
+                }, 2000)
             }
         } else {
-            Multiplayer.Exchange.dataExchangeServer.write("Answered")
+            Handler(Looper.getMainLooper()).postDelayed({
+                Multiplayer.Exchange.dataExchangeServer.write("Answered")
+            }, 2000)
+
         }
     }
 
@@ -315,7 +322,7 @@ class QuickQuiz : ComponentActivity() {
         }
 
         //On set le timer pour la question
-        val timeInMillis: Long = 11 * 1000 // 5s par question
+        val timeInMillis: Long = time.toLong() * 1000 // 5s par question
 
         // Initialisation du CountDownTimer
         countDownTimer = object : CountDownTimer(timeInMillis, 1000) {
@@ -326,7 +333,6 @@ class QuickQuiz : ComponentActivity() {
             }
 
             override fun onFinish() {
-                isAnswered = true
                 timer.text = "Temps écoulé!"
                 gestionSynch()
             }
@@ -391,9 +397,9 @@ class QuickQuiz : ComponentActivity() {
      * calcule le score en prenant compte le temps de réponse du joueur (ajouter un compteur du temps en attribut de classe)
      */
     private fun calculateScore(goodAnswer : Boolean) : Int {
-        return if (goodAnswer){
-            (11 - seconds).toInt()
-        } else{
+        return if (goodAnswer) {
+            seconds.toInt()
+        } else {
             0
         }
     }
