@@ -135,7 +135,7 @@ class CowCatcher : ComponentActivity(){
         //Timer
         // Définition du temps en millisecondes (30 secondes)
         var timer = findViewById<TextView>(R.id.timerView)
-        val timeInMillis: Long = 30 * 1000
+        val timeInMillis: Long = 20 * 1000
 
         // Initialisation du CountDownTimer
         countDownTimer = object : CountDownTimer(timeInMillis, 1000) {
