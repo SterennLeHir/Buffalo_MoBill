@@ -17,6 +17,7 @@ import kotlin.random.Random
 
 class QuickQuiz : ComponentActivity() {
 
+
     // listes des questions
     private var questions : MutableList<String> = mutableListOf(
         "Quel est le nom du cheval de Lucky Luke ?",
@@ -89,6 +90,7 @@ class QuickQuiz : ComponentActivity() {
     //timer
     private lateinit var countDownTimer: CountDownTimer
     private lateinit var timer : TextView
+    private var seconds: Long = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -319,7 +321,7 @@ class QuickQuiz : ComponentActivity() {
         countDownTimer = object : CountDownTimer(timeInMillis, 1000) {
             override fun onTick(millisUntilFinished: Long) {
                 // Mise à jour de l'affichage du timer chaque seconde
-                val seconds = millisUntilFinished / 1000
+                seconds = millisUntilFinished / 1000
                 timer.text = "Temps restant : $seconds secondes"
             }
 
@@ -389,7 +391,11 @@ class QuickQuiz : ComponentActivity() {
      * calcule le score en prenant compte le temps de réponse du joueur (ajouter un compteur du temps en attribut de classe)
      */
     private fun calculateScore(goodAnswer : Boolean) : Int {
-        return if (goodAnswer) 10 else 0
+        return if (goodAnswer){
+            (11 - seconds).toInt()
+        } else{
+            0
+        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
