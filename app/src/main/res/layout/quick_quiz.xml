@@ -65,6 +65,15 @@
             android:text="Button"
             style="@style/brown_button"/>
 
+        <TextView
+            android:id="@+id/timerView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:textAlignment="center"
+            android:textColor="@color/brown"
+            android:textFontWeight="30"/>
+
     </LinearLayout>
 
 

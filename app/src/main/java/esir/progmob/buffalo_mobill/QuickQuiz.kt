@@ -4,6 +4,7 @@ import android.app.Activity
 import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
+import android.os.CountDownTimer
 import android.os.Handler
 import android.os.Looper
 import android.os.Message
@@ -12,7 +13,6 @@ import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.ComponentActivity
-import androidx.core.view.isInvisible
 import kotlin.random.Random
 
 class QuickQuiz : ComponentActivity() {
@@ -85,6 +85,10 @@ class QuickQuiz : ComponentActivity() {
     private var scoreSent : Boolean = false // indique si le score a été envoyé
     private var isReady : Boolean = false
     private var isAdversaireReady : Boolean = false
+
+    //timer
+    private lateinit var countDownTimer: CountDownTimer
+    private lateinit var timer : TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -231,6 +235,7 @@ class QuickQuiz : ComponentActivity() {
         choice2 = findViewById(R.id.choice2)
         choice3 = findViewById(R.id.choice3)
         choice4 = findViewById(R.id.choice4)
+        timer = findViewById(R.id.timerView)
 
         // Initialisation des actions liées au clic sur les boutons
         choice1.setOnClickListener{
@@ -256,35 +261,43 @@ class QuickQuiz : ComponentActivity() {
     }
 
     private fun buttonOnClickListener() {
-        if (!isAnswered) {
+        if (!isAnswered) { //si on a pas répondu
+
+            //tuer le timer
+            countDownTimer.cancel()
+
             val goodAnswer = checkAnswer((choice4.text.toString()))
             updateScore(goodAnswer)
             if (goodAnswer) Toast.makeText(this, "Réponse correcte", Toast.LENGTH_SHORT).show()
             else Toast.makeText(this, "Réponse incorrecte", Toast.LENGTH_SHORT).show()
             isAnswered = true
-            if (isMulti && !isServer) {
-                if (isAdversaireAnswered) {
-                    if (numberOfQuestions != 0) {
-                        Log.d("DATAEXCHANGE", "[QuickQuiz] On peut passer à la question suivante")
-                        nextQuestion()
-                    } else {
-                        Log.d("DATAEXCHANGE", "[QuickQuiz] Client envoie le score car le serveur a répondu")
-                        Multiplayer.Exchange.dataExchangeClient.write("score:$score")
-                        scoreSent = true
-                    }
-                }
-            } else if (!isMulti) {
-                if (numberOfQuestions == 0) {
-                    val intent = Intent(this, ScorePage::class.java)
-                    intent.putExtra("score", score)
-                    intent.putExtra("game", "QuickQuiz")
-                    startActivityForResult(intent, 1)
-                } else {
+            gestionSynch()
+        }
+    }
+
+    private fun gestionSynch(){
+        if (isMulti && !isServer) {
+            if (isAdversaireAnswered) {
+                if (numberOfQuestions != 0) {
+                    Log.d("DATAEXCHANGE", "[QuickQuiz] On peut passer à la question suivante")
                     nextQuestion()
+                } else {
+                    Log.d("DATAEXCHANGE", "[QuickQuiz] Client envoie le score car le serveur a répondu")
+                    Multiplayer.Exchange.dataExchangeClient.write("score:$score")
+                    scoreSent = true
                 }
-            } else {
-                Multiplayer.Exchange.dataExchangeServer.write("Answered")
             }
+        } else if (!isMulti) {
+            if (numberOfQuestions == 0) {
+                val intent = Intent(this, ScorePage::class.java)
+                intent.putExtra("score", score)
+                intent.putExtra("game", "QuickQuiz")
+                startActivityForResult(intent, 1)
+            } else {
+                nextQuestion()
+            }
+        } else {
+            Multiplayer.Exchange.dataExchangeServer.write("Answered")
         }
     }
 
@@ -298,6 +311,28 @@ class QuickQuiz : ComponentActivity() {
         if (isMulti) { // on envoie le numéro question à l'autre joueur
             Multiplayer.Exchange.dataExchangeClient.write(questionNumber.toString())
         }
+
+        //On set le timer pour la question
+        val timeInMillis: Long = 5 * 1000 // 5s par question
+
+        // Initialisation du CountDownTimer
+        countDownTimer = object : CountDownTimer(timeInMillis, 1000) {
+            override fun onTick(millisUntilFinished: Long) {
+                // Mise à jour de l'affichage du timer chaque seconde
+                val seconds = millisUntilFinished / 1000
+                timer.text = "Temps restant : $seconds secondes"
+            }
+
+            override fun onFinish() {
+                isAnswered = true
+                timer.text = "Temps écoulé!"
+                gestionSynch()
+            }
+        }
+
+        // Démarrage du CountDownTimer
+        countDownTimer.start()
+
         // On met à jour les éléments graphiques
         setQuestion()
     }
