@@ -3,7 +3,6 @@ package esir.progmob.buffalo_mobill
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.Intent
-import android.graphics.Color
 import android.media.MediaPlayer
 import android.os.Bundle
 import android.os.CountDownTimer
@@ -14,13 +13,9 @@ import android.util.Log
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
-import androidx.activity.ComponentActivity
-import androidx.core.view.isInvisible
 import kotlin.random.Random
 
-class QuickQuiz : ComponentActivity() {
-
-    private lateinit var mediaPlayer: MediaPlayer
+class QuickQuiz : Game() {
 
     // listes des questions
     private var questions : MutableList<String> = mutableListOf(
@@ -79,17 +74,9 @@ class QuickQuiz : ComponentActivity() {
     private lateinit var next : Button
     private lateinit var scoreView : TextView
     private lateinit var questionView : TextView
-    private lateinit var alertDialog: AlertDialog
 
     // données échangées
-    private var isMulti : Boolean = false
-    private var isServer : Boolean = false
-    private var score : Int = 0
-    private var scoreAdversaire : Int = 0
     private var isAdversaireAnswered : Boolean = false // indique si l'adversaire a répondu ou non
-    private var scoreSent : Boolean = false // indique si le score a été envoyé
-    private var isReady : Boolean = false
-    private var isAdversaireReady : Boolean = false
 
     //timer
     private lateinit var countDownTimer: CountDownTimer
@@ -144,7 +131,7 @@ class QuickQuiz : ComponentActivity() {
     /**
      * Initialise les handler des DataExchange pour le mode multijoueurs
      */
-    private fun initMulti() {
+    override fun initMulti() {
         if (isServer) {
             Log.d("DATAEXCHANGE", "[QuickQuiz Server] DataExchange launched")
             val handlerServer = object : Handler(Looper.getMainLooper()) { // pour recevoir le numéro de la question
@@ -232,7 +219,7 @@ class QuickQuiz : ComponentActivity() {
         }
     }
 
-    private fun startGame() {
+    override fun startGame() {
         // Ajout de la musique
         mediaPlayer = MediaPlayer.create(this, R.raw.quick_quiz)
         mediaPlayer.start()
@@ -420,25 +407,4 @@ class QuickQuiz : ComponentActivity() {
         }
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        mediaPlayer.stop()
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        Log.d("DATAEXCHANGE", "[QuickQuiz] onActivityResult, resultCode : $resultCode")
-        if (resultCode == Activity.RESULT_OK) {
-            Log.d("DATAEXCHANGE", "score :" + data?.getIntExtra("score", 0).toString())
-            Log.d("DATAEXCHANGE", "scoreAdversaire :" + data?.getIntExtra("scoreAdversaire", 0).toString())
-            score = data?.getIntExtra("score", 0) ?: 0
-            scoreAdversaire = data?.getIntExtra("scoreAdversaire", 0) ?: 0
-            Log.d("DATAEXCHANGE", "score : $score, scoreAdversaire : $scoreAdversaire")
-            val resultIntent = Intent()
-            resultIntent.putExtra("score", score)
-            resultIntent.putExtra("scoreAdversaire", scoreAdversaire)
-            setResult(RESULT_OK, resultIntent)
-            finish()
-        }
-    }
 }

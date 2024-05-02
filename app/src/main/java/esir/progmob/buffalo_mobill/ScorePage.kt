@@ -174,7 +174,7 @@ class ScorePage : ComponentActivity() {
             // On montre le meilleur score
             val bestScoreView = findViewById<TextView>(R.id.bestScore)
             if (time != 0f) { // Si le score dépend d'un temps
-                val bestScore = preferences.getFloat(game, 0F)
+                val bestScore = preferences.getFloat(game, 1000F)
                 val bestScoreTextView = findViewById<TextView>(R.id.bestScoreText)
                 bestScoreTextView.text = getString(R.string.best_time)
                 val scoreTextView = findViewById<TextView>(R.id.scoreText)
@@ -183,9 +183,13 @@ class ScorePage : ComponentActivity() {
                     val editor = preferences.edit()
                     editor.putFloat(game, time)
                     editor.apply()
+                    bestScoreView.text = time.toString()
+                    myScoreView.text = time.toString()
+                } else {
+                    bestScoreView.text = bestScore.toString()
+                    myScoreView.text = time.toString()
                 }
-                bestScoreView.text = time.toString()
-                myScoreView.text = time.toString()
+
             } else {
                 val bestScore = preferences.getInt(game, 0)
                 if (myScore > bestScore) { // si on a dépassé le meilleur score

@@ -4,7 +4,6 @@ import android.animation.ObjectAnimator
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.Intent
-import android.graphics.Point
 import android.media.MediaPlayer
 import android.os.Bundle
 import android.os.Handler
@@ -19,17 +18,14 @@ import android.view.ViewGroup
 import android.widget.Chronometer
 import android.widget.ImageView
 import android.widget.RelativeLayout
-import android.widget.Toast
-import androidx.activity.ComponentActivity
 import androidx.core.animation.doOnEnd
-import java.lang.Math.PI
 import kotlin.math.abs
 import kotlin.math.atan2
 import kotlin.math.pow
 import kotlin.math.sqrt
 import kotlin.random.Random
 
-class PricklyPicking : ComponentActivity() {
+class PricklyPicking : Game() {
 
     private val context = this
     //private lateinit var gest: GestureDetector
@@ -44,20 +40,6 @@ class PricklyPicking : ComponentActivity() {
     private var screenWidth = 0
     private var screenHeight = 0
     private lateinit var parentView : RelativeLayout
-
-    // scores pour l'affichage une fois le jeu fini
-    private var score = 0
-    private var scoreAdversaire = 0
-    var scoreSent : Boolean = false
-
-    // pour le multijoueur
-    private var isServer : Boolean = false
-    private var isMulti : Boolean = false
-    private var isReady : Boolean = false
-    private var isAdversaireReady : Boolean = false
-
-    private lateinit var alertDialog : AlertDialog // boîte de dialogue pour les règles du jeux
-    private lateinit var mediaPlayer: MediaPlayer
 
     //chronometre
     private lateinit var chronometer: Chronometer
@@ -121,7 +103,7 @@ class PricklyPicking : ComponentActivity() {
         return stopTime
     }
 
-    private fun startGame() {
+    override fun startGame() {
         setContentView(R.layout.prickly_picking)
         mediaPlayer = MediaPlayer.create(this, R.raw.prickly_picking)
         mediaPlayer.start()
@@ -222,7 +204,7 @@ class PricklyPicking : ComponentActivity() {
         return true
     }
 
-    private fun initMulti() {
+    override fun initMulti() {
         if (isServer) {
             // Initialisation du nouvel handler pour le thread d'échange de données
             val handlerServer = object :
@@ -331,32 +313,5 @@ class PricklyPicking : ComponentActivity() {
         }
 
         return angleDegrees
-    }
-
-    override fun onPause() {
-        super.onPause()
-        mediaPlayer.pause()
-    }
-    override fun onDestroy() {
-        super.onDestroy()
-        mediaPlayer.stop()
-        mediaPlayer.release()
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        Log.d("DATAEXCHANGE", "[PricklyPicking] onActivityResult, resultCode : $resultCode")
-        if (resultCode == Activity.RESULT_OK) {
-            // On récupère les scores
-            score = data?.getIntExtra("score", 0) ?: 0
-            scoreAdversaire = data?.getIntExtra("scoreAdversaire", 0) ?: 0
-            Log.d("DATAEXCHANGE", "score : $score, scoreAdversaire : $scoreAdversaire")
-            // On transmet les scores à GameList
-            val resultIntent = Intent()
-            resultIntent.putExtra("score", score)
-            resultIntent.putExtra("scoreAdversaire", scoreAdversaire)
-            setResult(RESULT_OK, resultIntent)
-            finish()
-        }
     }
 }

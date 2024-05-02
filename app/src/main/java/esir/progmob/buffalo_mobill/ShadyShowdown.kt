@@ -24,10 +24,9 @@ import androidx.activity.ComponentActivity
 import kotlin.random.Random
 
 
-class ShadyShowdown : ComponentActivity(), SensorEventListener {
+class ShadyShowdown : Game(), SensorEventListener {
 
     private var maxLightValue: Int = 0
-    private lateinit var mediaPlayer : MediaPlayer
 
     // éléments graphiques
     private lateinit var bandit : ImageView
@@ -46,20 +45,8 @@ class ShadyShowdown : ComponentActivity(), SensorEventListener {
     private var screenWidth = 0
     private var screenHeight = 0
 
-    // scores pour l'affichage une fois le jeu fini
-    private var score = 0
-    private var scoreAdversaire = 0
-    var scoreSent : Boolean = false
-
-    // pour le multijoueur
-    private var isServer : Boolean = false
-    private var isMulti : Boolean = false
-    private var isReady : Boolean = false
-    private var isAdversaireReady : Boolean = false
-
     private var discover : Boolean = false // si le bandit est visible
     private var gameBegan: Boolean = false // si le jeu a commencé
-    private lateinit var alertDialog : AlertDialog
 
     //chronometre
     private lateinit var chronometer: Chronometer
@@ -136,7 +123,7 @@ class ShadyShowdown : ComponentActivity(), SensorEventListener {
         return stopTime
     }
 
-    private fun startGame() {
+    override fun startGame() {
         if (!isMulti) {//chrono en solo
             startChronometer()
         }
@@ -184,7 +171,7 @@ class ShadyShowdown : ComponentActivity(), SensorEventListener {
     /**
      * Initialise le thread d'échange de données dans le mode multijoueurs
      */
-    private fun initMulti() {
+    override fun initMulti() {
         if (isServer) {
             // Initialisation du nouvel handler pour le thread d'échange de données
             val handlerServer = object :
@@ -340,35 +327,16 @@ class ShadyShowdown : ComponentActivity(), SensorEventListener {
         super.onPause()
         // Unregister all listeners
         sensorManager.unregisterListener(this)
-        mediaPlayer.pause()
     }
 
     override fun onDestroy() {
         super.onDestroy()
         Log.d("DATAEXCHANGE", "ShadyShowdown finished")
         sensorManager.unregisterListener(this)
-        mediaPlayer.stop()
-        mediaPlayer.release()
     }
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
         // do nothing
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        Log.d("DATAEXCHANGE", "[ShadyShowdown] onActivityResult, resultCode : $resultCode")
-        if (resultCode == Activity.RESULT_OK) {
-            // On récupère les scores
-            score = data?.getIntExtra("score", 0) ?: 0
-            scoreAdversaire = data?.getIntExtra("scoreAdversaire", 0) ?: 0
-            Log.d("DATAEXCHANGE", "score : $score, scoreAdversaire : $scoreAdversaire")
-            // On transmet les scores à GameList
-            val resultIntent = Intent()
-            resultIntent.putExtra("score", score)
-            resultIntent.putExtra("scoreAdversaire", scoreAdversaire)
-            setResult(RESULT_OK, resultIntent)
-            finish()
-        }
-    }
 }
 

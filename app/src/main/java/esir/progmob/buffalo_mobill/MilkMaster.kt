@@ -18,31 +18,18 @@ import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 
-class MilkMaster : ComponentActivity() {
+class MilkMaster : Game() {
 
-    private var compteurLait = 0
+    protected var compteurLait = 0
     private val MAX_LAIT = 10
     private var fini = false
     private var isMilking = false // indique que le joueur est en train de traire la vache
-    private lateinit var alertDialog : AlertDialog
 
-    // scores pour l'affichage une fois le jeu fini
-    private var score = 0
-    private var scoreAdversaire = 0
-    var scoreSent : Boolean = false
-
-    // pour le multijoueur
-    private var isServer : Boolean = false
-    private var isMulti : Boolean = false
-    private var isReady : Boolean = false
-    private var isAdversaireReady : Boolean = false
 
     //chronometre
     private lateinit var chronometer: Chronometer
     private var startTime: Long = 0
     private var time: Float = 0f
-
-    private lateinit var mediaPlayer : MediaPlayer
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -103,7 +90,7 @@ class MilkMaster : ComponentActivity() {
         return stopTime
     }
 
-    private fun initMulti() {
+    override fun initMulti() {
         if (isServer) {
             // Initialisation du nouvel handler pour le thread d'échange de données
             val handlerServer = object :
@@ -174,7 +161,7 @@ class MilkMaster : ComponentActivity() {
     }
 
     @SuppressLint("ClickableViewAccessibility")
-    private fun startGame() {
+    override fun startGame() {
         mediaPlayer.start()
         val mediaPlayerMilk : MediaPlayer = MediaPlayer.create(this, R.raw.lait) // Son de lait qui coule
         val mediaPlayerCow : MediaPlayer = MediaPlayer.create(this, R.raw.meuh) // Son de la vache énervée
@@ -182,7 +169,7 @@ class MilkMaster : ComponentActivity() {
         val seauView: ImageView = findViewById(R.id.seau)
         var waiting = false
 
-        if(!isMulti)startChronometer()
+        if(!isMulti) startChronometer()
 
         piesView.setOnTouchListener { v, event ->
             when (event.action) {
@@ -245,32 +232,6 @@ class MilkMaster : ComponentActivity() {
                 }
                 else -> false
             }
-        }
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        mediaPlayer.stop()
-    }
-
-    override fun onPause() {
-        super.onPause()
-        mediaPlayer.pause()
-    }
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        Log.d("DATAEXCHANGE", "[MilkMaster] onActivityResult, resultCode : $resultCode")
-        if (resultCode == Activity.RESULT_OK) {
-            // On récupère les scores
-            score = data?.getIntExtra("score", 0) ?: 0
-            scoreAdversaire = data?.getIntExtra("scoreAdversaire", 0) ?: 0
-            Log.d("DATAEXCHANGE", "score : $score, scoreAdversaire : $scoreAdversaire")
-            // On transmet les scores à GameList
-            val resultIntent = Intent()
-            resultIntent.putExtra("score", score)
-            resultIntent.putExtra("scoreAdversaire", scoreAdversaire)
-            setResult(RESULT_OK, resultIntent)
-            finish()
         }
     }
 }

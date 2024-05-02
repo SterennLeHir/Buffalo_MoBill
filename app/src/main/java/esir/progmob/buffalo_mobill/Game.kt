@@ -12,17 +12,17 @@ import androidx.activity.ComponentActivity
 abstract class Game : ComponentActivity() {
 
     // scores pour l'affichage une fois le jeu fini
-    private var score = 0
-    private var scoreAdversaire : Int = 0
-    var scoreSent : Boolean = false
+    protected var score = 0
+    protected var scoreAdversaire : Int = 0
+    protected var scoreSent : Boolean = false
 
     // pour le multijoueur
-    private var isServer : Boolean = false
-    private var isMulti : Boolean = false
-    private var isReady : Boolean = false
-    private var isAdversaireReady : Boolean = false
-    private lateinit var alertDialog : AlertDialog // boîte de dialogue pour les règles du jeux
-    private lateinit var mediaPlayer: MediaPlayer
+    protected var isServer : Boolean = false
+    protected var isMulti : Boolean = false
+    protected var isReady : Boolean = false
+    protected var isAdversaireReady : Boolean = false
+    protected lateinit var alertDialog : AlertDialog // boîte de dialogue pour les règles du jeux
+    protected lateinit var mediaPlayer: MediaPlayer
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         isServer = intent.getBooleanExtra("isServer", false)
@@ -59,6 +59,7 @@ abstract class Game : ComponentActivity() {
     override fun onDestroy() {
         super.onDestroy()
         mediaPlayer.stop()
+        mediaPlayer.release()
     }
 
     override fun onPause() {
@@ -66,8 +67,4 @@ abstract class Game : ComponentActivity() {
         mediaPlayer.pause()
     }
 
-    override fun onResume() {
-        super.onResume()
-        mediaPlayer.start()
-    }
 }

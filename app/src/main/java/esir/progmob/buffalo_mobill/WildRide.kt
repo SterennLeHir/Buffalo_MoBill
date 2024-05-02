@@ -20,7 +20,7 @@ import android.view.animation.RotateAnimation
 import android.widget.ImageView
 import androidx.core.view.isInvisible
 
-class WildRide : ComponentActivity(), SensorEventListener  {
+class WildRide : Game(), SensorEventListener  {
 
     private lateinit var sensorManager: SensorManager
     private lateinit var accelerometer: Sensor
@@ -42,20 +42,8 @@ class WildRide : ComponentActivity(), SensorEventListener  {
 
     private var dureeAnim = 2000 //durée d'un aller retour
 
-    // scores pour l'affichage une fois le jeu fini
-    private var score = 0
-    private var scoreAdversaire = 0
-    var scoreSent : Boolean = false
-
-    // pour le multijoueur
-    private var isServer : Boolean = false
-    private var isMulti : Boolean = false
-    private var isReady : Boolean = false
-    private var isAdversaireReady : Boolean = false
     private var isFinished = false
 
-    private lateinit var alertDialog : AlertDialog
-    private lateinit var mediaPlayer: MediaPlayer
     private lateinit var mediaPlayerMusic: MediaPlayer
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -100,7 +88,7 @@ class WildRide : ComponentActivity(), SensorEventListener  {
         }
     }
 
-    private fun initMulti() {
+    override fun initMulti() {
         if (isServer) {
             // Initialisation du nouvel handler pour le thread d'échange de données
             val handlerServer = object :
@@ -173,7 +161,7 @@ class WildRide : ComponentActivity(), SensorEventListener  {
         } // on met à jour le handler
     }
 
-    private fun startGame() {
+    override fun startGame() {
         setContentView(R.layout.wild_ride)
         mediaPlayerMusic.start()
         rodeo = findViewById(R.id.rodeoView)
@@ -272,9 +260,8 @@ class WildRide : ComponentActivity(), SensorEventListener  {
 
     override fun onDestroy() {
         super.onDestroy()
-        mediaPlayer.stop()
         mediaPlayerMusic.stop()
-        mediaPlayer.release()
+        mediaPlayerMusic.release()
     }
 
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
@@ -320,23 +307,6 @@ class WildRide : ComponentActivity(), SensorEventListener  {
                 intent.putExtra("game", "WildRide")
                 startActivityForResult(intent, 1)
             }
-        }
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        Log.d("DATAEXCHANGE", "[WildRide] onActivityResult, resultCode : $resultCode")
-        if (resultCode == Activity.RESULT_OK) {
-            // On récupère les scores
-            score = data?.getIntExtra("score", 0) ?: 0
-            scoreAdversaire = data?.getIntExtra("scoreAdversaire", 0) ?: 0
-            Log.d("DATAEXCHANGE", "score : $score, scoreAdversaire : $scoreAdversaire")
-            // On transmet les scores à GameList
-            val resultIntent = Intent()
-            resultIntent.putExtra("score", score)
-            resultIntent.putExtra("scoreAdversaire", scoreAdversaire)
-            setResult(RESULT_OK, resultIntent)
-            finish()
         }
     }
 }

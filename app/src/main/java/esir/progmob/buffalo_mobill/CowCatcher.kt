@@ -32,7 +32,7 @@ import kotlin.random.Random
 
 private const val DEBUG_TAG = "Gestures"
 
-class CowCatcher : ComponentActivity(){
+class CowCatcher : Game(){
 
     private lateinit var parentView: FrameLayout
     private lateinit var lasso: ImageView
@@ -41,24 +41,8 @@ class CowCatcher : ComponentActivity(){
     private var screenWidth = 0
     private var screenHeight = 0
     private var context = this
-
-    // scores pour l'affichage une fois le jeu fini
-    private var score = 0
-    private var scoreAdversaire = 0
-    var scoreSent : Boolean = false
-
-    // pour le multijoueur
-    private var isServer : Boolean = false
-    private var isMulti : Boolean = false
-    private var isReady : Boolean = false
-    private var isAdversaireReady : Boolean = false
-
-    private lateinit var alertDialog : AlertDialog
-    private lateinit var mediaPlayer : MediaPlayer
-
     //timer
     private lateinit var countDownTimer: CountDownTimer
-    private lateinit var timer : TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         //Constructeur et récupération du layout
@@ -99,7 +83,7 @@ class CowCatcher : ComponentActivity(){
         }
     }
 
-    private fun startGame() {
+    override fun startGame() {
         setContentView(R.layout.cow_catcher)
         //Métrique de l'écran pour placer les objets graphiques
         val displayMetrics = DisplayMetrics()
@@ -135,7 +119,7 @@ class CowCatcher : ComponentActivity(){
 
         //Timer
         // Définition du temps en millisecondes (30 secondes)
-        var timer = findViewById<TextView>(R.id.timerView)
+        val timer = findViewById<TextView>(R.id.timerView)
         val timeInMillis: Long = 20 * 1000
 
         // Initialisation du CountDownTimer
@@ -171,7 +155,7 @@ class CowCatcher : ComponentActivity(){
         // Démarrage du CountDownTimer
         countDownTimer.start()
     }
-    private fun initMulti() {
+    override fun initMulti() {
         if (isServer) {
             // Initialisation du nouvel handler pour le thread d'échange de données
             val handlerServer = object :
@@ -238,23 +222,6 @@ class CowCatcher : ComponentActivity(){
             Multiplayer.Exchange.dataExchangeClient = DataExchange(handlerClient)
             Multiplayer.Exchange.dataExchangeClient.start()
         } // on met à jour le handler
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        Log.d("DATAEXCHANGE", "[CowCatcher] onActivityResult, resultCode : $resultCode")
-        if (resultCode == Activity.RESULT_OK) {
-            // On récupère les scores
-            score = data?.getIntExtra("score", 0) ?: 0
-            scoreAdversaire = data?.getIntExtra("scoreAdversaire", 0) ?: 0
-            Log.d("DATAEXCHANGE", "score : $score, scoreAdversaire : $scoreAdversaire")
-            // On transmet les scores à GameList
-            val resultIntent = Intent()
-            resultIntent.putExtra("score", score)
-            resultIntent.putExtra("scoreAdversaire", scoreAdversaire)
-            setResult(RESULT_OK, resultIntent)
-            finish()
-        }
     }
 
     // Classe interne pour gérer les gestes de l'utilisateur
@@ -341,16 +308,5 @@ class CowCatcher : ComponentActivity(){
         super.onDestroy()
         // Arrêt du CountDownTimer pour éviter les fuites de mémoire
         countDownTimer.cancel()
-        mediaPlayer.stop()
-        mediaPlayer.release()
-    }
-
-    override fun onPause() {
-        super.onPause()
-        mediaPlayer.pause()
-    }
-
-    override fun onResume() {
-        super.onResume()
     }
 }
