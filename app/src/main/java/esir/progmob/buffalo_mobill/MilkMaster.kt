@@ -35,13 +35,15 @@ class MilkMaster : ComponentActivity() {
     private var isReady : Boolean = false
     private var isAdversaireReady : Boolean = false
 
+    private lateinit var mediaPlayer : MediaPlayer
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.milk_master)
         // Récupération des informations
         isMulti = intent.getBooleanExtra("isMulti", false)
         isServer = intent.getBooleanExtra("isServer", false)
-
+        mediaPlayer = MediaPlayer.create(this, R.raw.milk_master)
         if (!isMulti) {
             // Affiche la boîte de dialogue lorsque l'activité est créée
             val customAlertDialog = AlertDialogCustom(this, "BUT DU JEU", getString(R.string.RulesGame1), "JOUER") {

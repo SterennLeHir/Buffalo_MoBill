@@ -3,7 +3,6 @@ package esir.progmob.buffalo_mobill
 import android.app.Activity
 import android.app.AlertDialog
 import androidx.activity.ComponentActivity
-import android.content.Context
 import android.content.Intent
 import android.hardware.Sensor
 import android.hardware.SensorEvent
@@ -11,7 +10,6 @@ import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.media.MediaPlayer
 import android.os.Bundle
-import android.os.CountDownTimer
 import android.os.Handler
 import android.os.Looper
 import android.os.Message
@@ -20,12 +18,11 @@ import android.util.Log
 import android.view.animation.Animation
 import android.view.animation.RotateAnimation
 import android.widget.ImageView
-import android.widget.Toast
 import androidx.core.view.isInvisible
 
 class WildRide : ComponentActivity(), SensorEventListener  {
 
-    private lateinit var mediaPlayer: MediaPlayer
+
     private lateinit var sensorManager: SensorManager
     private lateinit var accelerometer: Sensor
 
@@ -38,7 +35,7 @@ class WildRide : ComponentActivity(), SensorEventListener  {
     private var fromRotation: Float = 0f
     private var toRotation: Float = 0f //correspond à la valeur de rotation en degree
 
-    private var shake_counter = 0
+    private var shakeCounter = 0
     private val MAX_SHAKE = 10
 
     //vibrator
@@ -59,6 +56,8 @@ class WildRide : ComponentActivity(), SensorEventListener  {
     private var isFinished = false
 
     private lateinit var alertDialog : AlertDialog
+    private lateinit var mediaPlayer: MediaPlayer
+    private lateinit var mediaPlayerMusic: MediaPlayer
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -176,7 +175,8 @@ class WildRide : ComponentActivity(), SensorEventListener  {
     private fun startGame() {
         setContentView(R.layout.wild_ride)
         mediaPlayer = MediaPlayer.create(this, R.raw.cri)
-
+        mediaPlayerMusic = MediaPlayer.create(this, R.raw.wild_ride)
+        mediaPlayerMusic.start()
         rodeo = findViewById(R.id.rodeoView)
         bang = findViewById(R.id.bangView)
 
@@ -186,7 +186,7 @@ class WildRide : ComponentActivity(), SensorEventListener  {
     }
 
     private fun rodeoShake() {
-        if(shake_counter < MAX_SHAKE){
+        if(shakeCounter < MAX_SHAKE){
             rodIncline = if (Math.random() < 0.5) 1 else -1 //une chance sur 2 d'aller à droite ou gauche
             val randomRot = 45f//Random.nextInt(15, 45).toFloat() //valeur aléatoire
             fromRotation = 0f
@@ -221,7 +221,7 @@ class WildRide : ComponentActivity(), SensorEventListener  {
                                     return
                                 }
                                 else{
-                                    shake_counter++ //on a réussit à survivre au shake
+                                    shakeCounter++ //on a réussit à survivre au shake
                                     rodeoShake()
                                 }
                             }
@@ -241,7 +241,7 @@ class WildRide : ComponentActivity(), SensorEventListener  {
         }
         else{
             // Le jeu est terminé
-            score = shake_counter
+            score = shakeCounter
             if (!isMulti) {
                 val intent = Intent(this, ScorePage::class.java)
                 intent.putExtra("score", score)
@@ -262,11 +262,21 @@ class WildRide : ComponentActivity(), SensorEventListener  {
     override fun onResume() {
         super.onResume()
         sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_NORMAL)
+        mediaPlayer.start()
+        mediaPlayerMusic.start()
     }
 
     override fun onPause() {
         super.onPause()
         sensorManager.unregisterListener(this)
+        mediaPlayer.pause()
+        mediaPlayerMusic.pause()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        mediaPlayer.stop()
+        mediaPlayerMusic.stop()
     }
 
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
@@ -292,7 +302,7 @@ class WildRide : ComponentActivity(), SensorEventListener  {
     }
 
     private fun gameOver(){
-        score = shake_counter
+        score = shakeCounter
         if (!isFinished) {
             mediaPlayer.start()
             vibrator?.vibrate(1000)

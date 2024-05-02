@@ -15,6 +15,7 @@ import java.io.IOException
 class ServerConnexion : ComponentActivity() {
 
     private lateinit var bluetoothAdapter: BluetoothAdapter
+    private lateinit var mediaPlayer: MediaPlayer
     companion object {
         private const val UUID = "550e8400-e29b-41d4-a716-446655440000"
     }
@@ -60,7 +61,7 @@ class ServerConnexion : ComponentActivity() {
         val intent = Intent(context, GameList::class.java)
         intent.putExtra("isMulti", true) // on indique à l'activité qu'elle est en mode multijoueurs
         intent.putExtra("isServer", true) // on indique à l'activité qu'elle est le serveur
-        Home.Music.mediaPlayer?.stop()
+        mediaPlayer.stop()
         context.startActivity(intent)
         finish()
         Log.d("CONNEXION", "finished")
@@ -69,12 +70,12 @@ class ServerConnexion : ComponentActivity() {
     @SuppressLint("MissingPermission")
     override fun onCreate(savedInstantState : Bundle?) {
         super.onCreate(savedInstantState)
-        Home.Music.mediaPlayer = MediaPlayer.create(this, R.raw.duel)
-        Home.Music.mediaPlayer?.isLooping = true
+        mediaPlayer = MediaPlayer.create(this, R.raw.duel)
+        mediaPlayer.isLooping = true
         setContentView(R.layout.bluetooth_server)
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
         askForDiscoverability()
-        Home.Music.mediaPlayer?.start()
+        mediaPlayer.start()
     }
 
     private fun askForDiscoverability() {
@@ -89,7 +90,7 @@ class ServerConnexion : ComponentActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        Home.Music.mediaPlayer?.stop()
+        mediaPlayer.stop()
         Log.d("CONNEXION", "ServerConnexion finished")
     }
 }

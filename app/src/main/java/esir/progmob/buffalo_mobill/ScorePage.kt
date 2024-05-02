@@ -60,8 +60,8 @@ class ScorePage : ComponentActivity() {
     private fun partyFinishedSolo() {
         // Affichage des éléments graphiques
         setContentView(R.layout.score_page_solo_final)
-        Home.Music.mediaPlayer = MediaPlayer.create(this, R.raw.yeehaw)
-        Home.Music.mediaPlayer?.start()
+        mediaPlayer = MediaPlayer.create(this, R.raw.yeehaw)
+        mediaPlayer.start()
         val myScoreView = findViewById<TextView>(R.id.currentScore)
         myScoreView.text = myScore.toString()
         // On ajoute un listener au bouton
@@ -146,8 +146,8 @@ class ScorePage : ComponentActivity() {
         mediaPlayer = MediaPlayer.create(this, R.raw.first_shoot)
         if (myScore > theirScore) {
             resultView.text = "Vous avez gagné !"
-            Home.Music.mediaPlayer = MediaPlayer.create(this, R.raw.yeehaw)
-            Home.Music.mediaPlayer?.start()
+            mediaPlayer = MediaPlayer.create(this, R.raw.yeehaw)
+            mediaPlayer.start()
         } else if (myScore < theirScore) {
             resultView.text = "Vous avez perdu !"
             //Home.Music.mediaPlayer = MediaPlayer.create(this, R.raw.first_shoot)
@@ -155,8 +155,8 @@ class ScorePage : ComponentActivity() {
             while (mediaPlayer.isPlaying) {
                 // On attend que le son se termine
             }
-            Home.Music.mediaPlayer = MediaPlayer.create(this, R.raw.second_shoot)
-            Home.Music.mediaPlayer?.start()
+            mediaPlayer = MediaPlayer.create(this, R.raw.second_shoot)
+            mediaPlayer.start()
         } else {
             resultView.text = "Match nul !"
         }
