@@ -29,5 +29,8 @@ Attention, plus vous résisterez, plus elle sera fâchée…</string>
     <string name="back_to_gameList">Retour au menu</string>
     <string name="best_time">"Meilleur temps : "</string>
     <string name="time">"Temps : "</string>
+    <string name="won">Vous avez gagné !</string>
+    <string name="lost">Vous avez perdu !</string>
+    <string name="equality">Match nul !</string>
 
 </resources>
