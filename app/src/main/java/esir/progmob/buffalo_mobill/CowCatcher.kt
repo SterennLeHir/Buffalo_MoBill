@@ -54,6 +54,7 @@ class CowCatcher : ComponentActivity(){
     private var isAdversaireReady : Boolean = false
 
     private lateinit var alertDialog : AlertDialog
+    private lateinit var mediaPlayer : MediaPlayer
 
     //timer
     private lateinit var countDownTimer: CountDownTimer
@@ -109,8 +110,8 @@ class CowCatcher : ComponentActivity(){
         //Récupérer le parent
         parentView = findViewById<FrameLayout>(R.id.cowParent)
         // Ajout de la musique
-        Home.Music.mediaPlayer = MediaPlayer.create(this, R.raw.cow_catcher)
-        Home.Music.mediaPlayer?.start()
+        mediaPlayer = MediaPlayer.create(this, R.raw.cow_catcher)
+        mediaPlayer.start()
         //Récupérer et placer le lasso au bon endroit
         lasso = findViewById(R.id.lassoView)
         lasso.viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
@@ -148,7 +149,7 @@ class CowCatcher : ComponentActivity(){
             override fun onFinish() {
                 // Action à effectuer lorsque le timer arrive à 0
                 cow.visibility = View.INVISIBLE
-                Home.Music.mediaPlayer?.stop()
+                mediaPlayer.stop()
                 if (!isMulti) {
                     val intent = Intent(context, ScorePage::class.java)
                     intent.putExtra("score", score)
@@ -340,5 +341,16 @@ class CowCatcher : ComponentActivity(){
         super.onDestroy()
         // Arrêt du CountDownTimer pour éviter les fuites de mémoire
         countDownTimer.cancel()
+        mediaPlayer.stop()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        mediaPlayer.pause()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        mediaPlayer.start()
     }
 }

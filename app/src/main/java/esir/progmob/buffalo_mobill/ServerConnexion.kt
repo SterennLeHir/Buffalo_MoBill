@@ -15,7 +15,7 @@ import java.io.IOException
 class ServerConnexion : ComponentActivity() {
 
     private lateinit var bluetoothAdapter: BluetoothAdapter
-    private lateinit var mediaPlayer : MediaPlayer
+    private lateinit var mediaPlayer: MediaPlayer
     companion object {
         private const val UUID = "550e8400-e29b-41d4-a716-446655440000"
     }

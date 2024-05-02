@@ -1,144 +1,178 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/linearLayout"
+    style="@style/background"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    style="@style/background">
+    android:orientation="vertical">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
 
-        <ImageView
-            android:id="@+id/star1"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:src="@drawable/star"
-            android:visibility="invisible"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+    <ImageView
+        android:id="@+id/star1"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:src="@drawable/star"
+        android:visibility="invisible"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
-        <ImageView
-            android:id="@+id/star2"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:src="@drawable/star"
-            android:visibility="invisible"
-            app:layout_constraintStart_toEndOf="@+id/star1"
-            app:layout_constraintTop_toTopOf="parent" />
+    <ImageView
+        android:id="@+id/star2"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:src="@drawable/star"
+        android:visibility="invisible"
+        app:layout_constraintStart_toEndOf="@+id/star1"
+        app:layout_constraintTop_toTopOf="parent" />
 
-        <ImageView
-            android:id="@+id/star3"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:src="@drawable/star"
-            android:visibility="invisible"
-            app:layout_constraintStart_toEndOf="@+id/star2"
-            app:layout_constraintTop_toTopOf="parent" />
+    <ImageView
+        android:id="@+id/star3"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:src="@drawable/star"
+        android:visibility="invisible"
+        app:layout_constraintStart_toEndOf="@+id/star2"
+        app:layout_constraintTop_toTopOf="parent" />
 
-        <ImageView
-            android:id="@+id/star4"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:src="@drawable/star"
-            android:visibility="invisible"
-            app:layout_constraintStart_toEndOf="@+id/star3"
-            app:layout_constraintTop_toTopOf="parent" />
+    <ImageView
+        android:id="@+id/star4"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:src="@drawable/star"
+        android:visibility="invisible"
+        app:layout_constraintStart_toEndOf="@+id/star3"
+        app:layout_constraintTop_toTopOf="parent" />
 
-        <ImageView
-            android:id="@+id/star5"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:src="@drawable/star"
-            android:visibility="invisible"
-            app:layout_constraintStart_toEndOf="@+id/star4"
-            app:layout_constraintTop_toTopOf="parent" />
+    <ImageView
+        android:id="@+id/star5"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:src="@drawable/star"
+        android:visibility="invisible"
+        app:layout_constraintStart_toEndOf="@+id/star4"
+        app:layout_constraintTop_toTopOf="parent" />
 
-        <ImageView
-            android:id="@+id/star6"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:src="@drawable/star"
-            android:visibility="invisible"
-            app:layout_constraintStart_toEndOf="@+id/star5"
-            app:layout_constraintTop_toTopOf="parent" />
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    <ImageView
+        android:id="@+id/star6"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:src="@drawable/star"
+        android:visibility="invisible"
+        app:layout_constraintStart_toEndOf="@+id/star5"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/titleGameList"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginVertical="10dp"
-        android:layout_marginBottom="15dp"
+        android:fontFamily="@font/old_standard_tt"
         android:text="@string/gamelist"
         android:textAlignment="center"
-        android:textColor="#FFFFFF"
-        android:textSize="30sp"/>
+        android:textColor="@color/brown"
+        android:textSize="30sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/star1" />
 
     <Button
         android:id="@+id/milk_master"
         style="@style/brown_button"
         android:layout_height="wrap_content"
+        android:layout_marginTop="28dp"
         android:gravity="center"
         android:text="@string/game1"
-        android:layout_marginTop="20dp"/>
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="@+id/star1"
+        app:layout_constraintTop_toBottomOf="@+id/titleGameList" />
 
     <Button
         android:id="@+id/wild_ride"
         style="@style/brown_button"
         android:layout_height="wrap_content"
-        android:text="@string/game2" />
+        android:layout_marginTop="28dp"
+        android:text="@string/game2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.489"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/milk_master" />
 
     <Button
         android:id="@+id/shady_showdown"
         style="@style/brown_button"
         android:layout_height="wrap_content"
-        android:text="@string/game3" />
+        android:layout_marginTop="24dp"
+        android:text="@string/game3"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/wild_ride" />
 
     <Button
         android:id="@+id/quick_quiz"
         style="@style/brown_button"
         android:layout_height="wrap_content"
-        android:text="@string/game4" />
+        android:layout_marginTop="24dp"
+        android:text="@string/game4"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/shady_showdown" />
 
     <Button
         android:id="@+id/cow_catcher"
         style="@style/brown_button"
         android:layout_height="wrap_content"
-        android:text="@string/game5"/>
+        android:layout_marginTop="24dp"
+        android:text="@string/game5"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/quick_quiz" />
 
     <Button
         android:id="@+id/prickly_picking"
         style="@style/brown_button"
         android:layout_height="wrap_content"
-        android:text="@string/game6" />
+        android:layout_marginTop="24dp"
+        android:text="@string/game6"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/cow_catcher" />
 
     <TextView
         android:id="@+id/surprise"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="48dp"
+        android:fontFamily="@font/old_standard_tt"
         android:text="@string/random_game_text"
-        android:layout_marginVertical="8dp"
         android:textAlignment="center"
-        android:textColor="#FFFFFF"
-        android:textSize="30sp"/>
+        android:textColor="@color/brown"
+        android:textSize="30sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/prickly_picking" />
 
     <Button
         android:id="@+id/random"
         style="@style/brown_button"
         android:layout_height="wrap_content"
+        android:layout_marginTop="36dp"
         android:text="@string/random_game"
-        android:layout_marginTop="20dp"/>
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.502"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/surprise" />
 
-    <Button
+    <ImageView
         android:id="@+id/parameters"
-        style="@style/brown_button"
-        android:layout_height="wrap_content"
-        android:text="Parameters"
-        android:layout_marginTop="20dp"/>
+        android:layout_width="45dp"
+        android:layout_height="45dp"
+        android:src="@drawable/engrenage"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

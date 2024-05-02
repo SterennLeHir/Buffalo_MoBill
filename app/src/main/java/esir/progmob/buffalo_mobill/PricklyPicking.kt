@@ -5,6 +5,7 @@ import android.app.Activity
 import android.app.AlertDialog
 import android.content.Intent
 import android.graphics.Point
+import android.media.MediaPlayer
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -55,7 +56,8 @@ class PricklyPicking : ComponentActivity() {
     private var isReady : Boolean = false
     private var isAdversaireReady : Boolean = false
 
-    private lateinit var alertDialog : AlertDialog
+    private lateinit var alertDialog : AlertDialog // boîte de dialogue pour les règles du jeux
+    private lateinit var mediaPlayer: MediaPlayer
 
     //chronometre
     private lateinit var chronometer: Chronometer

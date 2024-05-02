@@ -42,12 +42,15 @@ class MilkMaster : ComponentActivity() {
     private var startTime: Long = 0
     private var time: Float = 0f
 
+    private lateinit var mediaPlayer : MediaPlayer
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.milk_master)
         // Récupération des informations
         isMulti = intent.getBooleanExtra("isMulti", false)
         isServer = intent.getBooleanExtra("isServer", false)
+        mediaPlayer = MediaPlayer.create(this, R.raw.milk_master)
 
         //init du chrono (meme si il sert pas dans les deux modes de jeu)
         chronometer = Chronometer(this)

@@ -71,7 +71,8 @@ class GameList : ComponentActivity() {
         val buttonCowCatcher = findViewById<Button>(R.id.cow_catcher)
         val buttonPricklyPicking = findViewById<Button>(R.id.prickly_picking)
         val randomParty = findViewById<Button>(R.id.random)
-        val param = findViewById<Button>(R.id.parameters)
+
+        val param = findViewById<ImageView>(R.id.parameters)
 
         // Change d'activité pour chaque jeu
         buttonMilkMaster.setOnClickListener{
@@ -202,6 +203,8 @@ class GameList : ComponentActivity() {
                 val customAlertDialog = AlertDialogCustom(this, "PARAMETRES", "Choississez le nombre de défis dans une partie", "VALIDER", adapter) {selectedNumber ->
                     alertDialogParam.dismiss()
                     NUMBEROFPARTIESMAX = selectedNumber
+                    numberOfParties = 0 // on réinitialise le nombre de parties
+                    cleanStars()
                     if (isMulti) Multiplayer.Exchange.dataExchangeClient.write(NUMBEROFPARTIESMAX.toString())
                     Log.d("DATAEXCHANGE", "Nombre de parties : $NUMBEROFPARTIESMAX")
                 }
@@ -211,17 +214,22 @@ class GameList : ComponentActivity() {
         }
     }
 
+    private fun cleanStars() {
+        for (star in starsList) {
+            star.isInvisible = true
+        }
+    }
+
     private fun createRandomParty() {
         this.isRandom = true
         this.numberOfParties = 0
         this.numberOfGamesWon = 0
         // On rend à nouveau invisible les étoiles
-        for (star in starsList) {
-            star.isInvisible = true
-        }
+        cleanStars()
         if (!isServer) {
             Log.d("DATAEXCHANGE", "Création de la partie aléatoire : $NUMBEROFPARTIESMAX défis")
             for (i in 0..<NUMBEROFPARTIESMAX) { // on sélectionne 2 jeux aléatoires
+                Log.d("DATAEXCHANGE", "gameList : $gameList")
                 val random = Random.nextInt(gameList.size) // choisit le jeu aléatoirement
                 Log.d("DATAEXCHANGE", "Random position : $random")
                 games.add(gameList[random])
@@ -325,6 +333,7 @@ class GameList : ComponentActivity() {
 
                         else -> { // On envoie le nombre de parties
                             NUMBEROFPARTIESMAX = message.toInt()
+                            cleanStars()
                         }
                     }
                 }
@@ -371,6 +380,10 @@ class GameList : ComponentActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         Log.d("DATAEXCHANGE", "[GameList] onActivityResult, resultCode : $resultCode")
+        isReady = false
+        isAdversaireReady = false
+        numberOfParties++
+        if (isMulti) initMulti()
         if(requestCode == 2) { // La page de score finale s'est terminée
             partyFinished()
         } else if (resultCode == Activity.RESULT_OK) {
@@ -381,9 +394,9 @@ class GameList : ComponentActivity() {
             if (score >= scoreAdversaire) {
                 numberOfGamesWon++
                 Log.d("DATAEXCHANGE", "numberOfGamesWon : $numberOfGamesWon")
-                starsList[numberOfGamesWon - 1].isInvisible = false // On affiche une nouvelle étoile
+                if (isMulti) starsList[numberOfGamesWon - 1].isInvisible = false // On affiche une nouvelle étoile
             }
-            if (numberOfParties == NUMBEROFPARTIESMAX) { // On lance la page de score finale
+            if (numberOfParties == NUMBEROFPARTIESMAX && (isMulti || isRandom)) { // On lance la page de score finale
                 val intent = Intent(this, ScorePage::class.java)
                 intent.putExtra("score", numberOfGamesWon)
                 intent.putExtra("scoreAdversaire", NUMBEROFPARTIESMAX - numberOfGamesWon)
@@ -391,40 +404,45 @@ class GameList : ComponentActivity() {
                 intent.putExtra("isServer", isServer)
                 intent.putExtra("isFinished", true)
                 startActivityForResult(intent, 2)
-            } else if (isRandom && !isServer) {
-                Log.d("DATAEXCHANGE", "Chosing next random game")
-                nextGame = games[numberOfParties]
-                val randomGame = Intent(this, Class.forName("esir.progmob.buffalo_mobill.$nextGame"))
-                randomGame.putExtra("isServer", isServer)
-                randomGame.putExtra("isMulti", isMulti)
-                if (isMulti) {
-                    Log.d("DATAEXCHANGE", "Affichage de la boîte de dialogue")
-                    val customAlertDialog = AlertDialogCustom(this, "PROCHAIN JEU", "Le prochain jeu est : $nextGame", "PRÊT") {
-                        Multiplayer.Exchange.dataExchangeClient.write(nextGame) // On indique au serveur le jeu choisi
-                        alertDialog.dismiss()
-                        startActivityForResult(randomGame, 1)
+            } else if (isRandom) {
+                if (!isServer) {
+                    Log.d("DATAEXCHANGE", "Chosing next random game")
+                    nextGame = games[numberOfParties]
+                    val randomGame = Intent(this, Class.forName("esir.progmob.buffalo_mobill.$nextGame"))
+                    randomGame.putExtra("isServer", isServer)
+                    randomGame.putExtra("isMulti", isMulti)
+                    randomGame.putExtra("game", nextGame)
+                    if (isMulti) {
+                        Log.d("DATAEXCHANGE", "Affichage de la boîte de dialogue")
+                        val customAlertDialog = AlertDialogCustom(this, "PROCHAIN JEU", "Le prochain jeu va commencer", "PRÊT") {
+                            Multiplayer.Exchange.dataExchangeClient.write("Ready")
+                            isReady = true
+                            if (isAdversaireReady) {
+                                Multiplayer.Exchange.dataExchangeClient.write(nextGame)
+                                alertDialog.dismiss()
+                                startActivityForResult(randomGame, 1)
+                            }
+                        }
+                        alertDialog = customAlertDialog.create()
+                        alertDialog.show()
+                    } else {
+                        val customAlertDialog = AlertDialogCustom(this, "PROCHAIN JEU", "Le prochain jeu est : $nextGame", "PRÊT") {
+                            alertDialog.dismiss()
+                            startActivityForResult(randomGame, 1)
+                        }
+                        alertDialog = customAlertDialog.create()
+                        alertDialog.show()
                     }
-                    alertDialog = customAlertDialog.create()
-                    alertDialog.show()
                 } else {
-                    val customAlertDialog = AlertDialogCustom(this, "PROCHAIN JEU", "Le prochain jeu est : $nextGame", "PRÊT") {
+                    val customAlertDialog = AlertDialogCustom(this, "PROCHAIN JEU", "Le prochain jeu va commencer", "PRÊT") {
                         alertDialog.dismiss()
-                        startActivityForResult(randomGame, 1)
+                        Multiplayer.Exchange.dataExchangeServer.write("Ready")
                     }
                     alertDialog = customAlertDialog.create()
                     alertDialog.show()
                 }
             }
         }
-    }
-
-    override fun onRestart() { // appelée après la fin de la page de score
-        isReady = false
-        isAdversaireReady = false
-        super.onRestart()
-        numberOfParties++
-        Log.d("DATAEXCHANGE", "GameList restarted")
-        if (isMulti) initMulti()
     }
 
     private fun partyFinished() {
@@ -435,8 +453,9 @@ class GameList : ComponentActivity() {
             Multiplayer.Exchange.dataExchangeServer.getOutputStream().close()
             Multiplayer.SocketHolder.socket?.close()
             Multiplayer.SocketHolder.socket = null
-        } else {
+        } else if (isMulti) {
             Multiplayer.Exchange.dataExchangeClient.cancel()
+            Multiplayer.SocketHolder.socket = null
         }
         val intent = Intent(this, Home::class.java)
         startActivity(intent)
