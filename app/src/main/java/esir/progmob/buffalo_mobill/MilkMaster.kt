@@ -175,6 +175,7 @@ class MilkMaster : ComponentActivity() {
 
     @SuppressLint("ClickableViewAccessibility")
     private fun startGame() {
+        mediaPlayer.start()
         val mediaPlayerMilk : MediaPlayer = MediaPlayer.create(this, R.raw.lait) // Son de lait qui coule
         val mediaPlayerCow : MediaPlayer = MediaPlayer.create(this, R.raw.meuh) // Son de la vache énervée
         val piesView: ImageView = findViewById(R.id.pies)
@@ -247,6 +248,15 @@ class MilkMaster : ComponentActivity() {
         }
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        mediaPlayer.stop()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        mediaPlayer.pause()
+    }
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         Log.d("DATAEXCHANGE", "[MilkMaster] onActivityResult, resultCode : $resultCode")

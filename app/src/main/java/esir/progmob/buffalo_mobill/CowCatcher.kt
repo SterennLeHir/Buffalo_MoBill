@@ -342,6 +342,7 @@ class CowCatcher : ComponentActivity(){
         // Arrêt du CountDownTimer pour éviter les fuites de mémoire
         countDownTimer.cancel()
         mediaPlayer.stop()
+        mediaPlayer.release()
     }
 
     override fun onPause() {
@@ -351,6 +352,5 @@ class CowCatcher : ComponentActivity(){
 
     override fun onResume() {
         super.onResume()
-        mediaPlayer.start()
     }
 }

@@ -4,6 +4,7 @@ import android.app.Activity
 import android.app.AlertDialog
 import android.content.Intent
 import android.graphics.Color
+import android.media.MediaPlayer
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.os.Handler
@@ -18,6 +19,8 @@ import androidx.core.view.isInvisible
 import kotlin.random.Random
 
 class QuickQuiz : ComponentActivity() {
+
+    private lateinit var mediaPlayer: MediaPlayer
 
     // listes des questions
     private var questions : MutableList<String> = mutableListOf(
@@ -230,6 +233,9 @@ class QuickQuiz : ComponentActivity() {
     }
 
     private fun startGame() {
+        // Ajout de la musique
+        mediaPlayer = MediaPlayer.create(this, R.raw.quick_quiz)
+        mediaPlayer.start()
         // Initialisation des éléments graphiques
         setContentView(R.layout.quick_quiz)
         questionView = findViewById(R.id.question)
@@ -267,7 +273,7 @@ class QuickQuiz : ComponentActivity() {
         if (!isAnswered) { //si on a pas répondu
             //tuer le timer
             countDownTimer.cancel()
-            val goodAnswer = checkAnswer((choice4.text.toString()))
+            val goodAnswer = checkAnswer((button.text.toString()))
             updateScore(goodAnswer)
             if (goodAnswer) {
                 Toast.makeText(this, "Réponse correcte", Toast.LENGTH_SHORT).show()
@@ -412,6 +418,11 @@ class QuickQuiz : ComponentActivity() {
         } else {
             0
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        mediaPlayer.stop()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

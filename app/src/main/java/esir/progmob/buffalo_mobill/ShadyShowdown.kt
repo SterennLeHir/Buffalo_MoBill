@@ -8,6 +8,7 @@ import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
+import android.media.MediaPlayer
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -26,6 +27,7 @@ import kotlin.random.Random
 class ShadyShowdown : ComponentActivity(), SensorEventListener {
 
     private var maxLightValue: Int = 0
+    private lateinit var mediaPlayer : MediaPlayer
 
     // éléments graphiques
     private lateinit var bandit : ImageView
@@ -67,6 +69,11 @@ class ShadyShowdown : ComponentActivity(), SensorEventListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.shady_showdown)
+        // Initialisation des éléments graphiques
+        bandit = findViewById<ImageView>(R.id.bandit)
+        backgroundView = findViewById<RelativeLayout>(R.id.background)
+        white = findViewById(R.id.whiteView)
+        black = findViewById(R.id.blackView)
         // Récupération des informations
         isMulti = intent.getBooleanExtra("isMulti", false)
         isServer = intent.getBooleanExtra("isServer", false)
@@ -75,12 +82,6 @@ class ShadyShowdown : ComponentActivity(), SensorEventListener {
         light = sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT)
         // Register sensors
         sensorManager.registerListener(this, light, SensorManager.SENSOR_DELAY_NORMAL)
-
-        // Initialisation des éléments graphiques
-        bandit = findViewById<ImageView>(R.id.bandit)
-        backgroundView = findViewById<RelativeLayout>(R.id.background)
-        white = findViewById(R.id.whiteView)
-        black = findViewById(R.id.blackView)
 
         //init du chrono (meme si il sert pas dans les deux modes de jeu)
         chronometer = Chronometer(this)
@@ -136,10 +137,11 @@ class ShadyShowdown : ComponentActivity(), SensorEventListener {
     }
 
     private fun startGame() {
-        if(!isMulti){//chrono en solo
+        if (!isMulti) {//chrono en solo
             startChronometer()
         }
-
+        mediaPlayer = MediaPlayer.create(this, R.raw.shady_showdown)
+        mediaPlayer.start()
         bandit.setOnClickListener {
             if (discover) {
                 // Victoire
@@ -338,12 +340,15 @@ class ShadyShowdown : ComponentActivity(), SensorEventListener {
         super.onPause()
         // Unregister all listeners
         sensorManager.unregisterListener(this)
+        mediaPlayer.pause()
     }
 
     override fun onDestroy() {
         super.onDestroy()
         Log.d("DATAEXCHANGE", "ShadyShowdown finished")
         sensorManager.unregisterListener(this)
+        mediaPlayer.stop()
+        mediaPlayer.release()
     }
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
         // do nothing

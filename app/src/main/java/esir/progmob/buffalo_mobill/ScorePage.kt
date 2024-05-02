@@ -20,6 +20,7 @@ class ScorePage : ComponentActivity() {
     private var isMulti : Boolean = false
     private var isServer : Boolean = false
     private var isFinished : Boolean = false
+    private var time : Float = 0f
     private var game : String? = null
 
     // fichier pour conserver les scores d'entraînement
@@ -37,6 +38,7 @@ class ScorePage : ComponentActivity() {
         myScore = intent.getIntExtra("score", 0)
         theirScore = intent.getIntExtra("scoreAdversaire", 0)
         isFinished = intent.getBooleanExtra("isFinished", false)
+        time = intent.getFloatExtra("time", 0f)
         Log.d("DATAEXCHANGE", "isMulti : $isMulti, isServer : $isServer, myScore : $myScore, theirScore : $theirScore, isFinished : $isFinished")
         game = intent.getStringExtra("game")
 
@@ -165,21 +167,36 @@ class ScorePage : ComponentActivity() {
     private fun updateScoreSolo() {
         // Affichage des éléments graphiques
         setContentView(R.layout.score_page_solo)
-        val myScoreView = findViewById<TextView>(R.id.currentScore)
-        myScoreView.text = myScore.toString()
+        val myScoreView = findViewById<TextView>(R.id.score)
         if (game !=null) {
             val gameView = findViewById<TextView>(R.id.game)
             gameView.text = game
             // On montre le meilleur score
-            val bestScore = preferences.getInt(game, 0)
             val bestScoreView = findViewById<TextView>(R.id.bestScore)
-            if (myScore > bestScore) { // si on a dépassé le meilleur score
-                val editor = preferences.edit()
-                editor.putInt(game, myScore)
-                editor.apply()
-                bestScoreView.text = myScore.toString()
+            if (time != 0f) { // Si le score dépend d'un temps
+                val bestScore = preferences.getFloat(game, 0F)
+                val bestScoreTextView = findViewById<TextView>(R.id.bestScoreText)
+                bestScoreTextView.text = getString(R.string.best_time)
+                val scoreTextView = findViewById<TextView>(R.id.scoreText)
+                scoreTextView.text = getString(R.string.time)
+                if (time < bestScore) {
+                    val editor = preferences.edit()
+                    editor.putFloat(game, time)
+                    editor.apply()
+                }
+                bestScoreView.text = time.toString()
+                myScoreView.text = time.toString()
             } else {
-                bestScoreView.text = bestScore.toString()
+                val bestScore = preferences.getInt(game, 0)
+                if (myScore > bestScore) { // si on a dépassé le meilleur score
+                    val editor = preferences.edit()
+                    editor.putInt(game, myScore)
+                    editor.apply()
+                    bestScoreView.text = myScore.toString()
+                } else {
+                    bestScoreView.text = bestScore.toString()
+                }
+                myScoreView.text = myScore.toString()
             }
         }
 

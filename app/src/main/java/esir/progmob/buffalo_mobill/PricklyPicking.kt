@@ -123,6 +123,8 @@ class PricklyPicking : ComponentActivity() {
 
     private fun startGame() {
         setContentView(R.layout.prickly_picking)
+        mediaPlayer = MediaPlayer.create(this, R.raw.prickly_picking)
+        mediaPlayer.start()
         // Initialisation de la taille de l'écran
         val metrics = DisplayMetrics()
         windowManager.defaultDisplay.getMetrics(metrics)
@@ -329,6 +331,16 @@ class PricklyPicking : ComponentActivity() {
         }
 
         return angleDegrees
+    }
+
+    override fun onPause() {
+        super.onPause()
+        mediaPlayer.pause()
+    }
+    override fun onDestroy() {
+        super.onDestroy()
+        mediaPlayer.stop()
+        mediaPlayer.release()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

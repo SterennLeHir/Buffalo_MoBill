@@ -60,6 +60,8 @@ class WildRide : ComponentActivity(), SensorEventListener  {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        mediaPlayer = MediaPlayer.create(this, R.raw.cri)
+        mediaPlayerMusic = MediaPlayer.create(this, R.raw.wild_ride)
         sensorManager = getSystemService(SENSOR_SERVICE) as SensorManager
         accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)!!
         // Récupération des informations
@@ -173,8 +175,6 @@ class WildRide : ComponentActivity(), SensorEventListener  {
 
     private fun startGame() {
         setContentView(R.layout.wild_ride)
-        mediaPlayer = MediaPlayer.create(this, R.raw.cri)
-        mediaPlayerMusic = MediaPlayer.create(this, R.raw.wild_ride)
         mediaPlayerMusic.start()
         rodeo = findViewById(R.id.rodeoView)
         bang = findViewById(R.id.bangView)
@@ -241,18 +241,20 @@ class WildRide : ComponentActivity(), SensorEventListener  {
         else{
             // Le jeu est terminé
             score = shakeCounter
+            mediaPlayerMusic.stop()
             if (!isMulti) {
                 val intent = Intent(this, ScorePage::class.java)
                 intent.putExtra("score", score)
                 intent.putExtra("isMulti", false)
+                intent.putExtra("game", "WildRide")
                 startActivityForResult(intent, 1)
             } else {
-                if (isServer) {
+                scoreSent = if (isServer) {
                     Multiplayer.Exchange.dataExchangeServer.write(score.toString())
-                    scoreSent = true
+                    true
                 } else {
                     Multiplayer.Exchange.dataExchangeClient.write(score.toString())
-                    scoreSent = true
+                    true
                 }
             }
         }
@@ -261,21 +263,18 @@ class WildRide : ComponentActivity(), SensorEventListener  {
     override fun onResume() {
         super.onResume()
         sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_NORMAL)
-        mediaPlayer.start()
-        mediaPlayerMusic.start()
     }
 
     override fun onPause() {
         super.onPause()
         sensorManager.unregisterListener(this)
-        mediaPlayer.pause()
-        mediaPlayerMusic.pause()
     }
 
     override fun onDestroy() {
         super.onDestroy()
         mediaPlayer.stop()
         mediaPlayerMusic.stop()
+        mediaPlayer.release()
     }
 
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
@@ -304,6 +303,7 @@ class WildRide : ComponentActivity(), SensorEventListener  {
         score = shakeCounter
         if (!isFinished) {
             mediaPlayer.start()
+            mediaPlayerMusic.stop()
             vibrator?.vibrate(1000)
             bang.isInvisible = false
             if (isMulti) {
