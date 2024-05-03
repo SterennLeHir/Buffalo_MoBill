@@ -11,11 +11,11 @@
 - quand elle part à droite, tournez votre téléphone à droite \n
 Attention, plus vous résisterez, plus elle sera fâchée…</string>
     <string name="game3">Shady Showdown</string>
-    <string name="RulesGame3">Baissez la lumière reçue sur votre appareil pour découvrir le bandit. Une fois visible, attrapez-le !</string>
+    <string name="RulesGame3">Baissez la lumière reçue sur votre appareil pour découvrir le bandit. Une fois démasqué, attrapez-le !</string>
     <string name="game4">Quick Quiz</string>
     <string name="RulesGame4">Répondez aux trois questions sur l\'univers de Lucky Luke le plus vite possible</string>
     <string name="game5">Cow Catcher</string>
-    <string name="RulesGame5">Lancez votre lasso et attrapez le plus vite possible les 8 vaches</string>
+    <string name="RulesGame5">Lancez votre lasso et attrapez le plus de vaches en 20 secondes</string>
     <string name="game6">Prickly Picking</string>
     <string name="RulesGame6">Outch ! Retirez le plus rapidement possible les épines de cactus sur votre vache…</string>
     <string name="Rules">BUT DU JEU</string>

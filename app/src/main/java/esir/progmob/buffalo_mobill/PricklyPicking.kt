@@ -127,7 +127,7 @@ class PricklyPicking : Game() {
     private fun handleTouchEvent(view: View, event: MotionEvent): Boolean {
         val x = event.rawX
         val y = event.rawY
-
+        var isFinished = false
         when (event.action) {
             MotionEvent.ACTION_DOWN -> {
                 isDragging = false
@@ -180,7 +180,8 @@ class PricklyPicking : Game() {
                     }
                     isDragging = false
                     score++
-                    if(score >= MAX_PRICKLES){
+                    if(score >= MAX_PRICKLES && !isFinished){
+                        isFinished = true
                         if (!isMulti) { //en solo
                             time = stopChronometer()
                             val intent = Intent(this, ScorePage::class.java)
