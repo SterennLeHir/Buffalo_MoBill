@@ -354,16 +354,18 @@ class GameList : ComponentActivity() {
                             randomGame.putExtra("isServer", isServer)
                             randomGame.putExtra("isMulti", isMulti)
                             Multiplayer.Exchange.dataExchangeClient.write("Ready")
-                            alertDialog.dismiss()
-                            Multiplayer.Exchange.dataExchangeClient.write(nextGame)
-                            startActivityForResult(randomGame, 1)
+                            Handler(Looper.getMainLooper()).postDelayed({
+                                Multiplayer.Exchange.dataExchangeClient.write(nextGame)
+                                alertDialog.dismiss()
+                                startActivityForResult(randomGame, 1)
+                            }, 1000) // temps de latence pour ne pas envoyer les deux messages en même temps
+
                         }
                     }
                 }
             }
-            Log.d("DATAEXCHANGE", "Client set handler")
+            Log.d("DATAEXCHANGE", "[GameList] Client set handler")
             Multiplayer.Exchange.dataExchangeClient.setHandler(handlerClient) // On met à jour l'handler du serveur
-            Log.d("DATAEXCHANGE", "DataExchange Serveur thread launched")
         }
         if (numberOfParties == 0) {
             Log.d("DATAEXCHANGE", "[GameList] Initialisation")
@@ -406,28 +408,27 @@ class GameList : ComponentActivity() {
                 startActivityForResult(intent, 2)
             } else if (isRandom) {
                 if (!isServer) {
-                    Log.d("DATAEXCHANGE", "Chosing next random game")
+                    Log.d("DATAEXCHANGE", "[GameList] Chosing next random game")
                     nextGame = games[numberOfParties]
                     val randomGame = Intent(this, Class.forName("esir.progmob.buffalo_mobill.$nextGame"))
                     randomGame.putExtra("isServer", isServer)
                     randomGame.putExtra("isMulti", isMulti)
                     randomGame.putExtra("game", nextGame)
-                    if (isMulti) {
-                        Log.d("DATAEXCHANGE", "Affichage de la boîte de dialogue")
+                    if (isMulti) { // côté client
                         val customAlertDialog = AlertDialogCustom(this, "PROCHAIN JEU", "Le prochain jeu va commencer", "PRÊT") {
                             Multiplayer.Exchange.dataExchangeClient.write("Ready")
                             isReady = true
                             if (isAdversaireReady) {
                                 Handler(Looper.getMainLooper()).postDelayed({
                                     Multiplayer.Exchange.dataExchangeClient.write(nextGame)
-                                }, 2000) // temps de latence pour ne pas envoyer les deux messages en même temps
+                                    startActivityForResult(randomGame, 1)
+                                }, 1000) // temps de latence pour ne pas envoyer les deux messages en même temps
                                 alertDialog.dismiss()
-                                startActivityForResult(randomGame, 1)
                             }
                         }
                         alertDialog = customAlertDialog.create()
                         alertDialog.show()
-                    } else {
+                    } else { // mode solo
                         val customAlertDialog = AlertDialogCustom(this, "PROCHAIN JEU", "Le prochain jeu est : $nextGame", "PRÊT") {
                             alertDialog.dismiss()
                             startActivityForResult(randomGame, 1)
@@ -435,9 +436,8 @@ class GameList : ComponentActivity() {
                         alertDialog = customAlertDialog.create()
                         alertDialog.show()
                     }
-                } else {
+                } else { // côté serveur
                     val customAlertDialog = AlertDialogCustom(this, "PROCHAIN JEU", "Le prochain jeu va commencer", "PRÊT") {
-                        alertDialog.dismiss()
                         Multiplayer.Exchange.dataExchangeServer.write("Ready")
                     }
                     alertDialog = customAlertDialog.create()
@@ -448,7 +448,7 @@ class GameList : ComponentActivity() {
     }
 
     private fun partyFinished() {
-        Log.d("DATAEXCHANGE", "Party finished")
+        Log.d("DATAEXCHANGE", "                     [GameList] Party finished")
         if (isServer) {
             Multiplayer.Exchange.dataExchangeServer.cancel()
             Multiplayer.Exchange.dataExchangeServer.getInputStream().close()

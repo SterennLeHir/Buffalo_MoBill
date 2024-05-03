@@ -124,7 +124,7 @@ class CowCatcher : Game(){
         //Timer
         // Définition du temps en millisecondes (30 secondes)
         val timer = findViewById<TextView>(R.id.timerView)
-        val timeInMillis: Long = 5 * 1000
+        val timeInMillis: Long = 20 * 1000
 
         // Initialisation du CountDownTimer
         countDownTimer = object : CountDownTimer(timeInMillis, 1000) {

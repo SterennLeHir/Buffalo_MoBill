@@ -14,7 +14,6 @@ class DataExchange(private var handler : Handler?) : Thread() {
     private var shouldLoop = true
 
     override fun run() { // écoute et récupération des données
-        Log.d("DATAEXCHANGE","DataExchange thread running");
         while (shouldLoop) {
             try {
                 val available = inputStream.available()

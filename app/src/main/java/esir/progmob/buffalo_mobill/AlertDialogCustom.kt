@@ -41,6 +41,7 @@ class AlertDialogCustom(private val context : Context, private val titre : Strin
             } else {
                 onOkClicked(0) // On n'a pas de spinner
             }
+            buttonView.setBackgroundResource(R.drawable.gray_button)
         }
         dialog.setCancelable(false)
         return dialog

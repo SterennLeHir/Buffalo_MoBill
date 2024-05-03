@@ -39,7 +39,6 @@ class ScorePage : ComponentActivity() {
         theirScore = intent.getIntExtra("scoreAdversaire", 0)
         isFinished = intent.getBooleanExtra("isFinished", false)
         time = intent.getFloatExtra("time", 0f)
-        Log.d("DATAEXCHANGE", "isMulti : $isMulti, isServer : $isServer, myScore : $myScore, theirScore : $theirScore, isFinished : $isFinished")
         game = intent.getStringExtra("game")
 
         // On met à jour l'affichage des scores
@@ -88,7 +87,7 @@ class ScorePage : ComponentActivity() {
         val button = findViewById<TextView>(R.id.next)
         button.setOnClickListener {
             if (!isServer) {
-                Log.d("DATAEXCHANGE", "Le client envoie Next")
+                Log.d("DATAEXCHANGE", "[ScorePage] Le client envoie Next")
                 Multiplayer.Exchange.dataExchangeClient.write("Next")
                 val resultIntent = Intent()
                 resultIntent.putExtra("score", myScore)
@@ -106,12 +105,11 @@ class ScorePage : ComponentActivity() {
             override fun handleMessage(msg: Message) {
                 // Le message reçu indique qu'on doit retourner au menu des jeux
                 val resultIntent = Intent()
-                Log.d("DATAEXCHANGE", "[Serveur] Message received: " + msg.obj.toString())
-                Log.d("DATAEXCHANGE", "score : $myScore, scoreAdversaire : $theirScore")
+                Log.d("DATAEXCHANGE", "[ScorePage serveur] Message received: " + msg.obj.toString())
                 resultIntent.putExtra("score", myScore)
                 resultIntent.putExtra("scoreAdversaire", theirScore)
                 setResult(RESULT_OK, resultIntent)
-                Log.d("DATAEXCHANGE", "[Serveur] On retourne à la page des jeux")
+                Log.d("DATAEXCHANGE", "[ScorePage serveur] On retourne à la page des jeux")
                 finish()
             }
         }
@@ -131,9 +129,8 @@ class ScorePage : ComponentActivity() {
         // On ajoute un listener au bouton
         val button = findViewById<TextView>(R.id.next)
         button.setOnClickListener {
-            Log.d("DATAEXCHANGE", "isMulti : $isMulti, isServer : $isServer")
             if (!isServer) {
-                Log.d("DATAEXCHANGE", "Le client envoie Next")
+                Log.d("DATAEXCHANGE", "[ScorePage] Le client envoie Next")
                 Multiplayer.Exchange.dataExchangeClient.write("Next")
                 val resultIntent = Intent()
                 resultIntent.putExtra("score", myScore)
