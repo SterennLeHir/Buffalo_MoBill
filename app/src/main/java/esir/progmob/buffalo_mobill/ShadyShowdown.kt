@@ -247,11 +247,12 @@ class ShadyShowdown : Game(), SensorEventListener {
         } // on met à jour le handler
     }
 
+    /**
+     * Place l'image du bandit à un endroit aléatoire sur le bas de l'écran
+     */
     private fun placeImage() {
         val x = Random.nextInt(screenWidth - 100)
-        val y = Random.nextInt(screenHeight - 100)
         bandit.x = x.toFloat()
-        bandit.y = y.toFloat()
     }
 
     override fun onSensorChanged(event: SensorEvent?) {
