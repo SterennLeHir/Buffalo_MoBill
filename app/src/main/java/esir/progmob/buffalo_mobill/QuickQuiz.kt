@@ -305,7 +305,7 @@ class QuickQuiz : Game() {
                     scoreSent = true
                 }
             }
-        } else if (!isMulti) {
+        } else if (!isMulti) { // mode solo
             if (numberOfQuestions == 0) {
                 val intent = Intent(this, ScorePage::class.java)
                 intent.putExtra("score", score)
@@ -318,10 +318,10 @@ class QuickQuiz : Game() {
                     nextQuestion()
                 }, 2000)
             }
-        } else {
+        } else { // côté serveur
             Handler(Looper.getMainLooper()).postDelayed({
                 Multiplayer.Exchange.dataExchangeServer.write("Answered")
-            }, 2000)
+            }, 1000) // 1000 car prise en compte du temps d'envoi et de traitement du message
         }
     }
 
