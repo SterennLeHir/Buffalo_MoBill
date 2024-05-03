@@ -330,9 +330,9 @@ class GameList : ComponentActivity() {
                             intent.putExtra("isServer", true)
                             this@GameList.startActivityForResult(intent, 1)
                         }
-
                         else -> { // On envoie le nombre de parties
                             NUMBEROFPARTIESMAX = message.toInt()
+                            numberOfParties = 0
                             cleanStars()
                         }
                     }
@@ -391,7 +391,7 @@ class GameList : ComponentActivity() {
             scoreAdversaire = data?.getIntExtra("scoreAdversaire", 0) ?: 0
             Log.d("DATAEXCHANGE", "score : $score, scoreAdversaire : $scoreAdversaire")
             Log.d("DATAEXCHANGE", "numberOfParties : $numberOfParties")
-            if (score >= scoreAdversaire) {
+            if (score > scoreAdversaire) {
                 numberOfGamesWon++
                 Log.d("DATAEXCHANGE", "numberOfGamesWon : $numberOfGamesWon")
                 if (isMulti) starsList[numberOfGamesWon - 1].isInvisible = false // On affiche une nouvelle étoile
@@ -418,7 +418,9 @@ class GameList : ComponentActivity() {
                             Multiplayer.Exchange.dataExchangeClient.write("Ready")
                             isReady = true
                             if (isAdversaireReady) {
-                                Multiplayer.Exchange.dataExchangeClient.write(nextGame)
+                                Handler(Looper.getMainLooper()).postDelayed({
+                                    Multiplayer.Exchange.dataExchangeClient.write(nextGame)
+                                }, 2000) // temps de latence pour ne pas envoyer les deux messages en même temps
                                 alertDialog.dismiss()
                                 startActivityForResult(randomGame, 1)
                             }

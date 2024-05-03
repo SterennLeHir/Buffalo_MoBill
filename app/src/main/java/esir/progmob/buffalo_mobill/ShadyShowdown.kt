@@ -21,6 +21,7 @@ import android.widget.Chronometer
 import android.widget.ImageView
 import android.widget.RelativeLayout
 import androidx.activity.ComponentActivity
+import androidx.core.view.isInvisible
 import kotlin.random.Random
 
 
@@ -133,7 +134,8 @@ class ShadyShowdown : Game(), SensorEventListener {
             if (discover) {
                 // Victoire
                 score = 10 // Score du joueur
-
+                it.isInvisible = true
+                it.isClickable = false
                 if (isMulti){
                     victoryMulti(isServer)
                 }
@@ -143,7 +145,6 @@ class ShadyShowdown : Game(), SensorEventListener {
                     intent.putExtra("score", score)
                     intent.putExtra("time", time)
                     intent.putExtra("game", "ShadyShowdown")
-
                     startActivityForResult(intent, 1)
                 }
             }
