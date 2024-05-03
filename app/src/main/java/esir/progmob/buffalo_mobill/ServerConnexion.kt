@@ -64,7 +64,6 @@ class ServerConnexion : ComponentActivity() {
         mediaPlayer.stop()
         context.startActivity(intent)
         finish()
-        Log.d("CONNEXION", "finished")
     }
 
     @SuppressLint("MissingPermission")
@@ -90,7 +89,6 @@ class ServerConnexion : ComponentActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        mediaPlayer.stop()
         Log.d("CONNEXION", "ServerConnexion finished")
     }
 }

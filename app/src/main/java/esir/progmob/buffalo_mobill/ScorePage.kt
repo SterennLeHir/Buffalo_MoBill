@@ -115,7 +115,9 @@ class ScorePage : ComponentActivity() {
                 finish()
             }
         }
-        Multiplayer.Exchange.dataExchangeServer.setHandler(handler)
+        Multiplayer.Exchange.dataExchangeServer.cancel()
+        Multiplayer.Exchange.dataExchangeServer = DataExchange(handler)
+        Multiplayer.Exchange.dataExchangeServer.start()
     }
 
     private fun updateScoreMulti() {
@@ -150,12 +152,12 @@ class ScorePage : ComponentActivity() {
             mediaPlayer = MediaPlayer.create(this, R.raw.yeehaw)
             mediaPlayer.start()
         } else if (myScore < theirScore) {
+            mediaPlayer = MediaPlayer.create(this, R.raw.first_shoot)
             resultView.text = getString(R.string.lost)
             mediaPlayer.start()
             while (mediaPlayer.isPlaying) {
                 // On attend que le son se termine
             }
-            mediaPlayer = MediaPlayer.create(this, R.raw.first_shoot)
             mediaPlayer = MediaPlayer.create(this, R.raw.second_shoot)
             mediaPlayer.start()
         } else {

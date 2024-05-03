@@ -86,6 +86,21 @@ class QuickQuiz : Game() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        //On set le timer pour la question
+        var timeInMillis: Long = time.toLong() * 1000 // 5s par question
+        // Initialisation du CountDownTimer
+        countDownTimer = object : CountDownTimer(timeInMillis, 1000) {
+            override fun onTick(millisUntilFinished: Long) {
+                // Mise à jour de l'affichage du timer chaque seconde
+                seconds = millisUntilFinished / 1000
+                timer.text = "Temps restant : $seconds secondes"
+            }
+
+            override fun onFinish() {
+                timer.text = "Temps écoulé!"
+                gestionSynch()
+            }
+        }
         // Récupération des données fournies
         isMulti = intent.getBooleanExtra("isMulti", false)
         isServer = intent.getBooleanExtra("isServer", false)
@@ -319,27 +334,6 @@ class QuickQuiz : Game() {
         if (isMulti) { // on envoie le numéro question à l'autre joueur
             Multiplayer.Exchange.dataExchangeClient.write(questionNumber.toString())
         }
-
-        //On set le timer pour la question
-        val timeInMillis: Long = time.toLong() * 1000 // 5s par question
-
-        // Initialisation du CountDownTimer
-        countDownTimer = object : CountDownTimer(timeInMillis, 1000) {
-            override fun onTick(millisUntilFinished: Long) {
-                // Mise à jour de l'affichage du timer chaque seconde
-                seconds = millisUntilFinished / 1000
-                timer.text = "Temps restant : $seconds secondes"
-            }
-
-            override fun onFinish() {
-                timer.text = "Temps écoulé!"
-                gestionSynch()
-            }
-        }
-
-        // Démarrage du CountDownTimer
-        countDownTimer.start()
-
         // On met à jour les éléments graphiques
         setQuestion()
     }
@@ -376,6 +370,24 @@ class QuickQuiz : Game() {
         if (isMulti && numberOfQuestions == 0) {
             Log.d("DATAEXCHANGE", "[QuickQuiz] On est à la dernière question")
         }
+        //On set le timer pour la question
+        var timeInMillis: Long = time.toLong() * 1000 // 5s par question
+        // Initialisation du CountDownTimer
+        countDownTimer = object : CountDownTimer(timeInMillis, 1000) {
+            override fun onTick(millisUntilFinished: Long) {
+                // Mise à jour de l'affichage du timer chaque seconde
+                seconds = millisUntilFinished / 1000
+                timer.text = "Temps restant : $seconds secondes"
+            }
+
+            override fun onFinish() {
+                timer.text = "Temps écoulé!"
+                gestionSynch()
+            }
+        }
+
+        // Démarrage du CountDownTimer
+        countDownTimer.start()
     }
 
     /**

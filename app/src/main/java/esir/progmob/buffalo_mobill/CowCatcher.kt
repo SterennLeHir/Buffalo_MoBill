@@ -34,6 +34,7 @@ private const val DEBUG_TAG = "Gestures"
 
 class CowCatcher : Game(){
 
+
     private lateinit var parentView: FrameLayout
     private lateinit var lasso: ImageView
     private lateinit var cow: ImageView
@@ -43,6 +44,9 @@ class CowCatcher : Game(){
     private var context = this
     //timer
     private lateinit var countDownTimer: CountDownTimer
+
+    private var isAdversaireFinished: Boolean = false
+    private var isFinished : Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         //Constructeur et récupération du layout
@@ -120,7 +124,7 @@ class CowCatcher : Game(){
         //Timer
         // Définition du temps en millisecondes (30 secondes)
         val timer = findViewById<TextView>(R.id.timerView)
-        val timeInMillis: Long = 20 * 1000
+        val timeInMillis: Long = 5 * 1000
 
         // Initialisation du CountDownTimer
         countDownTimer = object : CountDownTimer(timeInMillis, 1000) {
@@ -140,12 +144,12 @@ class CowCatcher : Game(){
                     intent.putExtra("game", "CowCatcher")
                     startActivityForResult(intent, 1)
                 } else {
-                    scoreSent = if (isServer) {
-                        Multiplayer.Exchange.dataExchangeServer.write(score.toString())
-                        true
+                    if (isServer) {
+                        isFinished = true
+                        Multiplayer.Exchange.dataExchangeServer.write("Finished")
                     } else {
-                        Multiplayer.Exchange.dataExchangeClient.write(score.toString())
-                        true
+                        isFinished = true
+                        Multiplayer.Exchange.dataExchangeClient.write("Finished")
                     }
                 }
                 timer.text = "Temps écoulé!"
@@ -162,25 +166,37 @@ class CowCatcher : Game(){
                 Handler(Looper.getMainLooper()) { // quand on reçoit un message on lance l'activité
                 override fun handleMessage(msg: Message) {
                     val message = msg.obj.toString()
-                    Log.d("DATAEXCHANGE", "[CowCatcher Server] Message received: " + msg.obj.toString())
-                    if (msg.obj.toString().contains("Ready")) {
-                        Log.d("DATAEXCHANGE", "[CowCatcher] On peut lancer le jeu")
-                        alertDialog.dismiss()
-                        startGame()
-                    } else {
-                        // Quand on reçoit le score de l'adversaire on peut afficher la page de score
-                        scoreAdversaire = msg.obj.toString().toInt()
-                        if (!scoreSent) {
-                            Multiplayer.Exchange.dataExchangeServer.write(score.toString()) // On envoie 10 car c'est le score quand on gagne
-                            scoreSent = true
+                    Log.d(
+                        "DATAEXCHANGE",
+                        "[CowCatcher Server] Message received: " + msg.obj.toString()
+                    )
+                    when (message) {
+                        "Ready" -> {
+                            alertDialog.dismiss()
+                            startGame()
                         }
-                        val intent = Intent(this@CowCatcher, ScorePage::class.java)
-                        intent.putExtra("score", score)
-                        intent.putExtra("scoreAdversaire", scoreAdversaire)
-                        intent.putExtra("isMulti", true)
-                        intent.putExtra("isServer", isServer)
-                        Log.d("DATAEXCHANGE", "[CowCatcher Server] On lance la page de score")
-                        startActivityForResult(intent, 1)
+                        "Finished" -> {
+                            isAdversaireFinished = true
+                            if (isFinished) {
+                                Multiplayer.Exchange.dataExchangeServer.write(score.toString())
+                                scoreSent = true
+                            }
+                        }
+                        else -> {
+                            // Quand on reçoit le score de l'adversaire on peut afficher la page de score
+                            scoreAdversaire = message.toInt()
+                            if (!scoreSent) {
+                                Multiplayer.Exchange.dataExchangeServer.write(score.toString())
+                                scoreSent = true
+                            }
+                            val intent = Intent(this@CowCatcher, ScorePage::class.java)
+                            intent.putExtra("score", score)
+                            intent.putExtra("scoreAdversaire", scoreAdversaire)
+                            intent.putExtra("isMulti", true)
+                            intent.putExtra("isServer", isServer)
+                            Log.d("DATAEXCHANGE", "[CowCatcher Server] On lance la page de score")
+                            startActivityForResult(intent, 1)
+                        }
                     }
                 }
             }
@@ -193,27 +209,38 @@ class CowCatcher : Game(){
                 Handler(Looper.getMainLooper()) { // quand on reçoit un message on lance l'activité
                 override fun handleMessage(msg: Message) {
                     Log.d("DATAEXCHANGE", "[CowCatcher Client] Message received: " + msg.obj.toString())
-                    if (msg.obj.toString().contains("Ready")) {
-                        isAdversaireReady = true
-                        if (isReady) {
-                            Multiplayer.Exchange.dataExchangeClient.write("Ready")
-                            alertDialog.dismiss()
-                            startGame()
+                    val message = msg.obj.toString()
+                    when (message) {
+                        "Ready" -> {
+                            isAdversaireReady = true
+                            if (isReady) {
+                                Multiplayer.Exchange.dataExchangeClient.write("Ready")
+                                alertDialog.dismiss()
+                                startGame()
+                            }
                         }
-                    } else {
-                        // Quand on reçoit le score de l'adversaire on peut afficher la page de score
-                        scoreAdversaire = msg.obj.toString().toInt()
-                        if (!scoreSent) {
-                            Multiplayer.Exchange.dataExchangeClient.write(score.toString())
-                            scoreSent = true
+                        "Finished" -> {
+                            isAdversaireFinished = true
+                            if (isFinished) {
+                                Multiplayer.Exchange.dataExchangeServer.write(score.toString())
+                                scoreSent = true
+                            }
                         }
-                        val intent = Intent(this@CowCatcher, ScorePage::class.java)
-                        intent.putExtra("score", score)
-                        intent.putExtra("scoreAdversaire", scoreAdversaire)
-                        intent.putExtra("isMulti", true)
-                        intent.putExtra("isServer", isServer)
-                        Log.d("DATAEXCHANGE", "[CowCatcher Client] On lance la page de score")
-                        startActivityForResult(intent, 1)
+                        else -> {
+                            // Quand on reçoit le score de l'adversaire on peut afficher la page de score
+                            scoreAdversaire = message.toInt()
+                            if (!scoreSent) {
+                                Multiplayer.Exchange.dataExchangeClient.write(score.toString())
+                                scoreSent = true
+                            }
+                            val intent = Intent(this@CowCatcher, ScorePage::class.java)
+                            intent.putExtra("score", score)
+                            intent.putExtra("scoreAdversaire", scoreAdversaire)
+                            intent.putExtra("isMulti", true)
+                            intent.putExtra("isServer", isServer)
+                            Log.d("DATAEXCHANGE", "[CowCatcher Client] On lance la page de score")
+                            startActivityForResult(intent, 1)
+                        }
                     }
                 }
             }
