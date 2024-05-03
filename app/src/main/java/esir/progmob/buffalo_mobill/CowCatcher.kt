@@ -1,7 +1,4 @@
 package esir.progmob.buffalo_mobill
-
-import android.app.Activity
-import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.media.MediaPlayer
@@ -16,17 +13,13 @@ import android.util.TypedValue
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
-import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.view.animation.Animation
-import android.view.animation.Animation.AnimationListener
 import android.view.animation.TranslateAnimation
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toast
-import androidx.activity.ComponentActivity
 import kotlin.random.Random
 
 

@@ -291,6 +291,7 @@ class QuickQuiz : Game() {
 
     private fun gestionSynch(){
         isAnswered = true
+        showGoodAnswer()
         if (isMulti && !isServer) {
             if (isAdversaireAnswered) {
                 if (numberOfQuestions != 0) {
@@ -388,6 +389,25 @@ class QuickQuiz : Game() {
 
         // Démarrage du CountDownTimer
         countDownTimer.start()
+    }
+
+    private fun showGoodAnswer() {
+        val answer = answers[questionNumber]
+        when (answer) {
+            choice1.text -> {
+                choice1.setBackgroundResource(R.drawable.green_button)
+            }
+            choice2.text -> {
+                choice2.setBackgroundResource(R.drawable.green_button)
+            }
+            choice3.text -> {
+                choice3.setBackgroundResource(R.drawable.green_button)
+            }
+            choice4.text -> {
+                choice4.setBackgroundResource(R.drawable.green_button)
+            }
+        }
+
     }
 
     /**
