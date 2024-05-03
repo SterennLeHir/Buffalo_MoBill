@@ -145,18 +145,17 @@ class ScorePage : ComponentActivity() {
     }
 
     private fun compareResult(resultView: TextView) {
-        mediaPlayer = MediaPlayer.create(this, R.raw.first_shoot)
         if (myScore > theirScore) {
             resultView.text = getString(R.string.won)
             mediaPlayer = MediaPlayer.create(this, R.raw.yeehaw)
             mediaPlayer.start()
         } else if (myScore < theirScore) {
             resultView.text = getString(R.string.lost)
-            //Home.Music.mediaPlayer = MediaPlayer.create(this, R.raw.first_shoot)
             mediaPlayer.start()
             while (mediaPlayer.isPlaying) {
                 // On attend que le son se termine
             }
+            mediaPlayer = MediaPlayer.create(this, R.raw.first_shoot)
             mediaPlayer = MediaPlayer.create(this, R.raw.second_shoot)
             mediaPlayer.start()
         } else {
