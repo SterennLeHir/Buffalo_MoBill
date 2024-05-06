@@ -20,11 +20,12 @@ import androidx.activity.ComponentActivity
 
 class MilkMaster : Game() {
 
+
     protected var compteurLait = 0
     private val MAX_LAIT = 10
     private var fini = false
     private var isMilking = false // indique que le joueur est en train de traire la vache
-
+    private var initialY: Float = 0f
 
     //chronometre
     private lateinit var chronometer: Chronometer
@@ -186,6 +187,7 @@ class MilkMaster : Game() {
                             mediaPlayerCow.pause()
                         }, 2000) // Délai de 2 secondes
                     } else {
+                        initialY = event.y
                         true
                     }
 
@@ -193,9 +195,11 @@ class MilkMaster : Game() {
                 MotionEvent.ACTION_MOVE -> {
                     // L'utilisateur a déplacé son doigt sur l'écran
                     Log.d("SENSOR", "ACTION_MOVE")
-                    if (!mediaPlayerMilk.isPlaying && !waiting && !isMilking) {
-                        mediaPlayerMilk.start()
-                        isMilking = true
+                    if (event.y > initialY) { // Si le doigt descend sur l'écran
+                        if (!mediaPlayerMilk.isPlaying && !waiting && !isMilking) {
+                            mediaPlayerMilk.start()
+                            isMilking = true
+                        }
                     }
                     true
                 }
