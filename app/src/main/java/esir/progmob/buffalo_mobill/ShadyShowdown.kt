@@ -260,11 +260,12 @@ class ShadyShowdown : Game(), SensorEventListener {
             val lightValue = event.values[0].toInt() // lumière initiale
             if (!init && !isServer && gameBegan) {
                 maxLightValue = lightValue
-                if (maxLightValue <= 0){ //Attention /!\
+                if (maxLightValue <= 0){ // Attention /!\
                     maxLightValue = 1
                 }
                 lux = Random.nextInt(maxLightValue) + 10 // On veut une valeur entre 10 et la luminosité actuelle
-                //lux = 15
+                //precision
+                this.delta = (lux*10)/100; // 10% de la valeur de lux
                 Log.d("SENSOR", "[Client] Valeur voulue : $lux")
                 if (isMulti) {
                     Multiplayer.Exchange.dataExchangeServer.write("lux:$lux") // On envoie la valeur au serveur
@@ -278,8 +279,7 @@ class ShadyShowdown : Game(), SensorEventListener {
     }
 
     private fun updateOpacity(lightValue : Int) {
-        //precision
-        val delta = (lux * 10)/100
+
         if(!discover){
             if(lightValue > lux + delta){ //trop éclairé
                 black.visibility = View.INVISIBLE

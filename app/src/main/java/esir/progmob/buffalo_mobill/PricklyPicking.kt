@@ -218,6 +218,7 @@ class PricklyPicking : Game() {
                         alertDialog.dismiss()
                         startGame()
                     } else {
+                        mediaPlayer.pause()
                         // Quand on reçoit le score de l'adversaire on peut afficher la page de score
                         scoreAdversaire = msg.obj.toString().toInt()
                         if (!scoreSent) {
@@ -252,6 +253,7 @@ class PricklyPicking : Game() {
                         }
                     } else {
                         // Quand on reçoit le score de l'adversaire on peut afficher la page de score
+                        mediaPlayer.pause()
                         scoreAdversaire = msg.obj.toString().toInt()
                         if (!scoreSent) {
                             Multiplayer.Exchange.dataExchangeClient.write(score.toString())
@@ -312,7 +314,6 @@ class PricklyPicking : Game() {
         if (angleDegrees < 0) {
             angleDegrees += 360f
         }
-
         return angleDegrees
     }
 }
